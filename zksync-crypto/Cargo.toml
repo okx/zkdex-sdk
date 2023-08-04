@@ -10,6 +10,7 @@ license = "Apache-2.0"
 keywords = ["blockchain", "zksync"]
 categories = ["cryptography"]
 publish = false # This library is not published stand-alone, it is bundled with `zksync.js`.
+resolver = "2"
 
 [lib]
 crate-type = ["cdylib"]
@@ -18,12 +19,11 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev" }
+#delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev" }
 zkwasm-rust-sdk = { git = "https://github.com/DelphinusLab/zkWasm-rust.git" }
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
 rand = "0.4"
-#serde = { version = "1.0.152", features = ["derive"] }
-#serde_json = { version = "1.0.93" }
+mio = "0.7.12"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = { version = "1.0.93" }
 ff = {version = "0.12.1", default-features = false}
@@ -48,8 +48,7 @@ num-bigint = "0.4.3"
 pairing_ce="0.24.2"
 #executor={path="/Users/lvcong/rust/zkdex/core/lib/executor"}
 getrandom = {version="0.2",features=["js"]}
-mio = "0.7.12"
-num = { version = "0.4.0", features = ["serde"] }
+num = { versionm = "0.4.0", features = ["serde"] }
 lazy_static = "1.2.0"
 once_cell = "1.17.1"
 num-traits = "0.2.15"

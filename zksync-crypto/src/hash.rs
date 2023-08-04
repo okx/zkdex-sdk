@@ -2,11 +2,11 @@ use primitive_types::{H256, U256};
 use crate::new_public_key::PublicKeyType;
 
 
-pub use self::poseidon::poseidon_push;
+// pub use self::poseidon::poseidon_push;
 
-pub use self::poseidon::poseidon_new;
+// pub use self::poseidon::poseidon_new;
 
-pub use self::poseidon::poseidon_finalize;
+// pub use self::poseidon::poseidon_finalize;
 
 pub trait Hasher {
     fn update_single<T: ToHashable>(&mut self, _data: &T);
@@ -24,9 +24,10 @@ pub fn new_hasher() -> impl Hasher {
 
 }
 
+#[cfg(feature = "notwasm")]
 mod poseidon {
     use std::convert::TryInto;
-    use delphinus_zkwasm::foreign::hash_helper::poseidon::{PoseidonContext, POSEIDON_HASHER};
+    use zkwasm_rust_sdk::{PoseidonContext, POSEIDON_HASHER};
     use ff::PrimeField;
     use once_cell::sync::Lazy;
     use std::ops::DerefMut;
