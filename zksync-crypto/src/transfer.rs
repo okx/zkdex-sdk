@@ -3,8 +3,9 @@ use std::str::FromStr;
 
 use num_bigint::BigInt;
 use primitive_types::U256;
-use serde::{Deserialize, Deserializer, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
+use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
 
 use crate::common::{
     CONDITIONAL_TRANSFER_ORDER_TYPE,
@@ -14,10 +15,12 @@ use crate::common::OrderBase;
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
-use crate::sign_musig_without_hash_msg;
+use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
+use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+use crate::tx::TxSignature;
 use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
 
-#[derive(Debug, Clone,Deserialize)]
+#[derive(Debug, Clone,Deserialize,Serialize)]
 pub struct TransferRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -29,7 +32,7 @@ pub struct TransferRequest {
     pub receiver_position_id: PositionIdType,
     #[serde(rename = "amount")]
     pub amount: AmountType,
-    #[serde(rename = "asset_id", with="U256SerdeAsRadix16Prefix0xString")]
+    #[serde(rename = "asset_id", with = "U256SerdeAsRadix16Prefix0xString")]
     pub asset_id: CollateralAssetId,
 }
 
@@ -72,13 +75,14 @@ pub struct HashTransferRequest {
 
 
 pub fn sign_transfer(
-    transfer: TransferRequest,
-    private_key: &[u8],
-    condition: isize,
-) -> Result<Vec<u8>, JsValue> {
+    mut transfer: TransferRequest,
+    private_key: &str,
+) -> Result<TransferRequest, JsValue> {
     let hash = transfer_hash(&transfer, 0);
-    println!("{:?}", hex::encode(&hash.as_bytes()));
-    sign_musig_without_hash_msg(private_key, hash.as_bytes())
+    let private_key = private_key_from_string(private_key).unwrap();
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    transfer.base.signature = sig;
+    Ok(transfer)
 }
 
 #[derive(Default)]
@@ -160,27 +164,32 @@ pub fn transfer_hash(transfer: &TransferRequest, condition: u64) -> HashType {
 }
 
 #[test]
-pub fn test_sign() {
-    // let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    // let binding = hex::decode(&prv_key).unwrap();
-    // let prv_bytes = binding.as_slice();
-    // let pubbytes = private_key_to_pubkey_hash(prv_bytes).unwrap();
-    // let expire = 1684832800i64;
-    // let data = OffsetDateTime::from_unix_timestamp(expire).unwrap();
-    // let req = TransferRequest {
-    //     base: OrderBase {
-    //         nonce: 1,
-    //         public_key: Default::default(),
-    //         expiration_timestamp: data,
-    //     },
-    //     sender_position_id: 1,
-    //     receiver_public_key: Default::default(),
-    //     receiver_position_id: 1,
-    //     amount: BigInt::from(1),
-    //     asset_id: BigInt::from(1),
-    // };
-    // let data = serde_json::to_string(&req).unwrap();
-    // println!("{:?}", data);
-    // let sig = sign_transfer(req, prv_bytes, 0).unwrap();
-    // println!("{:?}", sig);
+pub fn test_sign_transfer() {
+    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let private_key = private_key_from_string(prv_key).unwrap();
+    let pub_key = public_key_from_private(&private_key);
+    let expire = 1684832800i64;
+    let pub_key = PublicKeyType::from(pub_key.clone());
+    let req = TransferRequest {
+        base: OrderBase {
+            nonce: 1,
+            public_key: pub_key.clone(),
+            expiration_timestamp: expire,
+            signature: JubjubSignature {
+                sig_r: BabyJubjubPoint {
+                    x: Default::default(),
+                    y: Default::default(),
+                },
+                sig_s: [0; 4],
+            },
+        },
+        sender_position_id: 0,
+        receiver_public_key: Default::default(),
+        amount: 1,
+        receiver_position_id: 0,
+        asset_id: Default::default(),
+    };
+
+    let w = sign_transfer(req, prv_key).unwrap();
+    println!("{:?}", w);
 }

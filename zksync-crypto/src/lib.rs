@@ -24,7 +24,7 @@ use js_ok_zksync_crypto::merkle_tree::rescue_hasher::BabyRescueHasher;
 use js_types::common::packed_public_key::PublicKeyType;
 pub use serde_wrapper::*;
 
-use crate::limit_order::ExchangeLimitOrderRequest;
+use crate::limit_order::LimitOrderRequest;
 use crate::transfer::TransferRequest;
 use crate::tx::h256_to_u256;
 use crate::tx::packed_signature::PackedSignature;
@@ -163,15 +163,13 @@ pub fn printAC(jsonBytes: &str) -> u64 {
 }
 
 #[wasm_bindgen]
-pub fn sign_transfer(json: &str, private_key: &[u8], condition: isize) -> Result<Vec<u8>, JsValue> {
-    let transfer: TransferRequest = serde_json::from_str(json).unwrap();
-    transfer::sign_transfer(transfer, private_key, condition)
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
-pub struct AssetIdWrapper {
-    #[serde(rename = "asset_id", with = "BigIntSerdeAsRadix16Prefix0xString")]
-    pub asset_id: BigInt,
+pub fn sign_transfer(json: &str, private_key: &str) -> Result<Vec<u8>, JsValue> {
+    let req: TransferRequest = serde_json::from_str(json).unwrap();
+    let ret = transfer::sign_transfer(req, private_key)?;
+    match serde_json::to_vec(&ret) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+    }
 }
 
 #[wasm_bindgen]
@@ -190,6 +188,17 @@ pub fn sign_withdraw(
 
 }
 
+#[wasm_bindgen]
+pub fn sign_limit_order(json: &str, private_key: &str) -> Result<Vec<u8>, JsValue> {
+    let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
+    let ret = limit_order::sign_limit_order(req, private_key)?;
+    match serde_json::to_vec(&ret) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+    }
+}
+
+
 fn hex_string_to_bigint(s: &str) -> BigInt {
     let num = BigInt::from_str_radix(
         s.trim_start_matches("0x")
@@ -206,11 +215,6 @@ fn hex_string_to_bigint(s: &str) -> BigInt {
     }
 }
 
-#[wasm_bindgen]
-pub fn sign_limit_order(json: &str, private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let transfer: ExchangeLimitOrderRequest = serde_json::from_str(json).unwrap();
-    limit_order::sign_limit_order(transfer, private_key)
-}
 
 #[wasm_bindgen]
 pub fn printC(jsonBytes: &str) -> u64 {
