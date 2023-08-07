@@ -11,7 +11,7 @@ use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
 use thiserror::Error;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 pub struct SignatureSerde;
 

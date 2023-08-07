@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Serialize};
-use zkwasm_rust_sdk::BabyJubjubPoint;
 use crate::tx::packed_public_key::{fr_to_u256, is_address, PackedPublicKey};
 use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
+use crate::zkw::BabyJubjubPoint;
 
 
 #[derive(Debug, Clone, PartialEq)]

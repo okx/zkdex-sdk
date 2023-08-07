@@ -4,7 +4,7 @@ use num_bigint::BigInt;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+
 
 use js_types::common::params::LIMIT_ORDER_WITH_FEES;
 
@@ -17,6 +17,7 @@ use crate::sign_musig_without_hash_msg;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 #[derive(Clone, Debug, Deserialize,Serialize)]
 pub struct LimitOrderRequest {

@@ -14,7 +14,7 @@ use primitive_types::{H256, U256};
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error as ThisError;
-use zkwasm_rust_sdk::BabyJubjubPoint;
+use crate::zkw::BabyJubjubPoint;
 
 pub type PrivateKeyType = PrivateKey<Bn256>;
 

@@ -16,7 +16,7 @@ use std::time::Duration;
 use pairing_ce as ef;
 use ef::ff::{PrimeField, PrimeFieldRepr};
 use time::OffsetDateTime;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 /// zkSync transaction signature.
 ///

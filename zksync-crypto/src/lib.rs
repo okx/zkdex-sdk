@@ -16,7 +16,7 @@ use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
-use zkwasm_rust_sdk::BabyJubjubPoint;
+
 
 pub use convert::*;
 pub use format::*;
@@ -51,6 +51,7 @@ pub mod format;
 pub mod serde_wrapper;
 pub mod tx;
 mod hash;
+mod zkw;
 
 const PACKED_POINT_SIZE: usize = 32;
 const PACKED_SIGNATURE_SIZE: usize = 64;

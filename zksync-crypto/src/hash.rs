@@ -24,69 +24,10 @@ pub fn new_hasher() -> impl Hasher {
 
 }
 
-#[cfg(feature = "notwasm")]
-mod poseidon {
-    use std::convert::TryInto;
-    use zkwasm_rust_sdk::{PoseidonContext, POSEIDON_HASHER};
-    use ff::PrimeField;
-    use once_cell::sync::Lazy;
-    use std::ops::DerefMut;
-
-    static mut CONTEXT: Lazy<PoseidonContext> = Lazy::new(|| PoseidonContext::default());
-
-    #[no_mangle]
-    pub extern "C" fn poseidon_new(x: u64) {
-        let context = unsafe { &mut CONTEXT };
-        context.buf = vec![];
-        let new = x;
-        if new != 0 {
-            context.hasher = Some(POSEIDON_HASHER.clone());
-        }
-    }
-
-    #[no_mangle]
-    pub extern "C" fn poseidon_push(x: u64) {
-        let context = unsafe { CONTEXT.deref_mut() };
-        context.fieldreducer.reduce(x);
-        if context.fieldreducer.cursor == 0 {
-            context
-                .buf
-                .push(context.fieldreducer.rules[0].field_value().unwrap())
-        }
-    }
-
-    #[no_mangle]
-    pub extern "C" fn poseidon_finalize() -> u64 {
-        let context = unsafe { CONTEXT.deref_mut() };
-        if context.generator.cursor == 0 {
-            let s = context.hasher.as_ref().unwrap();
-            let r = s
-                .clone()
-                .update_exact(&context.buf.clone().try_into().unwrap());
-            let dwords: Vec<u8> = r.to_repr().to_vec();
-            context.generator.values = dwords
-                .chunks(8)
-                .map(|x| u64::from_le_bytes(x.to_vec().try_into().unwrap()))
-                .collect::<Vec<u64>>();
-            // context.hasher.as_ref().map(|s| {
-            //     let r = s
-            //         .clone()
-            //         .update_exact(&context.buf.clone().try_into().unwrap());
-            //     let dwords: Vec<u8> = r.to_repr().to_vec();
-            //     context.generator.values = dwords
-            //         .chunks(8)
-            //         .map(|x| u64::from_le_bytes(x.to_vec().try_into().unwrap()))
-            //         .collect::<Vec<u64>>();
-            // });
-        }
-        context.generator.gen()
-    }
-}
-
 mod zkw {
     use super::*;
-    use zkwasm_rust_sdk::PoseidonHasher;
     use crate::new_public_key::u256_to_h256;
+    use crate::zkw::PoseidonHasher;
 
     pub struct Poseidon {
         poseidon: PoseidonHasher,
@@ -199,9 +140,10 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> H256 {
 #[cfg(test)]
 mod test {
     use primitive_types::U256;
-    use zkwasm_rust_sdk::BabyJubjubPoint;
     use crate::hash::ToHashable;
     use crate::new_public_key::PublicKeyType;
+    use crate::zkw::BabyJubjubPoint;
+
     #[test]
     fn test_to_hash() {
         let pk = PublicKeyType {

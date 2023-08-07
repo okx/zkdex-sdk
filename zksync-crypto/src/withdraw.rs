@@ -4,7 +4,6 @@ use num_bigint::BigInt;
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
 
 use crate::common::OrderBase;
 use crate::constant::{AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256, POSITION_ID_UPPER_BOUND_U256};
@@ -16,6 +15,7 @@ use crate::tx::packed_public_key::{PackedPublicKey, private_key_from_string, pub
 use crate::tx::TxSignature;
 use crate::types::h256_to_u256;
 use crate::utils::fr_from_bigint;
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 // use wasm_bindgen::JsValue;
 // use time::OffsetDateTime;
