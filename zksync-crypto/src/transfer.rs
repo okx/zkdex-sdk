@@ -5,22 +5,19 @@ use num_bigint::BigInt;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+use crate::hash_lib::{BabyJubjubPoint, JubjubSignature};
 
-use crate::common::{
-    CONDITIONAL_TRANSFER_ORDER_TYPE,
-    TRANSFER_ORDER_TYPE,
-};
 use crate::common::OrderBase;
+use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
-use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
+use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
 
-#[derive(Debug, Clone,Deserialize,Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TransferRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -72,7 +69,6 @@ pub struct HashTransferRequest {
 //         }
 //     }
 // }
-
 
 pub fn sign_transfer(
     mut transfer: TransferRequest,
@@ -146,7 +142,6 @@ fn internal_transfer_hash(transfer: &ExchangeTransfer, condition: u64) -> HashTy
 
     hash2(&msg, &packed_message1)
 }
-
 
 pub fn transfer_hash(transfer: &TransferRequest, condition: u64) -> HashType {
     let mut exchange_transfer = ExchangeTransfer::default();

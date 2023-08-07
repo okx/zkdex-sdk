@@ -5,12 +5,12 @@ use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
 use js_ok_zksync_crypto::{
-    Engine,
     franklin_crypto::{
-        alt_babyjubjub::{AltJubjubBn256, edwards},
+        alt_babyjubjub::{edwards, AltJubjubBn256},
         eddsa::PublicKey,
     },
     params::JUBJUB_PARAMS,
+    Engine,
 };
 
 lazy_static! {

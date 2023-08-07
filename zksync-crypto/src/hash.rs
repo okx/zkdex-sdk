@@ -1,6 +1,5 @@
-use primitive_types::{H256, U256};
 use crate::new_public_key::PublicKeyType;
-
+use primitive_types::{H256, U256};
 
 // pub use self::poseidon::poseidon_push;
 
@@ -21,16 +20,15 @@ pub trait Hasher {
 
 pub fn new_hasher() -> impl Hasher {
     return zkw::Poseidon::new();
-
 }
 
 #[cfg(feature = "notwasm")]
 mod poseidon {
-    use std::convert::TryInto;
-    use zkwasm_rust_sdk::{PoseidonContext, POSEIDON_HASHER};
     use ff::PrimeField;
     use once_cell::sync::Lazy;
+    use std::convert::TryInto;
     use std::ops::DerefMut;
+    use zkwasm_rust_sdk::{PoseidonContext, POSEIDON_HASHER};
 
     static mut CONTEXT: Lazy<PoseidonContext> = Lazy::new(|| PoseidonContext::default());
 
@@ -84,9 +82,10 @@ mod poseidon {
 }
 
 mod zkw {
+    use crate::hash_lib::PoseidonHasher;
     use super::*;
-    use zkwasm_rust_sdk::PoseidonHasher;
     use crate::new_public_key::u256_to_h256;
+
 
     pub struct Poseidon {
         poseidon: PoseidonHasher,
@@ -198,10 +197,10 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> H256 {
 
 #[cfg(test)]
 mod test {
-    use primitive_types::U256;
-    use zkwasm_rust_sdk::BabyJubjubPoint;
     use crate::hash::ToHashable;
     use crate::new_public_key::PublicKeyType;
+    use primitive_types::U256;
+    use crate::hash_lib::{BabyJubjubPoint, JubjubSignature};
     #[test]
     fn test_to_hash() {
         let pk = PublicKeyType {

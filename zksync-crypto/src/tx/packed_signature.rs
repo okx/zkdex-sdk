@@ -5,13 +5,13 @@ use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::eddsa::Signature;
 use franklin_crypto::jubjub::edwards::Point;
 use franklin_crypto::jubjub::{edwards, Unknown};
-use pairing_ce::bn256::{Bn256, Fr};
 use pairing_ce as ef;
+use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
 use thiserror::Error;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+use crate::hash_lib::{BabyJubjubPoint, JubjubSignature};
 
 pub struct SignatureSerde;
 
@@ -106,10 +106,10 @@ fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
     use super::*;
     use crate::tx::packed_public_key::fr_to_u256;
     use serde::{Deserialize, Serialize};
+    use std::convert::TryInto;
 
     #[derive(Serialize, Deserialize)]
     pub struct OrderBase {

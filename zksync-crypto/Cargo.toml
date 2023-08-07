@@ -20,14 +20,14 @@ default = ["console_error_panic_hook"]
 
 [dependencies]
 #delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev" }
-zkwasm-rust-sdk = { git = "https://github.com/DelphinusLab/zkWasm-rust.git" }
+#zkwasm-rust-sdk = { git = "https://github.com/DelphinusLab/zkWasm-rust.git"}
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
 rand = "0.4"
 mio = "0.7.12"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = { version = "1.0.93" }
 ff = {version = "0.12.1", default-features = false}
-wasm-bindgen="=0.2.87"
+wasm-bindgen="=0.2.74"
 hex = "0.4"
 sha2 = "0.8"
 

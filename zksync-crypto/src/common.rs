@@ -4,10 +4,11 @@ use num_bigint::BigInt;
 use once_cell::sync::Lazy;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+use crate::hash_lib::{BabyJubjubPoint, JubjubSignature};
 
-use crate::I64SerdeAsString;
+
 use crate::new_public_key::PublicKeyType;
+use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
 pub static NONCE_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(32));
@@ -25,7 +26,7 @@ use crate::tx::packed_signature::SignatureSerde;
 
 pub type TimestampType = i64;
 
-#[derive(Debug, Clone, PartialEq, Deserialize,Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct OrderBase {
     #[serde(rename = "nonce", with = "U64SerdeAsString")]
     pub nonce: u64,

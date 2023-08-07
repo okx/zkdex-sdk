@@ -2,21 +2,21 @@
 //! This crate is compiled into wasm to be used in `zksync.js`.
 use std::str::FromStr;
 
+pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
+use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
-    alt_babyjubjub::{AltJubjubBn256, edwards, FixedGenerators, fs::FsRepr},
+    alt_babyjubjub::{edwards, fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
     eddsa::{PrivateKey, PublicKey, Seed, Signature as EddsaSignature},
     jubjub::JubjubEngine,
 };
-pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
-use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use num_bigint::BigInt;
 use num_traits::Num;
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
-use zkwasm_rust_sdk::BabyJubjubPoint;
+
 
 pub use convert::*;
 pub use format::*;
@@ -33,24 +33,24 @@ use crate::utils::set_panic_hook;
 use crate::withdraw::{CollateralAssetId, WithdrawRequest};
 
 mod common;
+mod constant;
+mod convert;
 mod fr;
 mod limit_order;
 mod models;
+mod new_public_key;
 mod transfer;
+mod types;
 mod utils;
 mod withdraw;
-mod types;
-mod constant;
-mod new_public_key;
-mod convert;
-
 
 pub mod byte_tools;
 pub mod env_tools;
 pub mod format;
+mod hash;
 pub mod serde_wrapper;
 pub mod tx;
-mod hash;
+mod hash_lib;
 
 const PACKED_POINT_SIZE: usize = 32;
 const PACKED_SIGNATURE_SIZE: usize = 64;
@@ -185,7 +185,6 @@ pub fn sign_withdraw(
         Ok(ret) => Ok(ret),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
-
 }
 
 #[wasm_bindgen]
@@ -198,7 +197,6 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<Vec<u8>, JsValu
     }
 }
 
-
 fn hex_string_to_bigint(s: &str) -> BigInt {
     let num = BigInt::from_str_radix(
         s.trim_start_matches("0x")
@@ -207,14 +205,13 @@ fn hex_string_to_bigint(s: &str) -> BigInt {
             .trim_start_matches("-0X"),
         16,
     )
-        .unwrap();
+    .unwrap();
     if s.starts_with('-') {
         -num
     } else {
         num
     }
 }
-
 
 #[wasm_bindgen]
 pub fn printC(jsonBytes: &str) -> u64 {
@@ -399,7 +396,6 @@ fn deserialize_signature(bytes: &[u8]) -> Result<Signature, JsValue> {
     Ok(Signature { r, s })
 }
 
-
 #[test]
 pub fn test_sign_withdraw() {
     let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
@@ -418,7 +414,7 @@ pub fn test_sign_withdraw() {
         "0x2c016e767840eb2cf7541b50619d9cafec1fbef4e46f29d2303452a7e19e222",
         prv_key,
     )
-        .unwrap();
+    .unwrap();
     let r = &signature[32..64];
     let s = &signature[64..];
     println!("r:{:?},s:{:?}", hex::encode(r), hex::encode(s));

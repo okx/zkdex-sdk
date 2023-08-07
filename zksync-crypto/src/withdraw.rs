@@ -1,21 +1,27 @@
-use std::convert::TryFrom;
 use franklin_crypto::redjubjub::PrivateKey;
 use num_bigint::BigInt;
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::convert::TryFrom;
 use wasm_bindgen::JsValue;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+
 
 use crate::common::OrderBase;
-use crate::constant::{AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256, POSITION_ID_UPPER_BOUND_U256};
+use crate::constant::{
+    AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
+    POSITION_ID_UPPER_BOUND_U256,
+};
 
-use crate::new_public_key::PublicKeyType;
-use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
 use crate::hash::hash2;
-use crate::tx::packed_public_key::{PackedPublicKey, private_key_from_string, public_key_from_private};
+use crate::new_public_key::PublicKeyType;
+use crate::tx::packed_public_key::{
+    private_key_from_string, public_key_from_private, PackedPublicKey,
+};
 use crate::tx::TxSignature;
 use crate::types::h256_to_u256;
 use crate::utils::fr_from_bigint;
+use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
+use crate::hash_lib::{BabyJubjubPoint, JubjubSignature};
 
 // use wasm_bindgen::JsValue;
 // use time::OffsetDateTime;
@@ -24,7 +30,7 @@ use crate::utils::fr_from_bigint;
 pub type AmountType = u64;
 pub type PositionIdType = u64;
 
-#[derive(Clone, Debug, Deserialize,Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -85,7 +91,6 @@ pub fn withdrawal_hash(
 
     hash2(&packed_message0, &packed_message1)
 }
-
 
 #[test]
 pub fn test_withdraw() {
