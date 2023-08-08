@@ -1,6 +1,4 @@
 [workspace]
 members = [
     "zksync-crypto",
-    "ok_zksync_crypto",
-    "types",
 ]

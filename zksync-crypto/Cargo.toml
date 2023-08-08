@@ -62,8 +62,8 @@ bigdecimal = { version = "=0.3.0", features = ["serde"]}
 #rust-crypto="0.2.12"
 #crypto_lib={git="https://github.com/matter-labs/zksync.git",package="zksync_crypto"}
 #openssl = { version = "0.10.52", features = ["vendored"] }
-js_ok_zksync_crypto = { path = "../ok_zksync_crypto", version = "0.1.0" }
-js_types={path="../types"}
+#js_ok_zksync_crypto = { path = "../ok_zksync_crypto", version = "0.1.0" }
+#js_types={path="../types"}
 poseidon = { git = "https://github.com/lanbones/poseidon" }
 #delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev", optional = true }
 [profile.release]

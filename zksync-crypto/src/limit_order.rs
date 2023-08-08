@@ -1,22 +1,22 @@
 use std::ops::ShlAssign;
 
-use num_bigint::BigInt;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
-use js_types::common::params::LIMIT_ORDER_WITH_FEES;
-
 use crate::common::OrderBase;
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
-use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 pub use crate::serde_wrapper::*;
-use crate::sign_musig_without_hash_msg;
+use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::zkw::JubjubSignature;
+
+const LIMIT_ORDER_WITH_FEES: u64 = 3;
+const TRANSFER_ORDER_TYPE: u64 = 4;
+const CONDITIONAL_TRANSFER_ORDER_TYPE: u64 = 5;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LimitOrderRequest {

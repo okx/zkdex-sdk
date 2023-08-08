@@ -19,13 +19,13 @@ use wasm_bindgen::prelude::*;
 
 pub use convert::*;
 pub use format::*;
-use js_ok_zksync_crypto::merkle_tree::rescue_hasher::BabyRescueHasher;
-use js_types::common::packed_public_key::PublicKeyType;
+
 pub use serde_wrapper::*;
 
 use crate::limit_order::LimitOrderRequest;
 use crate::transfer::TransferRequest;
 use crate::tx::h256_to_u256;
+use crate::tx::packed_public_key::PublicKeyType;
 use crate::tx::packed_signature::{PackedSignature, SignatureSerde};
 use crate::tx::sign::TxSignature;
 use crate::utils::set_panic_hook;
@@ -61,7 +61,7 @@ thread_local! {
     pub static RESCUE_PARAMS: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
 }
 lazy_static::lazy_static! {
-    pub static ref RESCUE_HASHER: BabyRescueHasher = BabyRescueHasher::default();
+    // pub static ref RESCUE_HASHER: BabyRescueHasher = BabyRescueHasher::default();
     pub static ref RESCUE_PARAMS_CONST: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
 }
 
