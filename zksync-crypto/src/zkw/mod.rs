@@ -1,8 +1,9 @@
 mod poseidon;
 
+use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
 use halo2_proofs::arithmetic::FieldExt;
 use primitive_types::U256;
-use crate::zkw::poseidon::{POSEIDON_HASHER, PoseidonContext};
+use serde::{Serialize, Serializer};
 
 pub struct PoseidonHasher {
     x: u64,
@@ -65,7 +66,6 @@ impl PoseidonHasher {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct BabyJubjubPoint {
     pub x: U256,
@@ -90,7 +90,7 @@ pub fn negative_of_fr(b: &[u64; 4]) -> [u64; 4] {
             a[i] -= b[i] + borrow;
             borrow = 0;
         }
-    };
+    }
     a
 }
 
@@ -147,6 +147,8 @@ impl BabyJubjubPoint {
     // }
 }
 
+use crate::tx::packed_signature::SignatureSerde;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct JubjubSignature {
     pub sig_r: BabyJubjubPoint,
@@ -158,8 +160,18 @@ pub struct JubjubSignature {
 // let rhs = p_g.mul_scalar(&sig_s);
 
 const NEG_BASE: BabyJubjubPoint = BabyJubjubPoint {
-    x: U256([5098030607081443850, 11739138394996609992, 7617911478965053006, 103675969630295906]),
-    y: U256([10973966134842004663, 8445032247919564157, 8665528646177973254, 405343104476405055]),
+    x: U256([
+        5098030607081443850,
+        11739138394996609992,
+        7617911478965053006,
+        103675969630295906,
+    ]),
+    y: U256([
+        10973966134842004663,
+        8445032247919564157,
+        8665528646177973254,
+        405343104476405055,
+    ]),
 };
 
 impl JubjubSignature {

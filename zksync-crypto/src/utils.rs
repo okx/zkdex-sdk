@@ -1,15 +1,15 @@
+use franklin_crypto::bellman::Field;
 use franklin_crypto::{
-    bellman::{BitIterator, pairing::ff::PrimeField},
+    bellman::{pairing::ff::PrimeField, BitIterator},
     circuit::multipack,
     eddsa::PublicKey,
     rescue::rescue_hash,
 };
-use franklin_crypto::bellman::Field;
 use num::Zero;
 use num_bigint::BigInt;
 
-use crate::{Engine, Fr};
 use crate::RESCUE_PARAMS;
+use crate::{Engine, Fr};
 
 const PAD_MSG_BEFORE_HASH_BITS_LEN: usize = 736;
 const NEW_PUBKEY_HASH_WIDTH: usize = 160;

@@ -6,21 +6,18 @@ use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
-use crate::common::{
-    CONDITIONAL_TRANSFER_ORDER_TYPE,
-    TRANSFER_ORDER_TYPE,
-};
 use crate::common::OrderBase;
+use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
-use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
 
-#[derive(Debug, Clone,Deserialize,Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TransferRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -73,16 +70,14 @@ pub struct HashTransferRequest {
 //     }
 // }
 
-
 pub fn sign_transfer(
     mut transfer: TransferRequest,
     private_key: &str,
-) -> Result<TransferRequest, JsValue> {
+) -> Result<JubjubSignature, JsValue> {
     let hash = transfer_hash(&transfer, 0);
     let private_key = private_key_from_string(private_key).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
-    transfer.base.signature = sig;
-    Ok(transfer)
+    Ok(sig)
 }
 
 #[derive(Default)]
@@ -147,7 +142,6 @@ fn internal_transfer_hash(transfer: &ExchangeTransfer, condition: u64) -> HashTy
     hash2(&msg, &packed_message1)
 }
 
-
 pub fn transfer_hash(transfer: &TransferRequest, condition: u64) -> HashType {
     let mut exchange_transfer = ExchangeTransfer::default();
     exchange_transfer.base = transfer.base.clone();
@@ -175,13 +169,6 @@ pub fn test_sign_transfer() {
             nonce: 1,
             public_key: pub_key.clone(),
             expiration_timestamp: expire,
-            signature: JubjubSignature {
-                sig_r: BabyJubjubPoint {
-                    x: Default::default(),
-                    y: Default::default(),
-                },
-                sig_s: [0; 4],
-            },
         },
         sender_position_id: 0,
         receiver_public_key: Default::default(),

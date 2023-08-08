@@ -4,19 +4,19 @@ use crate::tx::packed_public_key::{
 };
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::{h256_to_u256, JUBJUB_PARAMS};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use ef::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::alt_babyjubjub::fs::Fs;
 use franklin_crypto::eddsa::{PrivateKey, Seed};
 use franklin_crypto::jubjub::FixedGenerators;
+use pairing_ce as ef;
 use pairing_ce::bn256::Bn256;
 use primitive_types::H256;
 use rand::{Rng, SeedableRng, XorShiftRng};
 use std::fmt::{Debug, Formatter};
 use std::thread::sleep;
 use std::time::Duration;
-use pairing_ce as ef;
-use ef::ff::{PrimeField, PrimeFieldRepr};
 use time::OffsetDateTime;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 /// zkSync transaction signature.
 ///

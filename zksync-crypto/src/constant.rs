@@ -87,8 +87,8 @@ pub const RANGE_CHECK_BOUND_BYTES_LE: [u8; 32] = [
 // PRIME = 2**251 + 17 * 2**192 + 1
 pub const PRIME: U256 = U256([1, 0, 0, 576460752303423505]); // 0x0800000000000011000000000000000000000000000000000000000000000001
 pub const PRIME_BYTES_LE: [u8; 32] = [
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 8,
-    ];
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 8,
+];
 
 pub fn get_prime_as_bigint() -> BigInt {
     BigInt::from_bytes_le(num_bigint::Sign::Plus, &PRIME_BYTES_LE)

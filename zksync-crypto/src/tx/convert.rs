@@ -4,11 +4,8 @@ use pairing_ce as ef;
 
 use thiserror::Error;
 
-
 #[derive(Debug, Error)]
 pub enum ConversionError {
-
-
     #[error("Incorrect input size. Actual: {size}, expected: {expected_size}")]
     IncorrectInputSize { size: usize, expected_size: usize },
     #[error("Cannot decode hex: {0}")]
@@ -21,7 +18,6 @@ pub enum ConversionError {
 
 /// Extension trait denoting common conversion method for field elements.
 pub trait FeConvert: ef::ff::PrimeField {
-
     /// Converts the field element into a byte array.
     fn to_bytes(&self) -> Vec<u8> {
         let mut buf: Vec<u8> = Vec::with_capacity(32);

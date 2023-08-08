@@ -1,4 +1,3 @@
-use std::convert::{TryFrom, TryInto};
 use super::convert::FeConvert;
 use crate::tx::packed_signature::get_xy_from_r;
 use crate::tx::{h256_to_u256, JUBJUB_PARAMS};
@@ -7,14 +6,15 @@ use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::bellman::bn256::Fr;
 use franklin_crypto::eddsa::{PrivateKey, PublicKey, Signature};
 use franklin_crypto::jubjub::{edwards, FixedGenerators, JubjubEngine};
-use pairing_ce::bn256::{Bn256, FrRepr};
 use pairing_ce as ef;
+use pairing_ce::bn256::{Bn256, FrRepr};
+use std::convert::{TryFrom, TryInto};
 
+use crate::zkw::BabyJubjubPoint;
 use primitive_types::{H256, U256};
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error as ThisError;
-use crate::zkw::BabyJubjubPoint;
 
 pub type PrivateKeyType = PrivateKey<Bn256>;
 

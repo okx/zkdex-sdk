@@ -1,9 +1,9 @@
-use std::convert::TryInto;
+use crate::zkw::{Reduce, ReduceRule};
 use ff::PrimeField;
 use halo2_proofs::pairing::bn256::Fr;
 use pairing_ce::ff::Field;
 use poseidon::Poseidon;
-use crate::zkw::{Reduce, ReduceRule};
+use std::convert::TryInto;
 
 /// Foreign functions that supports the following C code library
 ///
@@ -49,10 +49,7 @@ impl Generator {
 }
 
 pub fn new_reduce(rules: Vec<ReduceRule<Fr>>) -> Reduce<Fr> {
-    Reduce {
-        cursor: 0,
-        rules,
-    }
+    Reduce { cursor: 0, rules }
 }
 
 pub struct PoseidonContext {
@@ -85,7 +82,8 @@ impl PoseidonContext {
     pub fn poseidon_push(&mut self, v: u64) {
         self.fieldreducer.reduce(v);
         if self.fieldreducer.cursor == 0 {
-            self.buf.push(self.fieldreducer.rules[0].field_value().unwrap())
+            self.buf
+                .push(self.fieldreducer.rules[0].field_value().unwrap())
         }
     }
 
@@ -93,11 +91,14 @@ impl PoseidonContext {
         assert!(self.buf.len() == 8);
         if self.generator.cursor == 0 {
             let s = self.hasher.as_ref().unwrap();
-            let r = s.clone().update_exact(&self.buf.clone().try_into().unwrap());
+            let r = s
+                .clone()
+                .update_exact(&self.buf.clone().try_into().unwrap());
             let dwords: Vec<u8> = r.to_repr().to_vec();
-            self.generator.values = dwords.chunks(8).map(|x| {
-                u64::from_le_bytes(x.to_vec().try_into().unwrap())
-            }).collect();
+            self.generator.values = dwords
+                .chunks(8)
+                .map(|x| u64::from_le_bytes(x.to_vec().try_into().unwrap()))
+                .collect();
             // self.hasher.as_ref().map(|s| {
             //     println!("perform hash with {:?}", self.buf);
             //     let r = s.clone().update_exact(&self.buf.clone().try_into().unwrap());
@@ -114,10 +115,10 @@ impl PoseidonContext {
 mod anposeidon {
     use std::convert::TryInto;
     // use zkwasm_rust_sdk::{PoseidonContext, POSEIDON_HASHER};
+    use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
     use ff::PrimeField;
     use once_cell::sync::Lazy;
     use std::ops::DerefMut;
-    use crate::zkw::poseidon::{POSEIDON_HASHER, PoseidonContext};
 
     static mut CONTEXT: Lazy<PoseidonContext> = Lazy::new(|| PoseidonContext::default());
 

@@ -1,16 +1,14 @@
 use std::cmp::Ordering;
 
-use primitive_types::{H256, U256};
-use serde::{Deserialize, Serialize};
 use crate::tx::packed_public_key::{fr_to_u256, is_address, PackedPublicKey};
 use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
 use crate::zkw::BabyJubjubPoint;
-
+use primitive_types::{H256, U256};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq)]
 #[repr(C)]
 pub struct PublicKeyType(pub BabyJubjubPoint);
-
 
 impl PublicKeyType {
     pub fn get_y_h256(&self) -> H256 {
@@ -52,7 +50,6 @@ impl From<PackedPublicKey> for PublicKeyType {
     }
 }
 
-
 impl Into<PackedPublicKey> for PublicKeyType {
     fn into(self) -> PackedPublicKey {
         let r = get_r_from_xy(&self.0.x, &self.0.y);
@@ -63,8 +60,8 @@ impl Into<PackedPublicKey> for PublicKeyType {
 // #[cfg(feature = "notwasm")]
 impl Serialize for PublicKeyType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         let x = u256_to_h256(&self.0.x);
         let y = u256_to_h256(&self.0.y);
@@ -75,8 +72,8 @@ impl Serialize for PublicKeyType {
 // #[cfg(feature = "notwasm")]
 impl<'de> Deserialize<'de> for PublicKeyType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
+    where
+        D: serde::Deserializer<'de>,
     {
         let key = PackedPublicKey::deserialize(deserializer)?;
         let ret = PublicKeyType::from(key);
@@ -174,7 +171,7 @@ mod tests {
             PackedPublicKey::new_address_public_key(
                 "0x8b6c8fd93d6f4cea42bbb345dbc6f0dfdb5bec73".to_string(),
             )
-                .into(),
+            .into(),
         );
         let temp = TmpSerde { v: key };
         let str = serde_json::to_string(&temp).unwrap();

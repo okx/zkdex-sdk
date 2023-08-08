@@ -1,17 +1,17 @@
 use crate::tx::packed_public_key::h256_to_fr;
 use crate::tx::{h256_to_u256, u256_to_h256, JUBJUB_PARAMS};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use crate::U8Array32SerdeAsStringWith0x;
 use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::eddsa::Signature;
 use franklin_crypto::jubjub::edwards::Point;
 use franklin_crypto::jubjub::{edwards, Unknown};
-use pairing_ce::bn256::{Bn256, Fr};
 use pairing_ce as ef;
+use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
 use thiserror::Error;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 pub struct SignatureSerde;
 
@@ -104,12 +104,30 @@ fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
     Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).unwrap()
 }
 
+impl Serialize for JubjubSignature {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        {
+            let mut r = [0u8; 32];
+            let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
+            r_point.write(r.as_mut()).unwrap();
+
+            let s = u256_to_h256(U256(self.sig_s)).0;
+            let sign = SignatureOriginal { r, s };
+
+            SignatureOriginal::serialize(&sign, serializer)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
     use super::*;
     use crate::tx::packed_public_key::fr_to_u256;
     use serde::{Deserialize, Serialize};
+    use std::convert::TryInto;
 
     #[derive(Serialize, Deserialize)]
     pub struct OrderBase {

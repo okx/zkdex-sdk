@@ -1,7 +1,7 @@
-use js_ok_zksync_crypto::Fr;
 use js_ok_zksync_crypto::franklin_crypto::bellman::pairing::ff::{
     Field, PrimeField, PrimeFieldRepr,
 };
+use js_ok_zksync_crypto::Fr;
 
 pub fn hash_to_fr(mut hash: [u8; 32]) -> Fr {
     // TODO: this is a comment from zksync, so what's the final solution?

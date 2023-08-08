@@ -1,21 +1,21 @@
 use std::convert::TryFrom;
-use franklin_crypto::redjubjub::PrivateKey;
-use num_bigint::BigInt;
+
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
 use crate::common::OrderBase;
-use crate::constant::{AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256, POSITION_ID_UPPER_BOUND_U256};
-
-use crate::new_public_key::PublicKeyType;
-use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
+use crate::constant::{
+    AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
+    POSITION_ID_UPPER_BOUND_U256,
+};
 use crate::hash::hash2;
-use crate::tx::packed_public_key::{PackedPublicKey, private_key_from_string, public_key_from_private};
+use crate::new_public_key::PublicKeyType;
+use crate::privkey_to_pubkey_internal;
+use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::types::h256_to_u256;
-use crate::utils::fr_from_bigint;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::zkw::JubjubSignature;
 
 // use wasm_bindgen::JsValue;
 // use time::OffsetDateTime;
@@ -24,7 +24,7 @@ use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 pub type AmountType = u64;
 pub type PositionIdType = u64;
 
-#[derive(Clone, Debug, Deserialize,Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -37,15 +37,14 @@ pub struct WithdrawRequest {
 }
 
 pub fn sign_withdraw(
-    mut withdrawal: WithdrawRequest,
+    withdrawal: WithdrawRequest,
     asset_id_collateral: &CollateralAssetId,
     prvk: &str,
-) -> Result<WithdrawRequest, JsValue> {
+) -> Result<JubjubSignature, JsValue> {
     let hash = withdrawal_hash(&withdrawal, asset_id_collateral);
     let private_key = private_key_from_string(prvk).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
-    withdrawal.base.signature = sig;
-    Ok(withdrawal)
+    Ok(sig)
 }
 
 pub type CollateralAssetId = U256;
@@ -86,7 +85,6 @@ pub fn withdrawal_hash(
     hash2(&packed_message0, &packed_message1)
 }
 
-
 #[test]
 pub fn test_withdraw() {
     let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
@@ -102,19 +100,14 @@ pub fn test_withdraw() {
             nonce: 1,
             public_key: pub_key.clone(),
             expiration_timestamp: expire,
-            signature: JubjubSignature {
-                sig_r: BabyJubjubPoint {
-                    x: Default::default(),
-                    y: Default::default(),
-                },
-                sig_s: [0; 4],
-            },
         },
         position_id: 1,
         amount: 1,
         owner_key: pub_key.clone(),
     };
 
-    let w = sign_withdraw(req, &CollateralAssetId::one(), prv_key).unwrap();
-    println!("{:?}", w);
+    // println!("{:#?}", serde_json::to_string(&req).unwrap());
+    //c1434d28
+    let w = sign_withdraw(req, &CollateralAssetId::from(10), prv_key).unwrap();
+    println!("{:#?}", serde_json::to_string(&w).unwrap());
 }

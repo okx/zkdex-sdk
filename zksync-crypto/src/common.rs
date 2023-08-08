@@ -5,8 +5,8 @@ use once_cell::sync::Lazy;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::I64SerdeAsString;
 use crate::new_public_key::PublicKeyType;
+use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
 pub static NONCE_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(32));
@@ -25,7 +25,7 @@ use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 pub type TimestampType = i64;
 
-#[derive(Debug, Clone, PartialEq, Deserialize,Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct OrderBase {
     #[serde(rename = "nonce", with = "U64SerdeAsString")]
     pub nonce: u64,
@@ -33,8 +33,8 @@ pub struct OrderBase {
     pub public_key: PublicKeyType,
     #[serde(rename = "expiration_timestamp", with = "I64SerdeAsString")]
     pub expiration_timestamp: TimestampType,
-    #[serde(rename = "signature", with = "SignatureSerde")]
-    pub signature: JubjubSignature,
+    // #[serde(rename = "signature", with = "SignatureSerde")]
+    // pub signature: JubjubSignature,
 }
 
 impl Default for OrderBase {
@@ -43,13 +43,7 @@ impl Default for OrderBase {
             nonce: 0,
             public_key: Default::default(),
             expiration_timestamp: 0,
-            signature: JubjubSignature {
-                sig_r: BabyJubjubPoint {
-                    x: Default::default(),
-                    y: Default::default(),
-                },
-                sig_s: [0; 4],
-            },
+            // signature: None,
         }
     }
 }
