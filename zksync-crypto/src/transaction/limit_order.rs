@@ -9,16 +9,16 @@ use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
-use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::JubjubSignature;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;
 const CONDITIONAL_TRANSFER_ORDER_TYPE: u64 = 5;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize,Default)]
 pub struct LimitOrderRequest {
     #[serde(flatten)]
     pub base: OrderBase,
@@ -143,8 +143,9 @@ pub fn test_sign() {
     let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let private_key = private_key_from_string(prv_key).unwrap();
     let pub_key = public_key_from_private(&private_key);
-    let expire = 1684832800i64;
+    let expire = 2;
     let pub_key = PublicKeyType::from(pub_key.clone());
+    println!("{}",serde_json::to_string(&pub_key.clone()).unwrap());
 
     let req = LimitOrderRequest {
         base: OrderBase {
@@ -152,12 +153,12 @@ pub fn test_sign() {
             public_key: pub_key,
             expiration_timestamp: expire,
         },
-        amount_synthetic: 1,
-        amount_collateral: 1,
-        amount_fee: 1,
-        asset_id_synthetic: 1,
-        asset_id_collateral: CollateralAssetId::one(),
-        position_id: 1,
+        amount_synthetic: 3,
+        amount_collateral: 4,
+        amount_fee: 5,
+        asset_id_synthetic: 6,
+        asset_id_collateral: CollateralAssetId::from(7),
+        position_id: 8,
         is_buying_synthetic: false,
     };
 

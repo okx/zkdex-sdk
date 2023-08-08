@@ -6,16 +6,15 @@ use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
-use crate::common::OrderBase;
 use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
+use crate::common::OrderBase;
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
-use crate::withdraw::{AmountType, CollateralAssetId, HashType, PositionIdType};
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
-use crate::{privkey_to_pubkey_internal, sign_musig_without_hash_msg};
+use crate::zkw::JubjubSignature;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TransferRequest {
@@ -33,45 +32,8 @@ pub struct TransferRequest {
     pub asset_id: CollateralAssetId,
 }
 
-#[derive(Debug, Clone)]
-pub struct HashTransferRequest {
-    // #[serde(rename = "asset_id", with = "BigIntSerdeAsRadix10String")]
-    pub asset_id: BigInt,
-    // #[serde(rename = "asset_id_fee", with = "BigIntSerdeAsRadix10String")]
-    pub asset_id_fee: BigInt,
-    pub sender_vault_id: u64,
-    pub receiver_vault_id: u64,
-    pub src_fee_vault_id: u64,
-    // #[serde(rename = "max_amount_fee", with = "BigIntSerdeAsRadix10String")]
-    pub max_amount_fee: BigInt,
-    // #[serde(rename = "amount", with = "BigIntSerdeAsRadix10String")]
-    pub amount: BigInt,
-    pub nonce: u64,
-    pub expiration_timestamp: i64,
-
-    // #[serde(rename = "receiver_public_key")]
-    pub receiver_public_key: PublicKeyType,
-}
-
-// impl From<TransferRequest> for HashTransferRequest {
-//     fn from(value: TransferRequest) -> Self {
-//         Self {
-//             asset_id: value.asset_id,
-//             asset_id_fee: BigInt::zero(),
-//             sender_vault_id: value.sender_position_id,
-//             receiver_vault_id: value.receiver_position_id,
-//             src_fee_vault_id: value.sender_position_id,
-//             max_amount_fee: BigInt::zero(),
-//             amount: value.amount.clone(),
-//             nonce: value.base.nonce,
-//             expiration_timestamp: value.base.expiration_timestamp.unix_timestamp(),
-//             receiver_public_key: value.receiver_public_key.clone(),
-//         }
-//     }
-// }
-
 pub fn sign_transfer(
-    mut transfer: TransferRequest,
+    transfer: TransferRequest,
     private_key: &str,
 ) -> Result<JubjubSignature, JsValue> {
     let hash = transfer_hash(&transfer, 0);

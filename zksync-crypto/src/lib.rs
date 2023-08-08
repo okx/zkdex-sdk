@@ -2,14 +2,14 @@
 //! This crate is compiled into wasm to be used in `zksync.js`.
 use std::str::FromStr;
 
-pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
-use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
-    alt_babyjubjub::{edwards, fs::FsRepr, AltJubjubBn256, FixedGenerators},
+    alt_babyjubjub::{AltJubjubBn256, edwards, FixedGenerators, fs::FsRepr},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
     eddsa::{PrivateKey, PublicKey, Seed, Signature as EddsaSignature},
     jubjub::JubjubEngine,
 };
+pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
+use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use num_bigint::BigInt;
 use num_traits::Num;
 use primitive_types::H256;
@@ -19,29 +19,30 @@ use wasm_bindgen::prelude::*;
 
 pub use convert::*;
 pub use format::*;
-
 pub use serde_wrapper::*;
+use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
+use crate::transaction::limit_order::LimitOrderRequest;
+use crate::transaction::liquidate::Liquidate;
+use crate::transaction::oracle_price::SignedOraclePrice;
+use crate::transaction::transfer::TransferRequest;
+use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 
-use crate::limit_order::LimitOrderRequest;
-use crate::transfer::TransferRequest;
 use crate::tx::h256_to_u256;
 use crate::tx::packed_public_key::PublicKeyType;
-use crate::tx::packed_signature::{PackedSignature, SignatureSerde};
 use crate::tx::sign::TxSignature;
 use crate::utils::set_panic_hook;
-use crate::withdraw::{CollateralAssetId, WithdrawRequest};
 
 mod common;
 mod constant;
 mod convert;
 mod fr;
-mod limit_order;
+
 mod models;
 mod new_public_key;
-mod transfer;
+
 mod types;
 mod utils;
-mod withdraw;
+
 
 pub mod byte_tools;
 pub mod env_tools;
@@ -50,6 +51,7 @@ mod hash;
 pub mod serde_wrapper;
 pub mod tx;
 mod zkw;
+mod transaction;
 
 const PACKED_POINT_SIZE: usize = 32;
 const PACKED_SIGNATURE_SIZE: usize = 64;
@@ -196,6 +198,30 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue
     }
 }
 
+
+#[wasm_bindgen]
+pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
+    let req: Liquidate = serde_json::from_str(json).unwrap();
+    let ret = limit_order::sign_limit_order(req.liquidator_order, private_key)?;
+    match serde_json::to_string(&ret) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+    }
+}
+
+#[wasm_bindgen]
+pub fn sign_signed_oracle_price(
+    json: &str,
+    private_key: &str,
+) -> Result<String, JsValue> {
+    let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
+    let ret = oracle_price::sign_signed_oracle_price(req, private_key)?;
+    match serde_json::to_string(&ret) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+    }
+}
+
 fn hex_string_to_bigint(s: &str) -> BigInt {
     let num = BigInt::from_str_radix(
         s.trim_start_matches("0x")
@@ -204,7 +230,7 @@ fn hex_string_to_bigint(s: &str) -> BigInt {
             .trim_start_matches("-0X"),
         16,
     )
-    .unwrap();
+        .unwrap();
     if s.starts_with('-') {
         -num
     } else {
@@ -413,7 +439,7 @@ pub fn test_sign_withdraw() {
         "0x2c016e767840eb2cf7541b50619d9cafec1fbef4e46f29d2303452a7e19e222",
         prv_key,
     )
-    .unwrap();
+        .unwrap();
     let r = &signature[32..64];
     let s = &signature[64..];
     println!("r:{:?},s:{:?}", hex::encode(r), hex::encode(s));

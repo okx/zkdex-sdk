@@ -11,6 +11,7 @@ use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
+use franklin_crypto::bellman::PrimeField;
 use thiserror::Error;
 
 pub struct SignatureSerde;
@@ -104,23 +105,19 @@ fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
     Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).unwrap()
 }
 
-impl Serialize for JubjubSignature {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        {
-            let mut r = [0u8; 32];
-            let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
-            r_point.write(r.as_mut()).unwrap();
+impl Serialize  for JubjubSignature {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        let mut r = [0u8; 32];
+        let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
+        r_point.write(r.as_mut()).unwrap();
 
-            let s = u256_to_h256(U256(self.sig_s)).0;
-            let sign = SignatureOriginal { r, s };
+        let s = u256_to_h256(U256(self.sig_s)).0;
+        let sign = SignatureOriginal { r, s };
 
-            SignatureOriginal::serialize(&sign, serializer)
-        }
+        SignatureOriginal::serialize(&sign, serializer)
     }
 }
+
 
 #[cfg(test)]
 mod tests {
