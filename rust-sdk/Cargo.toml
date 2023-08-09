@@ -1,6 +1,6 @@
 
 [package]
-name = "zksync-crypto"
+name = "zkdex-sdk"
 version = "1.0.0"
 edition = "2018"
 authors = ["The Matter Labs Team <hello@matterlabs.dev>"]
@@ -19,7 +19,7 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-#delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev" }
+#delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev",features = ["default"] }
 #zkwasm-rust-sdk = { git = "https://github.com/DelphinusLab/zkWasm-rust.git" }
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
 rand = "0.4"
@@ -65,9 +65,11 @@ bigdecimal = { version = "=0.3.0", features = ["serde"]}
 #js_ok_zksync_crypto = { path = "../ok_zksync_crypto", version = "0.1.0" }
 #js_types={path="../types"}
 poseidon = { git = "https://github.com/lanbones/poseidon" }
+
+jni = {version = '0.21.1'}
+
 #delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev", optional = true }
 [profile.release]
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
-
 

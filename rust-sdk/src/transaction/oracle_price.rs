@@ -70,5 +70,5 @@ pub fn sign_signed_oracle_price(
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk).unwrap();
     let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
-    Ok(signature)
+    Ok(signature.into())
 }

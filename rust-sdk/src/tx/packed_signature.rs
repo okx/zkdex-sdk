@@ -1,11 +1,11 @@
-use crate::tx::packed_public_key::h256_to_fr;
+use crate::tx::packed_public_key::{h256_to_fr, PackedPublicKey};
 use crate::tx::{h256_to_u256, u256_to_h256, JUBJUB_PARAMS};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use crate::U8Array32SerdeAsStringWith0x;
 use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
-use franklin_crypto::eddsa::Signature;
+use franklin_crypto::eddsa::{PublicKey, Signature};
 use franklin_crypto::jubjub::edwards::Point;
-use franklin_crypto::jubjub::{edwards, Unknown};
+use franklin_crypto::jubjub::{edwards, FixedGenerators, Unknown};
 use pairing_ce as ef;
 use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::{H256, U256};
@@ -39,6 +39,7 @@ pub struct SignatureOriginal {
 
 #[derive(Clone)]
 pub struct PackedSignature(pub Signature<Bn256>);
+
 impl Debug for PackedSignature {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let (x, y) = self.0.r.into_xy();
@@ -49,10 +50,17 @@ impl Debug for PackedSignature {
     }
 }
 
+impl PackedSignature {
+    pub fn verify(&self, pk: &PublicKey<Bn256>, msg: &[u8]) -> bool {
+        let p_g = FixedGenerators::SpendingKeyGenerator;
+        pk.verify_for_raw_message(msg, &self.0, p_g, &JUBJUB_PARAMS, msg.len())
+    }
+}
+
 impl SignatureSerde {
     pub fn serialize<S>(val: &JubjubSignature, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         let mut r = [0u8; 32];
         let r_point = point_from_xy(&val.sig_r.x, &val.sig_r.y);
@@ -65,8 +73,8 @@ impl SignatureSerde {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<JubjubSignature, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         let sign = SignatureOriginal::deserialize(deserializer)?;
 
@@ -84,6 +92,7 @@ impl SignatureSerde {
         })
     }
 }
+
 pub fn get_xy_from_r(r_bar: [u8; 32]) -> (Fr, Fr) {
     let r: Point<Bn256, Unknown> =
         edwards::Point::read(r_bar.as_slice(), &JUBJUB_PARAMS as &AltJubjubBn256)
@@ -91,6 +100,7 @@ pub fn get_xy_from_r(r_bar: [u8; 32]) -> (Fr, Fr) {
             .unwrap();
     r.into_xy()
 }
+
 pub fn get_r_from_xy(x: &U256, y: &U256) -> [u8; 32] {
     let point = point_from_xy(x, y);
     let mut packed_point = [0u8; 32];
@@ -98,14 +108,14 @@ pub fn get_r_from_xy(x: &U256, y: &U256) -> [u8; 32] {
     packed_point
 }
 
-fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
+pub fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
     let x = h256_to_fr(u256_to_h256(x.clone())).unwrap();
     let y = h256_to_fr(u256_to_h256(y.clone())).unwrap();
 
     Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).unwrap()
 }
 
-impl Serialize  for JubjubSignature {
+impl Serialize for JubjubSignature {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
         let mut r = [0u8; 32];
         let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
@@ -118,6 +128,34 @@ impl Serialize  for JubjubSignature {
     }
 }
 
+use super::*;
+use crate::tx::packed_public_key::fr_to_u256;
+use std::convert::TryInto;
+
+impl JubjubSignature {
+    pub fn from_str(r: &str, s: &str) -> Self {
+        #[derive(Serialize, Deserialize)]
+        pub struct OrderBase {
+            pub nonce: u64,
+            #[serde(rename = "signature", with = "SignatureSerde")]
+            pub signature: JubjubSignature,
+        }
+
+        let r: [u8; 32] = hex::decode(&String::from(r))
+            .unwrap()
+            .try_into()
+            .unwrap();
+        let s: [u8; 32] = hex::decode(s).unwrap().try_into().unwrap();
+        let (x, y) = get_xy_from_r(r);
+        let x = fr_to_u256(&x).unwrap();
+        let y = fr_to_u256(&y).unwrap();
+
+        JubjubSignature {
+            sig_r: BabyJubjubPoint { x, y },
+            sig_s: h256_to_u256(H256(s)).0,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -132,10 +170,12 @@ mod tests {
         #[serde(rename = "signature", with = "SignatureSerde")]
         pub signature: JubjubSignature,
     }
+
     pub const SIGNATURE_1_0_R: &str =
-        "5f00b6c207a8235426f6df1b3eab83a228bc711908b9536f51f34cae820e7c25";
+        "353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
     pub const SIGNATURE_1_0_S: &str =
-        "f3fd87e986f383ea42342ed293f90351baece370d03fc082caccbfed419c0705";
+        "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
+
     #[test]
     pub fn test_serialize_deserialize() {
         let r: [u8; 32] = hex::decode(&String::from(SIGNATURE_1_0_R))

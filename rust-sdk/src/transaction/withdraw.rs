@@ -44,7 +44,7 @@ pub fn sign_withdraw(
     let hash = withdrawal_hash(&withdrawal, asset_id_collateral);
     let private_key = private_key_from_string(prvk).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
-    Ok(sig)
+    Ok(sig.into())
 }
 
 pub type CollateralAssetId = U256;
@@ -109,5 +109,5 @@ pub fn test_withdraw() {
     // println!("{:#?}", serde_json::to_string(&req).unwrap());
     //c1434d28
     let w = sign_withdraw(req, &CollateralAssetId::from(10), prv_key).unwrap();
-    println!("{:#?}", serde_json::to_string(&w).unwrap());
+    println!("{:#?}", w);
 }

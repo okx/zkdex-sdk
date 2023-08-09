@@ -39,7 +39,7 @@ pub fn sign_transfer(
     let hash = transfer_hash(&transfer, 0);
     let private_key = private_key_from_string(private_key).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
-    Ok(sig)
+    Ok(sig.into())
 }
 
 #[derive(Default)]

@@ -52,6 +52,8 @@ pub mod serde_wrapper;
 pub mod tx;
 mod zkw;
 mod transaction;
+pub mod java_bridge;
+
 
 const PACKED_POINT_SIZE: usize = 32;
 const PACKED_SIGNATURE_SIZE: usize = 64;
@@ -111,6 +113,14 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
         }
     }
 }
+
+use jni::objects::*;
+// use jni::JNIEnv;
+
+// #[no_mangle]
+// pub unsafe extern "C" fn Java_com_okx_RustJNI_init(env: JNIEnv, _class: JClass) {
+//     println!("rust-java-demo inited");
+// }
 
 fn read_signing_key(private_key: &[u8]) -> Result<PrivateKey<Engine>, JsValue> {
     let mut fs_repr = FsRepr::default();
@@ -417,6 +427,8 @@ fn deserialize_signature(bytes: &[u8]) -> Result<Signature, JsValue> {
 
     Ok(Signature { r, s })
 }
+
+
 
 #[test]
 pub fn test_sign_withdraw() {

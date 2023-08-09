@@ -1,22 +1,25 @@
-use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{
-    fr_to_u256, public_key_from_private, public_key_from_private_with_verify, PackedPublicKey,
-};
-use crate::tx::packed_signature::PackedSignature;
-use crate::tx::{h256_to_u256, JUBJUB_PARAMS};
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
-use ef::ff::{PrimeField, PrimeFieldRepr};
-use franklin_crypto::alt_babyjubjub::fs::Fs;
-use franklin_crypto::eddsa::{PrivateKey, Seed};
-use franklin_crypto::jubjub::FixedGenerators;
-use pairing_ce as ef;
-use pairing_ce::bn256::Bn256;
-use primitive_types::H256;
-use rand::{Rng, SeedableRng, XorShiftRng};
 use std::fmt::{Debug, Formatter};
 use std::thread::sleep;
 use std::time::Duration;
+
+use ef::ff::{PrimeField, PrimeFieldRepr};
+use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
+use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
+use franklin_crypto::eddsa::{PrivateKey, PublicKey, Seed, Signature};
+use franklin_crypto::jubjub::edwards::Point;
+use franklin_crypto::jubjub::{FixedGenerators, JubjubEngine};
+use pairing_ce as ef;
+use pairing_ce::bn256::Bn256;
+use primitive_types::{H256, U256};
+use rand::{Rng, SeedableRng, XorShiftRng};
 use time::OffsetDateTime;
+use crate::Engine;
+
+use crate::tx::{h256_to_u256, JUBJUB_PARAMS, u256_to_h256};
+use crate::tx::convert::FeConvert;
+use crate::tx::packed_public_key::{fr_to_u256, h256_to_fr, PackedPublicKey, public_key_from_private, public_key_from_private_with_verify};
+use crate::tx::packed_signature::{get_r_from_xy, PackedSignature, point_from_xy};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 /// zkSync transaction signature.
 ///
@@ -35,6 +38,7 @@ impl Debug for TxSignature {
             .finish()
     }
 }
+
 impl Into<JubjubSignature> for TxSignature {
     fn into(self) -> JubjubSignature {
         let (x, y) = self.signature.0.r.into_xy();
@@ -53,11 +57,22 @@ impl Into<JubjubSignature> for TxSignature {
     }
 }
 
+impl From<JubjubSignature> for PackedSignature {
+    fn from(value: JubjubSignature) -> Self {
+        let r = point_from_xy(&value.sig_r.x, &value.sig_r.y);
+        let s = u256_to_h256(U256(value.sig_s)).0;
+        let mut fspr = FsRepr::default();
+        fspr.read_le(&s[..]).unwrap();
+        let s = Fs::from_repr(fspr).unwrap();
+        PackedSignature { 0: Signature { r: r, s: s } }
+    }
+}
+
 impl TxSignature {
-    pub fn sign_msg(pk: &PrivateKey<Bn256>, msg: &[u8]) -> (JubjubSignature, PackedPublicKey) {
+    pub fn sign_msg(pk: &PrivateKey<Bn256>, msg: &[u8]) -> (TxSignature, PackedPublicKey) {
         let ret = Self::sign_raw(pk, msg);
         let pubkey = ret.pub_key.clone();
-        (ret.into(), pubkey)
+        (ret, pubkey)
     }
     pub fn sign_raw(pk: &PrivateKey<Bn256>, hash_msg: &[u8]) -> Self {
         let seed = Seed::deterministic_seed(pk, &hash_msg);
@@ -73,12 +88,17 @@ impl TxSignature {
             signature: PackedSignature(signature),
         }
     }
+
+    pub fn verify(&self, pk: &PublicKey<Bn256>, msg: &[u8]) -> bool {
+        self.signature.verify(pk, msg)
+    }
 }
 
 pub fn gen_test_pk() -> PrivateKey<Bn256> {
     let ss = "0x057afe7e950189b17eedfd749f5537a88eb3ed4981467636a115e5c3efcce0f4";
     PrivateKey::<Bn256>(Fs::from_bytes(&*hex::decode(&ss[2..]).unwrap()).unwrap())
 }
+
 pub fn gen_random_key() -> PrivateKey<Bn256> {
     sleep(Duration::from_millis(100));
     let ts_nanos = OffsetDateTime::now_utc().unix_timestamp_nanos();
@@ -90,6 +110,7 @@ pub fn gen_random_key() -> PrivateKey<Bn256> {
     ]);
     PrivateKey(rng.gen())
 }
+
 pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
     let key = gen_random_key();
     let pubkey = public_key_from_private(&key);
@@ -98,7 +119,13 @@ pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+    use crate::tx;
+    use crate::tx::packed_public_key::private_key_from_string;
+    use crate::tx::withdraw::HashType;
+
     use super::*;
+
     #[test]
     pub fn test_sign() {
         let key = gen_test_pk();
@@ -107,15 +134,29 @@ mod tests {
             205, 154, 123, 60, 47, 41, 171, 133, 216, 161, 228, 205, 32,
         ];
         let sig = TxSignature::sign_msg(&key, msg.as_slice());
-        println!("s: {:?}", sig.0.sig_s);
-        println!("x: {:?}", sig.0.sig_r.x.0);
-        println!("y: {:?}", sig.0.sig_r.y.0);
-        let _pk = sig.1.clone();
+        let pub_key = PublicKey::from_private(&key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
 
-        let pubkey: BabyJubjubPoint = sig.1.into();
-        println!("pub_x:{:?}", pubkey.x.0);
-        println!("pub_y:{:?}", pubkey.y.0);
-        let msg = h256_to_u256(H256(msg)).0;
-        println!("msg:{:?}", msg);
+        assert!(sig.0.verify(&pub_key, &msg));
+        let a1 = sig.0.signature.clone();
+        let a2 = PackedSignature::from(<tx::sign::TxSignature as Into<JubjubSignature>>::into(sig.0));
+        println!("{:#?}", a1);
+        println!("{:#?}", a2);
+    }
+
+    #[test]
+    pub fn test_verify_from_poc() {
+        let hash = HashType::from_str("0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
+        let sig = JubjubSignature::from_str("353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6",
+                                            "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502");
+        let pack_sig = PackedSignature::from(sig);
+
+
+        let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let private_key = private_key_from_string(prv_key).unwrap();
+        let pub_key = PublicKey::from_private(&private_key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
+        // assert!(pack_sig.verify(&pub_key,hash.as_bytes()));
+        let hash2 = HashType::from_str("0x01817ed5bea1d0082c0fbe02edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
+        assert_eq!(pack_sig.verify(&pub_key, hash.as_bytes()), true);
+        assert_eq!(pack_sig.verify(&pub_key, hash2.as_bytes()), false);
     }
 }
