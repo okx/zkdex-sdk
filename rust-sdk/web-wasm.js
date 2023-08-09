@@ -1,9 +1,9 @@
 const fs = require('fs');
 
-const wasmFile = './dist/zksync-crypto-web_bg.wasm';
-const jsFile = './dist/zksync-crypto-web.js';
+const wasmFile = './dist/zkdex-web_bg.wasm';
+const jsFile = './dist/zkdex-web.js';
 // The output of wasm2js with a fixed import.
-const asmJsFile = './zksync-crypto-bundler_asm.js';
+const asmJsFile = './zkdex-bundler_asm.js';
 
 const wasmData = fs.readFileSync(wasmFile);
 
