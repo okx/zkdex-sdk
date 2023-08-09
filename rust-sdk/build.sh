@@ -44,3 +44,7 @@ rm dist/*.backup
 # this is again related to how wasm-pack works
 echo -e "\nwasm.__wbindgen_start();\n" >> $ASM
 node web-wasm.js
+rm -rf ../javascript-sdk/dist
+cp -r dist ../javascript-sdk/
+rm -rf ../javascript-sdk/package.json
+cp package.json ../javascript-sdk/

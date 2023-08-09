@@ -4,12 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node index.js"
   },
   "dependencies": {
     "ethers": "^6.7.0",
-    "zksync-crypto": "../zksync-crypto"
+    "@okbchain/zkdex-sdk": "../javascript-sdk"
   },
   "type": "module",
   "license": "ISC"
