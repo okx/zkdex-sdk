@@ -1,7 +1,7 @@
 # zkWasm-sdk
 
 ## how to use
-1. clone from okx
+1. clone from git
 ```shell
 git clone https://github.com/okx/zkwasm-sdk.git
 ```
@@ -9,10 +9,11 @@ git clone https://github.com/okx/zkwasm-sdk.git
 ```
 cd zkwasm-sdk
 git checkout new_hash
-cd zksync-crypto && ./build.sh
+cd rust-sdk && ./build.sh
 ```
 3. run js example
+
 ```shell
-cd ../js-example
+cd zkwasm-sdk/js-example
 npm i && npm run dev
 ```
