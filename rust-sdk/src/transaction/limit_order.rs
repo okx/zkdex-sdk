@@ -1,18 +1,20 @@
+use std::fmt::{Display, Formatter};
 use std::ops::ShlAssign;
+use std::str::FromStr;
 
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
 use crate::common::OrderBase;
-use crate::hash::hash2;
+use crate::hash::{hash2, ToHashable};
 use crate::new_public_key::PublicKeyType;
 pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
-use crate::zkw::JubjubSignature;
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;
@@ -164,4 +166,20 @@ pub fn test_sign() {
 
     let w = sign_limit_order(req, prv_key).unwrap();
     println!("{:?}", w);
+}
+
+
+#[test]
+pub fn test_sign2() {
+    let hash = HashType::from_str("0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3").unwrap();
+    println!("{:?}",hash.clone());
+    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let private_key = private_key_from_string(prv_key).unwrap();
+    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    println!("{:#?}", sig);
+    println!("{:#?}", pub_key)
+    // if sig.sig_r.x == 0 && sig.sig_r.y == 1 {
+    //     println!("verify success")
+    // }
+    // BabyJubjubPoint{ x: U256::from_str('), y: Default::default() }
 }

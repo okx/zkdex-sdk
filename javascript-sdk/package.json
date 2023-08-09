@@ -1,8 +1,8 @@
 {
-	"name": "zksync-crypto",
+	"name": "@okbchain/zkdex-sdk",
 	"version": "0.6.2",
-	"browser": "dist/zksync-crypto-web.js",
-	"main": "dist/zksync-crypto-node.js",
+	"browser": "dist/zkdex-web.js",
+	"main": "dist/zkdex-node.js",
 	"files": [
 		"dist/*.ts",
 		"dist/*.wasm",

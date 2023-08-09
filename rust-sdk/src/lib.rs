@@ -238,10 +238,7 @@ fn hex_string_to_bigint(s: &str) -> BigInt {
     }
 }
 
-#[wasm_bindgen]
-pub fn printC(jsonBytes: &str) -> u64 {
-    1
-}
+
 
 #[wasm_bindgen]
 pub fn private_key_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {

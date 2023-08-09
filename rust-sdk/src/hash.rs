@@ -137,7 +137,7 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> H256 {
 
 #[cfg(test)]
 mod test {
-    use crate::hash::ToHashable;
+    use crate::hash::{hash2, ToHashable};
     use crate::new_public_key::PublicKeyType;
     use crate::zkw::BabyJubjubPoint;
     use primitive_types::U256;
@@ -160,5 +160,7 @@ mod test {
     }
 
     #[test]
-    fn test_hash() {}
+    fn test_hash() {
+
+    }
 }
