@@ -1,4 +1,4 @@
-import * as wasm from 'zksync-crypto';
+import * as wasm from '@okbchain/zkdex-sdk';
 import { ethers as utils } from 'ethers';
 function hexStringToUint8Array(hexString){
     if (hexString.length % 2 !== 0){
