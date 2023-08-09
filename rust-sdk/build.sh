@@ -2,8 +2,6 @@
 rm -rf dist
 set -e
 
-cd ../rust-sdk
-
 BG_ASM=dist/zkdex-bundler_bg_asm.js
 ASM=dist/zkdex-bundler_asm.js
 
