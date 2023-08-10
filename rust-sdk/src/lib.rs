@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test as other_test;
+
 use std::convert::TryFrom;
 use std::str::FromStr;
 
@@ -29,7 +32,7 @@ use crate::transaction::transfer::{transfer_hash, TransferRequest};
 use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
-use crate::tx::packed_public_key::{convert_to_pubkey, PublicKeyType};
+use crate::tx::packed_public_key::{convert_to_pubkey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
@@ -55,7 +58,7 @@ mod hash;
 pub mod serde_wrapper;
 pub mod tx;
 mod zkw;
-mod transaction;
+pub mod transaction;
 pub mod java_bridge;
 
 
@@ -128,7 +131,7 @@ fn read_signing_key(private_key: &[u8]) -> Result<PrivateKey<Engine>, JsValue> {
     ))
 }
 
-fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey<Engine>, JsValue> {
+pub fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey<Engine>, JsValue> {
     let p_g = FixedGenerators::SpendingKeyGenerator;
 
     let sk = read_signing_key(private_key)?;
@@ -162,9 +165,9 @@ pub fn sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn hash_transfer(json: &str) ->Result<String,JsValue>{
+pub fn hash_transfer(json: &str) -> Result<String, JsValue> {
     let req: TransferRequest = serde_json::from_str(json).unwrap();
-    Ok(transfer_hash(&req,0).encode_hex::<String>())
+    Ok(transfer_hash(&req, 0).encode_hex::<String>())
 }
 
 #[wasm_bindgen]
@@ -183,7 +186,7 @@ pub fn sign_withdraw(
 }
 
 #[wasm_bindgen]
-pub fn hash_withdraw(json: &str,asset_id_collateral: &str) ->Result<String,JsValue>{
+pub fn hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String, JsValue> {
     let req: WithdrawRequest = serde_json::from_str(json).unwrap();
     let asset_id = CollateralAssetId::from_str(asset_id_collateral).unwrap();
     Ok(withdrawal_hash(&req, &asset_id).encode_hex::<String>())
@@ -200,7 +203,7 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue
 }
 
 #[wasm_bindgen]
-pub fn hash_limit_order(json: &str) ->Result<String,JsValue>{
+pub fn hash_limit_order(json: &str) -> Result<String, JsValue> {
     let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
     Ok(limit_order_hash(&req).encode_hex::<String>())
 }
@@ -216,7 +219,7 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> 
 }
 
 #[wasm_bindgen]
-pub fn hash_liquidate(json: &str) ->Result<String,JsValue>{
+pub fn hash_liquidate(json: &str) -> Result<String, JsValue> {
     let req: Liquidate = serde_json::from_str(json).unwrap();
     Ok(limit_order_hash(&req.liquidator_order).encode_hex::<String>())
 }
@@ -235,7 +238,7 @@ pub fn sign_signed_oracle_price(
 }
 
 #[wasm_bindgen]
-pub fn hash_signed_oracle_price(json: &str) ->Result<String,JsValue>{
+pub fn hash_signed_oracle_price(json: &str) -> Result<String, JsValue> {
     let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
     Ok(signed_oracle_price_hash(&req).encode_hex::<String>())
 }
@@ -276,7 +279,7 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> R
 }
 
 #[test]
-fn test_verify() {
+pub fn test_verify() {
     let r = "353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
     let s = "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
     let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
@@ -288,27 +291,31 @@ fn test_verify() {
     assert!(!ret)
 }
 
+#[cfg(test)]
+mod test {
+    use other_test::Bencher;
+    use crate::{sign_transfer, verify_signature};
 
-#[test]
-pub fn test_sign_withdraw() {
-    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let binding = hex::decode(&prv_key).unwrap();
-    let prv_bytes = binding.as_slice();
-    let pub_key = privkey_to_pubkey_internal(prv_bytes).unwrap();
-    let pub_key = PublicKeyType(pub_key);
-    let pub_str = hex::encode(pub_key.serialize_packed().unwrap());
-    println!("pub_str:{:?}", pub_str);
-    let data = r#"
-    {"type":"WITHDRAWAL_TO_ADDRESS","nonce":"2","public_key":"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9","expiration_timestamp":"1687753430","signature":{"r":"0x0cd8af0b942b4a24a9ebceceef6dc85573287da5847f6f5c5eab4016f5a940a5","s":"0x0c4631784711a03d4f50c05451ed9f495751ebeff43f3ce54cdde360873bba04"},"position_id":"10001","amount":"100000000","eth_address":"0xDdF1706FE25a3018e5517D60d02dE2d99BED310D"}
-    "#;
 
-    let signature = sign_withdraw(
-        data,
-        "0x2c016e767840eb2cf7541b50619d9cafec1fbef4e46f29d2303452a7e19e222",
-        prv_key,
-    )
-        .unwrap();
-    let r = &signature[32..64];
-    let s = &signature[64..];
-    println!("r:{:?},s:{:?}", hex::encode(r), hex::encode(s));
+    #[bench]
+    fn bench_verify_transfer(b: &mut Bencher) {
+        let hash = "0acf01cf2a0fa95fe13c2ff4f6a38fa382e3b10acf342bab5f8826d5feada725";
+        let sig_r = "0276d07a348630978fdecb67956c02ad9f244f2d072b5f8149814e041114950d";
+        let sig_s ="43a5a30e6490dd002ca6743f5aab2f291930a489516336e1dcee57be84ead802";
+        let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+        b.iter(||{
+            assert!(verify_signature(sig_r,sig_s,pub_key,hash).unwrap());
+        })
+    }
+
+
+
+    #[bench]
+    fn bench_sign_transfer(b: &mut Bencher) {
+        let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let req = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+        b.iter(||{
+            assert!(sign_transfer(req, pri_key).is_ok());
+        })
+    }
 }
