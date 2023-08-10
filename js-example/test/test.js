@@ -24,7 +24,7 @@ describe('test zkdex js function', function () {
         console.log(sig_str);
         let hash = wasm.hash_transfer(transfer_req);
         let sig = JSON.parse(sig_str);
-        console.log(sig);
+        console.log("hash:",hash);
         assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, hash), true);
         assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
     });

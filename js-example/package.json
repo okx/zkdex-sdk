@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@okbchain/zkdex-sdk": "../javascript-sdk",
+    "benchmark": "^2.1.4",
     "ethers": "^6.7.0",
     "mocha": "^10.2.0"
   },
