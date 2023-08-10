@@ -15,5 +15,5 @@ cd rust-sdk && ./build.sh
 
 ```shell
 cd zkwasm-sdk/js-example
-npm i && npm run dev
+npm i && npm run test
 ```
