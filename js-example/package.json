@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "test": "mocha"
   },
   "dependencies": {
+    "@okbchain/zkdex-sdk": "../javascript-sdk",
     "ethers": "^6.7.0",
-    "@okbchain/zkdex-sdk": "../javascript-sdk"
+    "mocha": "^10.2.0"
   },
   "type": "module",
   "license": "ISC"

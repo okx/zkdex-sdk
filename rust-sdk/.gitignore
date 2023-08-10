@@ -1,3 +1,4 @@
 /target
 bin/
 wasm-pack.log
+/dist

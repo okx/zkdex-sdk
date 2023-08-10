@@ -9,6 +9,7 @@ use franklin_crypto::{
 };
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
+use hex::ToHex;
 use jni::objects::*;
 use num_traits::Num;
 use primitive_types::H256;
@@ -163,7 +164,7 @@ pub fn sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
 #[wasm_bindgen]
 pub fn hash_transfer(json: &str) ->Result<String,JsValue>{
     let req: TransferRequest = serde_json::from_str(json).unwrap();
-    Ok(transfer_hash(&req,0).to_string())
+    Ok(transfer_hash(&req,0).encode_hex::<String>())
 }
 
 #[wasm_bindgen]
@@ -185,7 +186,7 @@ pub fn sign_withdraw(
 pub fn hash_withdraw(json: &str,asset_id_collateral: &str) ->Result<String,JsValue>{
     let req: WithdrawRequest = serde_json::from_str(json).unwrap();
     let asset_id = CollateralAssetId::from_str(asset_id_collateral).unwrap();
-    Ok(withdrawal_hash(&req, &asset_id).to_string())
+    Ok(withdrawal_hash(&req, &asset_id).encode_hex::<String>())
 }
 
 #[wasm_bindgen]
@@ -201,7 +202,7 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue
 #[wasm_bindgen]
 pub fn hash_limit_order(json: &str) ->Result<String,JsValue>{
     let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
-    Ok(limit_order_hash(&req).to_string())
+    Ok(limit_order_hash(&req).encode_hex::<String>())
 }
 
 #[wasm_bindgen]
@@ -217,7 +218,7 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> 
 #[wasm_bindgen]
 pub fn hash_liquidate(json: &str) ->Result<String,JsValue>{
     let req: Liquidate = serde_json::from_str(json).unwrap();
-    Ok(limit_order_hash(&req.liquidator_order).to_string())
+    Ok(limit_order_hash(&req.liquidator_order).encode_hex::<String>())
 }
 
 #[wasm_bindgen]
@@ -236,7 +237,7 @@ pub fn sign_signed_oracle_price(
 #[wasm_bindgen]
 pub fn hash_signed_oracle_price(json: &str) ->Result<String,JsValue>{
     let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
-    Ok(signed_oracle_price_hash(&req).to_string())
+    Ok(signed_oracle_price_hash(&req).encode_hex::<String>())
 }
 
 #[wasm_bindgen]

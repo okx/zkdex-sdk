@@ -21,24 +21,7 @@ function hexStringToUint8Array(hexString){
 const yz_priv = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
 const yz_priv_bytes = hexStringToUint8Array(yz_priv);
 
-const v=wasm.privateKeyFromSeed(yz_priv_bytes);
-console.log('asd ',v);
 
-const signaturePacked =  wasm.sign_musig(yz_priv_bytes, hexStringToUint8Array("abcd"));
-const pubKey = utils.hexlify(signaturePacked.slice(0, 32)).substr(2);
-const signature = utils.hexlify(signaturePacked.slice(32)).substr(2);
-console.log('signature.pubKey', pubKey);
-console.log('signature.signature', signature);
-
-
-const signaturePackedWithoutHash =  wasm.sign_musig_without_hash_msg(yz_priv_bytes, hexStringToUint8Array("abcd"));
-const pubKeyWithoutHash = utils.hexlify(signaturePackedWithoutHash.slice(0, 32)).substr(2);
-const signatureWithoutHash = utils.hexlify(signaturePackedWithoutHash.slice(32)).substr(2);
-console.log('signature.pubKey withoutHash', pubKeyWithoutHash);
-console.log('signature.signature withoutHash', signatureWithoutHash);
-
-const pub_packed_bytes= wasm.private_key_to_pubkey(yz_priv_bytes);
-console.log("pub_scf",utils.hexlify(pub_packed_bytes))
 
 
 const pub_xy_bytes= wasm.private_key_to_pubkey_with_xy(yz_priv_bytes);
@@ -46,6 +29,7 @@ const x= utils.hexlify(pub_xy_bytes.slice(0, 32)).substr(2);
 const y= utils.hexlify(pub_xy_bytes.slice(32)).substr(2);
 console.log("x",x);
 console.log("y",y);
+
 
 let withdraw_req = "{\"nonce\":\"1\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"1684832800\",\"position_id\":2,\"amount\":3,\"eth_address\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\"}";
 let withdraw_sig = wasm.sign_withdraw(withdraw_req,"1", yz_priv);
