@@ -119,8 +119,10 @@ pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::TryFrom;
     use std::str::FromStr;
     use crate::tx;
+    use crate::tx::{convert_to_pubkey, PublicKeyType};
     use crate::tx::packed_public_key::private_key_from_string;
     use crate::tx::withdraw::HashType;
 
@@ -158,5 +160,16 @@ mod tests {
         let hash2 = HashType::from_str("0x01817ed5bea1d0082c0fbe02edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
         assert_eq!(pack_sig.verify(&pub_key, hash.as_bytes()), true);
         assert_eq!(pack_sig.verify(&pub_key, hash2.as_bytes()), false);
+        let pubkey = PublicKeyType::deserialize_str("42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9").unwrap();
+
+        assert_eq!(pack_sig.verify(&pubkey.0, hash.as_bytes()), true);
+        println!("{:#?}", pubkey);
+        println!("{:#?}", pubkey);
+    }
+
+    #[test]
+    pub fn test_pubkey() {
+        let pubkey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+
     }
 }

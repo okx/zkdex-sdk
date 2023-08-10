@@ -1,16 +1,15 @@
-//! Utils for signing zksync transactions.
-//! This crate is compiled into wasm to be used in `zksync.js`.
+use std::convert::TryFrom;
 use std::str::FromStr;
 
 use franklin_crypto::{
     alt_babyjubjub::{AltJubjubBn256, edwards, FixedGenerators, fs::FsRepr},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PrivateKey, PublicKey, Seed, Signature as EddsaSignature},
+    eddsa::{PrivateKey, PublicKey, Signature as EddsaSignature},
     jubjub::JubjubEngine,
 };
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
-use num_bigint::BigInt;
+use jni::objects::*;
 use num_traits::Num;
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
@@ -20,17 +19,21 @@ use wasm_bindgen::prelude::*;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
-use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
-use crate::transaction::limit_order::LimitOrderRequest;
-use crate::transaction::liquidate::Liquidate;
-use crate::transaction::oracle_price::SignedOraclePrice;
-use crate::transaction::transfer::TransferRequest;
-use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 
-use crate::tx::h256_to_u256;
-use crate::tx::packed_public_key::PublicKeyType;
+use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
+use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
+use crate::transaction::liquidate::Liquidate;
+use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
+use crate::transaction::transfer::{transfer_hash, TransferRequest};
+use crate::transaction::types::HashType;
+use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
+use crate::tx::{h256_to_u256, u256_to_h256};
+use crate::tx::packed_public_key::{convert_to_pubkey, PublicKeyType};
+use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
+use crate::tx::withdraw::withdrawal_hash;
 use crate::utils::set_panic_hook;
+use crate::zkw::JubjubSignature;
 
 mod common;
 mod constant;
@@ -114,14 +117,6 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
     }
 }
 
-use jni::objects::*;
-// use jni::JNIEnv;
-
-// #[no_mangle]
-// pub unsafe extern "C" fn Java_com_okx_RustJNI_init(env: JNIEnv, _class: JClass) {
-//     println!("rust-java-demo inited");
-// }
-
 fn read_signing_key(private_key: &[u8]) -> Result<PrivateKey<Engine>, JsValue> {
     let mut fs_repr = FsRepr::default();
     fs_repr
@@ -155,24 +150,6 @@ pub fn private_key_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, JsValue
     )?))
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-struct A {
-    field1: String,
-    field2: u64,
-}
-
-#[wasm_bindgen]
-pub fn printA(jsonBytes: &str) -> u64 {
-    let a: A = serde_json::from_str(jsonBytes).unwrap();
-    a.field2 + a.field2 + a.field2
-}
-
-#[wasm_bindgen]
-pub fn printAC(jsonBytes: &str) -> u64 {
-    let a: A = serde_json::from_str(jsonBytes).unwrap();
-    a.field2 + a.field2 + a.field2
-}
-
 #[wasm_bindgen]
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
     let req: TransferRequest = serde_json::from_str(json).unwrap();
@@ -181,6 +158,12 @@ pub fn sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
         Ok(ret) => Ok(ret),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
+}
+
+#[wasm_bindgen]
+pub fn hash_transfer(json: &str) ->Result<String,JsValue>{
+    let req: TransferRequest = serde_json::from_str(json).unwrap();
+    Ok(transfer_hash(&req,0).to_string())
 }
 
 #[wasm_bindgen]
@@ -199,6 +182,13 @@ pub fn sign_withdraw(
 }
 
 #[wasm_bindgen]
+pub fn hash_withdraw(json: &str,asset_id_collateral: &str) ->Result<String,JsValue>{
+    let req: WithdrawRequest = serde_json::from_str(json).unwrap();
+    let asset_id = CollateralAssetId::from_str(asset_id_collateral).unwrap();
+    Ok(withdrawal_hash(&req, &asset_id).to_string())
+}
+
+#[wasm_bindgen]
 pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
     let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
     let ret = limit_order::sign_limit_order(req, private_key)?;
@@ -208,6 +198,11 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue
     }
 }
 
+#[wasm_bindgen]
+pub fn hash_limit_order(json: &str) ->Result<String,JsValue>{
+    let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
+    Ok(limit_order_hash(&req).to_string())
+}
 
 #[wasm_bindgen]
 pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
@@ -217,6 +212,12 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> 
         Ok(ret) => Ok(ret),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
+}
+
+#[wasm_bindgen]
+pub fn hash_liquidate(json: &str) ->Result<String,JsValue>{
+    let req: Liquidate = serde_json::from_str(json).unwrap();
+    Ok(limit_order_hash(&req.liquidator_order).to_string())
 }
 
 #[wasm_bindgen]
@@ -232,23 +233,11 @@ pub fn sign_signed_oracle_price(
     }
 }
 
-fn hex_string_to_bigint(s: &str) -> BigInt {
-    let num = BigInt::from_str_radix(
-        s.trim_start_matches("0x")
-            .trim_start_matches("0X")
-            .trim_start_matches("-0x")
-            .trim_start_matches("-0X"),
-        16,
-    )
-        .unwrap();
-    if s.starts_with('-') {
-        -num
-    } else {
-        num
-    }
+#[wasm_bindgen]
+pub fn hash_signed_oracle_price(json: &str) ->Result<String,JsValue>{
+    let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
+    Ok(signed_oracle_price_hash(&req).to_string())
 }
-
-
 
 #[wasm_bindgen]
 pub fn private_key_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
@@ -276,158 +265,27 @@ pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsVa
     Ok(pubkey_buf)
 }
 
-#[wasm_bindgen(js_name = "rescueHash")]
-pub fn rescue_hash_tx_msg(msg: &[u8]) -> Vec<u8> {
-    utils::rescue_hash_tx_msg(msg)
-}
-
-/// `msg` should be represented by 2 concatenated
-/// serialized orders of the swap transaction
-#[wasm_bindgen(js_name = "rescueHashOrders")]
-pub fn rescue_hash_orders(msg: &[u8]) -> Vec<u8> {
-    utils::rescue_hash_orders(msg)
-}
-
 #[wasm_bindgen]
-/// We use musig Schnorr signature scheme.
-/// It is impossible to restore signer for signature, that is why we provide public key of the signer
-/// along with signature.
-/// [0..32] - packed public key of signer.
-/// [32..64] - packed r point of the signature.
-/// [64..96] - s poing of the signature.
-pub fn sign_musig_without_hash_msg(private_key: &[u8], msg: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let mut packed_full_signature = Vec::with_capacity(PACKED_POINT_SIZE + PACKED_SIGNATURE_SIZE);
-    let p_g = FixedGenerators::SpendingKeyGenerator;
-    let private_key = read_signing_key(private_key)?;
-
-    {
-        let public_key =
-            JUBJUB_PARAMS.with(|params| PublicKey::from_private(&private_key, p_g, params));
-        public_key
-            .write(&mut packed_full_signature)
-            .expect("failed to write pubkey to packed_point");
-    };
-
-    let signature = JUBJUB_PARAMS.with(|jubjub_params| {
-        RESCUE_PARAMS.with(|rescue_params| {
-            let seed = Seed::deterministic_seed(&private_key, &msg);
-            private_key.musig_rescue_sign(&msg, &seed, p_g, rescue_params, jubjub_params)
-        })
-    });
-
-    signature
-        .r
-        .write(&mut packed_full_signature)
-        .expect("failed to write signature");
-    signature
-        .s
-        .into_repr()
-        .write_le(&mut packed_full_signature)
-        .expect("failed to write signature repr");
-
-    assert_eq!(
-        packed_full_signature.len(),
-        PACKED_POINT_SIZE + PACKED_SIGNATURE_SIZE,
-        "incorrect signature size when signing"
-    );
-
-    Ok(packed_full_signature)
+pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool, JsValue> {
+    let sig = JubjubSignature::from_str(sig_r, sig_s);
+    let sig = PackedSignature::from(sig);
+    let msg = HashType::from_str(msg).unwrap();
+    let pubkey = PublicKeyType::deserialize_str(pub_key).unwrap();
+    Ok(sig.verify(&pubkey.0, msg.as_bytes()))
 }
 
-#[wasm_bindgen]
-/// We use musig Schnorr signature scheme.
-/// It is impossible to restore signer for signature, that is why we provide public key of the signer
-/// along with signature.
-/// [0..32] - packed public key of signer.
-/// [32..64] - packed r point of the signature.
-/// [64..96] - s poing of the signature.
-pub fn sign_musig(private_key: &[u8], msg: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let mut packed_full_signature = Vec::with_capacity(PACKED_POINT_SIZE + PACKED_SIGNATURE_SIZE);
-    let p_g = FixedGenerators::SpendingKeyGenerator;
-    let private_key = read_signing_key(private_key)?;
-
-    {
-        let public_key =
-            JUBJUB_PARAMS.with(|params| PublicKey::from_private(&private_key, p_g, params));
-        public_key
-            .write(&mut packed_full_signature)
-            .expect("failed to write pubkey to packed_point");
-    };
-
-    let signature = JUBJUB_PARAMS.with(|jubjub_params| {
-        RESCUE_PARAMS.with(|rescue_params| {
-            let hashed_msg = utils::rescue_hash_tx_msg(msg);
-            let seed = Seed::deterministic_seed(&private_key, &hashed_msg);
-            private_key.musig_rescue_sign(&hashed_msg, &seed, p_g, rescue_params, jubjub_params)
-        })
-    });
-
-    signature
-        .r
-        .write(&mut packed_full_signature)
-        .expect("failed to write signature");
-    signature
-        .s
-        .into_repr()
-        .write_le(&mut packed_full_signature)
-        .expect("failed to write signature repr");
-
-    assert_eq!(
-        packed_full_signature.len(),
-        PACKED_POINT_SIZE + PACKED_SIGNATURE_SIZE,
-        "incorrect signature size when signing"
-    );
-
-    Ok(packed_full_signature)
+#[test]
+fn test_verify() {
+    let r = "353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
+    let s = "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
+    let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let msg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520";
+    let msg1 = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab00af1a520";
+    let ret = verify_signature(r, s, pub_key, msg).unwrap();
+    assert!(ret);
+    let ret = verify_signature(r, s, pub_key, msg1).unwrap();
+    assert!(!ret)
 }
-
-#[wasm_bindgen]
-pub fn verify_musig(msg: &[u8], signature: &[u8]) -> Result<bool, JsValue> {
-    if signature.len() != PACKED_POINT_SIZE + PACKED_SIGNATURE_SIZE {
-        return Err(JsValue::from_str("Signature length is not 96 bytes. Make sure it contains both the public key and the signature itself."));
-    }
-
-    let pubkey = &signature[..PACKED_POINT_SIZE];
-    let pubkey = JUBJUB_PARAMS
-        .with(|params| edwards::Point::read(&*pubkey, params).map(PublicKey))
-        .map_err(|_| JsValue::from_str("couldn't read public key"))?;
-
-    let signature = deserialize_signature(&signature[PACKED_POINT_SIZE..])?;
-
-    let msg = utils::rescue_hash_tx_msg(msg);
-    let value = JUBJUB_PARAMS.with(|jubjub_params| {
-        RESCUE_PARAMS.with(|rescue_params| {
-            pubkey.verify_musig_rescue(
-                &msg,
-                &signature,
-                FixedGenerators::SpendingKeyGenerator,
-                rescue_params,
-                jubjub_params,
-            )
-        })
-    });
-
-    Ok(value)
-}
-
-fn deserialize_signature(bytes: &[u8]) -> Result<Signature, JsValue> {
-    let (r_bar, s_bar) = bytes.split_at(PACKED_POINT_SIZE);
-
-    let r = JUBJUB_PARAMS
-        .with(|params| edwards::Point::read(r_bar, params))
-        .map_err(|_| JsValue::from_str("Failed to parse signature"))?;
-
-    let mut s_repr = FsRepr::default();
-    s_repr
-        .read_le(s_bar)
-        .map_err(|_| JsValue::from_str("Failed to parse signature"))?;
-
-    let s = <Engine as JubjubEngine>::Fs::from_repr(s_repr)
-        .map_err(|_| JsValue::from_str("Failed to parse signature"))?;
-
-    Ok(Signature { r, s })
-}
-
 
 
 #[test]

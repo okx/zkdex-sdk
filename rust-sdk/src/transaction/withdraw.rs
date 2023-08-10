@@ -17,9 +17,6 @@ use crate::tx::TxSignature;
 use crate::types::h256_to_u256;
 use crate::zkw::JubjubSignature;
 
-// use wasm_bindgen::JsValue;
-// use time::OffsetDateTime;
-//
 
 pub type AmountType = u64;
 pub type PositionIdType = u64;
