@@ -294,17 +294,19 @@ pub fn test_verify() {
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use crate::{sign_transfer, verify_signature};
+    use crate::{hash_transfer, sign_transfer, verify_signature};
 
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
-        let hash = "0acf01cf2a0fa95fe13c2ff4f6a38fa382e3b10acf342bab5f8826d5feada725";
-        let sig_r = "0276d07a348630978fdecb67956c02ad9f244f2d072b5f8149814e041114950d";
-        let sig_s ="43a5a30e6490dd002ca6743f5aab2f291930a489516336e1dcee57be84ead802";
+        let transfer_req  = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+        let hash = hash_transfer(transfer_req).unwrap();
+        // let hash = "0acf01cf2a0fa95fe13c2ff4f6a38fa382e3b10acf342bab5f8826d5feada725";
+        let sig_r = "0c2b9b07a37711498dc9cdd2585c66b07d110fc69c2b31e43376cdf16d266099";
+        let sig_s ="b7d9032ae2e7ff265910db676685e60eb22aa01f1e6c6587beb024373b58fa05";
         let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
         b.iter(||{
-            assert!(verify_signature(sig_r,sig_s,pub_key,hash).unwrap());
+            assert!(verify_signature(sig_r,sig_s,pub_key,&hash).unwrap());
         })
     }
 
@@ -313,9 +315,9 @@ mod test {
     #[bench]
     fn bench_sign_transfer(b: &mut Bencher) {
         let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-        let req = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+        let transfer_req  = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
         b.iter(||{
-            assert!(sign_transfer(req, pri_key).is_ok());
+            assert!(sign_transfer(transfer_req, pri_key).is_ok());
         })
     }
 }
