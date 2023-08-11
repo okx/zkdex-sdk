@@ -50,6 +50,19 @@ if ! command_exists node; then
     fi
 fi
 
+# Check and install Maven
+if ! command_exists mvn; then
+    echo "Maven is not installed. Installing..."
+
+    # Linux / macOS
+    if [[ $(uname) == "Linux" || $(uname) == "Darwin" ]]; then
+        brew install maven
+    # Windows (using PowerShell)
+    else
+        choco install maven
+    fi
+fi
+
 echo "All required environments are installed."
 
 # Additional steps:
