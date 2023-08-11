@@ -3,7 +3,7 @@ package com.okx;
 import com.alibaba.fastjson2.JSON;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ZKDEXTest {
     static String priKey = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
