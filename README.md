@@ -21,12 +21,14 @@ npm i && npm run test
 
 machine: **16c 64g**
 
-|      | rust                | javascript          |
-| ---- | ------------------- | ------------------- |
-| 1    | sign: 1.63 ms /op   | sign: 7.40 ms /op   |
-|      | veirfy: 1.04 ms /op | verify: 4.97 ms /op |
-| 2    | sign: 1.62 ms /op   | sign: 7.35 ms /op   |
-|      | verify: 1.04 ms /op | verify: 4.97 ms /op |
-| 3    | sign: 1.62 ms /op   | sign: 7.35 ms /op   |
-|      | verify: 1.03ms /op  | verify: 5.00 ms /op |
+> The process of verifying a signature involves a hash calculation.
+
+|      | rust                | javascript          | java                |
+| ---- | ------------------- | ------------------- |---------------------|
+| 1    | sign: 1.63 ms /op   | sign: 7.40 ms /op   | sign: 1.63 ms /op   |
+|      | veirfy: 1.04 ms /op | verify: 4.97 ms /op | verify: 1.04 ms /op |
+| 2    | sign: 1.62 ms /op   | sign: 7.35 ms /op   | sign: 1.63 ms /op   |
+|      | verify: 1.04 ms /op | verify: 4.97 ms /op | verify: 1.04 ms/op  |
+| 3    | sign: 1.62 ms /op   | sign: 7.35 ms /op   | sign: 1.63 ms /op   |
+|      | verify: 1.03ms /op  | verify: 5.00 ms /op | verify: 1.04 ms /op |
 
