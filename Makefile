@@ -1,4 +1,4 @@
-bench: java_bench rust_bench
+bench: java_bench rust_bench java_script_bench
 
 all: check_env java_sdk java_script_sdk
 
@@ -16,3 +16,5 @@ java_script_sdk:
 java_sdk:
 	cd rust-sdk && cargo build --release
 	cd java-sdk && mvn clean verify
+java_script_bench: java_script_sdk
+	cd js-example && npm i && npm run bench
