@@ -1,6 +1,6 @@
-import * as wasm from '@okbchain/zkdex-sdk';
-import {ethers as utils} from 'ethers';
-import * as assert from "assert";
+const assert = require("assert");
+const wasm = require('@okbchain/zkdex-sdk');
+const utils = require('ethers');
 
 const pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
 const pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";

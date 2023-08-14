@@ -1,5 +1,5 @@
-import * as wasm from '@okbchain/zkdex-sdk';
-import { ethers as utils } from 'ethers';
+const wasm = require('@okbchain/zkdex-sdk');
+const utils = require('ethers');
 function hexStringToUint8Array(hexString){
     if (hexString.length % 2 !== 0){
         throw "Invalid hexString";
