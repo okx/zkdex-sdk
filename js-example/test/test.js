@@ -14,8 +14,8 @@ describe('test zkdex js function', function () {
         console.log(hash);
         let sig = JSON.parse(sig_str)
         console.log(sig)
-        assert.equal(wasm.verify_signature(sig.r.substring(2), sig.s.substring(2), pub_key, hash), true);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
+        assert.equal(wasm.verify_signature(sig.r, sig.s, pub_key, hash), true);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
 
     it('test sgin trasnfer', function () {
@@ -25,8 +25,8 @@ describe('test zkdex js function', function () {
         let hash = wasm.hash_transfer(transfer_req);
         let sig = JSON.parse(sig_str);
         console.log("hash:",hash);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, hash), true);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, hash), true);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
 
     it('test sign limit order', function (){
@@ -37,8 +37,8 @@ describe('test zkdex js function', function () {
         let sig = JSON.parse(sig_str);
         console.log(sig);
         console.log(hash);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, hash), true);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, hash), true);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
 
     it('test sign liquide', function () {
@@ -49,8 +49,8 @@ describe('test zkdex js function', function () {
         let sig = JSON.parse(sig_str);
         console.log(sig);
         console.log(hash);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, hash), true);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, hash), true);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
 
     it('test sign signed oracle price', function () {
@@ -61,8 +61,8 @@ describe('test zkdex js function', function () {
         let sig = JSON.parse(sig_str);
         console.log(sig);
         console.log(hash);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, hash), true);
-        assert.equal(wasm.verify_signature(sig.r.substring(2),sig.s.substring(2), pub_key, err_hash), false);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, hash), true);
+        assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
 })
 
