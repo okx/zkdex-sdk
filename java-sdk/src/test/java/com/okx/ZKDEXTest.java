@@ -29,7 +29,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashWithdraw(json, "1");
-        assert ZKDEX.verifySignature(signature.getR().substring(2), signature.getS().substring(2), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
     }
 
     @Test
@@ -41,7 +41,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashTransfer(json);
-        assert ZKDEX.verifySignature(signature.getR().substring(2), signature.getS().substring(2), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
     }
 
     @Test
@@ -53,7 +53,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLimitOrder(json);
-        assert ZKDEX.verifySignature(signature.getR().substring(2), signature.getS().substring(2), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
     }
 
     @Test
@@ -65,7 +65,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLiquidate(json);
-        assert ZKDEX.verifySignature(signature.getR().substring(2), signature.getS().substring(2), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
     }
 
     @Test
@@ -77,7 +77,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashSignedOraclePrice(json);
-        assert ZKDEX.verifySignature(signature.getR().substring(2), signature.getS().substring(2), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
     }
 
     @Test

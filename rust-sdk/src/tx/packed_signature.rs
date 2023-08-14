@@ -141,6 +141,14 @@ impl JubjubSignature {
             pub signature: JubjubSignature,
         }
 
+        let r = if r.starts_with("0x") {
+            r.trim_start_matches("0x")
+        } else { r };
+
+        let s = if s.starts_with("0x") {
+            s.trim_start_matches("0x")
+        } else { s };
+
         let r: [u8; 32] = hex::decode(&String::from(r))
             .unwrap()
             .try_into()

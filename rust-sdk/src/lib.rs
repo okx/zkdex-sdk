@@ -280,8 +280,8 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> R
 
 #[test]
 pub fn test_verify() {
-    let r = "353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
-    let s = "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
+    let r = "0x353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
+    let s = "0xc80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
     let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
     let msg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520";
     let msg1 = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab00af1a520";
