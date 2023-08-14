@@ -1,0 +1,19 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "test": "mocha",
+    "bench": "node benchmark.js"
+  },
+  "dependencies": {
+    "@okbchain/zkdex-sdk": "../javascript-sdk",
+    "benchmark": "^2.1.4",
+    "ethers": "^6.7.0",
+    "mocha": "^10.2.0"
+  },
+  "type": "commonjs",
+  "license": "ISC"
+}
