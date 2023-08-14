@@ -1,7 +1,6 @@
 use std::ops::ShlAssign;
 use std::str::FromStr;
 
-use num_bigint::BigInt;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
@@ -15,6 +14,7 @@ use crate::transaction::types::{AmountType, CollateralAssetId, HashType, Positio
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::TxSignature;
 use crate::zkw::JubjubSignature;
+use anyhow::Result;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TransferRequest {
@@ -35,7 +35,7 @@ pub struct TransferRequest {
 pub fn sign_transfer(
     transfer: TransferRequest,
     private_key: &str,
-) -> Result<JubjubSignature, JsValue> {
+) -> Result<JubjubSignature> {
     let hash = transfer_hash(&transfer, 0);
     let private_key = private_key_from_string(private_key).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());

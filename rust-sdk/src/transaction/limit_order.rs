@@ -1,23 +1,23 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::Display;
 use std::ops::ShlAssign;
 use std::str::FromStr;
+
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::FixedGenerators;
-
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
 use crate::common::OrderBase;
-use crate::hash::{hash2, ToHashable};
-
+use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
-use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::{JUBJUB_PARAMS, TxSignature};
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+use crate::zkw::JubjubSignature;
+use anyhow::Result;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;
@@ -49,9 +49,9 @@ pub struct LimitOrderRequest {
 pub fn sign_limit_order(
     mut req: LimitOrderRequest,
     prvk: &str,
-) -> Result<JubjubSignature, JsValue> {
+) -> Result<JubjubSignature> {
     let hash = limit_order_hash(&req);
-    let private_key = private_key_from_string(prvk).unwrap();
+    let private_key = private_key_from_string(prvk)?;
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
     Ok(sig.into())
 }

@@ -19,7 +19,7 @@ use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
-
+use anyhow::Result;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
@@ -60,6 +60,7 @@ pub mod tx;
 mod zkw;
 pub mod transaction;
 pub mod java_bridge;
+pub mod javascript_bridge;
 
 
 const PACKED_POINT_SIZE: usize = 32;
@@ -71,6 +72,7 @@ thread_local! {
     pub static JUBJUB_PARAMS: AltJubjubBn256 = AltJubjubBn256::new();
     pub static RESCUE_PARAMS: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
 }
+
 lazy_static::lazy_static! {
     // pub static ref RESCUE_HASHER: BabyRescueHasher = BabyRescueHasher::default();
     pub static ref RESCUE_PARAMS_CONST: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
@@ -154,96 +156,76 @@ pub fn private_key_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, JsValue
     )?))
 }
 
-#[wasm_bindgen]
-pub fn sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
+
+pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let req: TransferRequest = serde_json::from_str(json).unwrap();
-    let ret = transfer::sign_transfer(req, private_key)?;
-    match serde_json::to_string(&ret) {
-        Ok(ret) => Ok(ret),
-        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
-    }
+    Ok(transfer::sign_transfer(req, private_key)?)
 }
 
-#[wasm_bindgen]
-pub fn hash_transfer(json: &str) -> Result<String, JsValue> {
+
+pub fn hash_transfer(json: &str) -> Result<String> {
     let req: TransferRequest = serde_json::from_str(json).unwrap();
     Ok(transfer_hash(&req, 0).encode_hex::<String>())
 }
 
-#[wasm_bindgen]
+
 pub fn sign_withdraw(
     json: &str,
     asset_id_collateral: &str,
     private_key: &str,
-) -> Result<String, JsValue> {
-    let asset_id = CollateralAssetId::from_str(asset_id_collateral).unwrap();
-    let withdraw: WithdrawRequest = serde_json::from_str(json).unwrap();
-    let withdraw = withdraw::sign_withdraw(withdraw, &asset_id, private_key)?;
-    match serde_json::to_string(&withdraw) {
-        Ok(ret) => Ok(ret),
-        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
-    }
+) -> Result<JubjubSignature> {
+    let asset_id = CollateralAssetId::from_str(asset_id_collateral)?;
+    let withdraw: WithdrawRequest = serde_json::from_str(json)?;
+    Ok(withdraw::sign_withdraw(withdraw, &asset_id.clone(), private_key)?)
 }
 
-#[wasm_bindgen]
-pub fn hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String, JsValue> {
-    let req: WithdrawRequest = serde_json::from_str(json).unwrap();
-    let asset_id = CollateralAssetId::from_str(asset_id_collateral).unwrap();
+
+pub fn hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String> {
+    let req: WithdrawRequest = serde_json::from_str(json)?;
+    let asset_id = CollateralAssetId::from_str(asset_id_collateral)?;
     Ok(withdrawal_hash(&req, &asset_id).encode_hex::<String>())
 }
 
-#[wasm_bindgen]
-pub fn sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
-    let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
-    let ret = limit_order::sign_limit_order(req, private_key)?;
-    match serde_json::to_string(&ret) {
-        Ok(ret) => Ok(ret),
-        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
-    }
+
+pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature> {
+    let req: LimitOrderRequest = serde_json::from_str(json)?;
+    Ok(limit_order::sign_limit_order(req, private_key)?)
 }
 
-#[wasm_bindgen]
-pub fn hash_limit_order(json: &str) -> Result<String, JsValue> {
-    let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
+
+pub fn hash_limit_order(json: &str) -> Result<String> {
+    let req: LimitOrderRequest = serde_json::from_str(json)?;
     Ok(limit_order_hash(&req).encode_hex::<String>())
 }
 
-#[wasm_bindgen]
-pub fn sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
-    let req: Liquidate = serde_json::from_str(json).unwrap();
-    let ret = limit_order::sign_limit_order(req.liquidator_order, private_key)?;
-    match serde_json::to_string(&ret) {
-        Ok(ret) => Ok(ret),
-        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
-    }
+
+pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> {
+    let req: Liquidate = serde_json::from_str(json)?;
+    Ok(limit_order::sign_limit_order(req.liquidator_order, private_key)?)
 }
 
-#[wasm_bindgen]
-pub fn hash_liquidate(json: &str) -> Result<String, JsValue> {
-    let req: Liquidate = serde_json::from_str(json).unwrap();
+
+pub fn hash_liquidate(json: &str) -> Result<String> {
+    let req: Liquidate = serde_json::from_str(json)?;
     Ok(limit_order_hash(&req.liquidator_order).encode_hex::<String>())
 }
 
-#[wasm_bindgen]
+
 pub fn sign_signed_oracle_price(
     json: &str,
     private_key: &str,
-) -> Result<String, JsValue> {
-    let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
-    let ret = oracle_price::sign_signed_oracle_price(req, private_key)?;
-    match serde_json::to_string(&ret) {
-        Ok(ret) => Ok(ret),
-        Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
-    }
+) -> Result<JubjubSignature> {
+    let req: SignedOraclePrice = serde_json::from_str(json)?;
+    Ok(oracle_price::sign_signed_oracle_price(req, private_key)?)
 }
 
-#[wasm_bindgen]
-pub fn hash_signed_oracle_price(json: &str) -> Result<String, JsValue> {
-    let req: SignedOraclePrice = serde_json::from_str(json).unwrap();
+
+pub fn hash_signed_oracle_price(json: &str) -> Result<String> {
+    let req: SignedOraclePrice = serde_json::from_str(json)?;
     Ok(signed_oracle_price_hash(&req).encode_hex::<String>())
 }
 
-#[wasm_bindgen]
+
 pub fn private_key_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
     let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
 
@@ -269,12 +251,11 @@ pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsVa
     Ok(pubkey_buf)
 }
 
-#[wasm_bindgen]
-pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool, JsValue> {
+pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
-    let msg = HashType::from_str(msg).unwrap();
-    let pubkey = PublicKeyType::deserialize_str(pub_key).unwrap();
+    let msg = HashType::from_str(msg)?;
+    let pubkey = PublicKeyType::deserialize_str(pub_key)?;
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
 }
 
@@ -299,22 +280,21 @@ mod test {
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
-        b.iter(||{
-            let transfer_req  = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+        b.iter(|| {
+            let transfer_req = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
             let hash = hash_transfer(transfer_req).unwrap();
             let sig_r = "0c2b9b07a37711498dc9cdd2585c66b07d110fc69c2b31e43376cdf16d266099";
-            let sig_s ="b7d9032ae2e7ff265910db676685e60eb22aa01f1e6c6587beb024373b58fa05";
+            let sig_s = "b7d9032ae2e7ff265910db676685e60eb22aa01f1e6c6587beb024373b58fa05";
             let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
-            assert!(verify_signature(sig_r,sig_s,pub_key,&hash).unwrap());
+            assert!(verify_signature(sig_r, sig_s, pub_key, &hash).unwrap());
         })
     }
 
 
-
     #[bench]
     fn bench_sign_transfer(b: &mut Bencher) {
-        b.iter(||{
-            let transfer_req  = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+        b.iter(|| {
+            let transfer_req = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
             let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
             assert!(sign_transfer(transfer_req, pri_key).is_ok());
         })

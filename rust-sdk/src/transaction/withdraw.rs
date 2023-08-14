@@ -2,8 +2,8 @@ use std::convert::TryFrom;
 
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use wasm_bindgen::JsValue;
 
+use anyhow::Result;
 use crate::common::OrderBase;
 use crate::constant::{
     AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
@@ -37,7 +37,7 @@ pub fn sign_withdraw(
     withdrawal: WithdrawRequest,
     asset_id_collateral: &CollateralAssetId,
     prvk: &str,
-) -> Result<JubjubSignature, JsValue> {
+) -> Result<JubjubSignature> {
     let hash = withdrawal_hash(&withdrawal, asset_id_collateral);
     let private_key = private_key_from_string(prvk).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());

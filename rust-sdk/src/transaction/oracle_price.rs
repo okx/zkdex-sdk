@@ -6,15 +6,18 @@
 //   (synthetic_asset_unit / synthetic_resolution).
 
 use std::ops::ShlAssign;
+
 use primitive_types::U256;
 use serde::Deserialize;
-use wasm_bindgen::JsValue;
+
 use crate::hash::hash2;
-use crate::transaction::types::{AssetIdType, HashType, PriceType, SignatureType, SignedAssetId, TimestampType};
+use crate::transaction::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
 use crate::tx::{PublicKeyType, Serialize, TxSignature};
 use crate::tx::packed_public_key::private_key_from_string;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use crate::U256SerdeAsRadix16Prefix0xString;
+use crate::zkw::JubjubSignature;
+use anyhow::Result;
+
 // Represents a single signature on an external price with a timestamp.
 #[derive(Debug, Clone, PartialEq,Serialize,Deserialize)]
 pub struct SignedOraclePrice {
@@ -66,9 +69,9 @@ pub fn signed_oracle_price_hash(price: &SignedOraclePrice) -> HashType {
 pub fn sign_signed_oracle_price(
     price: SignedOraclePrice,
     prvk: &str,
-) -> Result<JubjubSignature, JsValue> {
+) -> Result<JubjubSignature> {
     let hash = signed_oracle_price_hash(&price);
-    let private_key = private_key_from_string(prvk).unwrap();
+    let private_key = private_key_from_string(prvk)?;
     let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
     Ok(signature.into())
 }
