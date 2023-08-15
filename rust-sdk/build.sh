@@ -48,4 +48,5 @@ mkdir -p ../javascript-sdk
 rm -rf ../javascript-sdk/dist
 cp -r dist ../javascript-sdk/
 rm -rf ../javascript-sdk/package.json
-cp package.json ../javascript-sdk/
+cd ../javascript-sdk
+npm i && npm run doc
