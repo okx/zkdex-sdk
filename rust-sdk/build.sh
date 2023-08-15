@@ -47,6 +47,5 @@ node web-wasm.js
 mkdir -p ../javascript-sdk
 rm -rf ../javascript-sdk/dist
 cp -r dist ../javascript-sdk/
-rm -rf ../javascript-sdk/package.json
 cd ../javascript-sdk
 npm i && npm run doc
