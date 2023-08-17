@@ -15,7 +15,7 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use hex::ToHex;
 use jni::objects::*;
 use num_traits::Num;
-use primitive_types::H256;
+use primitive_types::{H256, U256};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
@@ -32,7 +32,7 @@ use crate::transaction::transfer::{transfer_hash, TransferRequest};
 use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
-use crate::tx::packed_public_key::{convert_to_pubkey, private_key_from_string, public_key_from_private, PublicKeyType};
+use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
@@ -259,6 +259,7 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> R
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
 }
 
+
 #[test]
 pub fn test_verify() {
     let r = "0x353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
@@ -269,7 +270,50 @@ pub fn test_verify() {
     let ret = verify_signature(r, s, pub_key, msg).unwrap();
     assert!(ret);
     let ret = verify_signature(r, s, pub_key, msg1).unwrap();
-    assert!(!ret)
+    assert!(!ret);
+
+    let x = "1cb6b94240a2f5a68b6e9b2197916714ec8b210dda99eeef69dd439c6324fe71";
+    let y = "19b2665d3bc3c68205ca714a8e02356d6fb48c90f5280bef1dfd183889c536d0";
+    let s = "53da455169c654cc5bc6808a0838b927e89afd5e8667a51116877a69196b5e00";
+
+    let sig = JubjubSignature::from_x_y(x, y, s);
+    let sig = PackedSignature::from(sig);
+    let msg = HashType::from_str("0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3").unwrap();
+    let pubkey = PublicKeyType::deserialize_str(pub_key).unwrap();
+    assert!(sig.verify(&pubkey.0, msg.as_bytes()))
+}
+
+
+#[test]
+pub fn test_verify2() {
+    let sig_x = "1cb6b94240a2f5a68b6e9b2197916714ec8b210dda99eeef69dd439c6324fe71";
+    let sig_y = "19b2665d3bc3c68205ca714a8e02356d6fb48c90f5280bef1dfd183889c536d0";
+    let sig_s = "53da455169c654cc5bc6808a0838b927e89afd5e8667a51116877a69196b5e00";
+    let pub_key_x = "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
+    let pub_key_y = "0x2917e2b130d3c0b999870048591eff578da75c0b5fb1c4c5c99a7fd9cbd3cb42";
+    let hash = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
+    let err_hash = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f9";
+
+    assert!(verify_signature2(sig_x,sig_y,sig_s,pub_key_x,pub_key_y,hash));
+    assert_eq!(verify_signature2(sig_x,sig_y,sig_s,pub_key_x,pub_key_y,err_hash), false);
+}
+
+
+pub fn verify_signature2(sig_x: &str, sig_y: &str, sig_s: &str, pk_x: &str, pk_y: &str, msg: &str) -> bool {
+    let sig = JubjubSignature::from_x_y(sig_x, sig_y, sig_s);
+    let sig = PackedSignature::from(sig);
+    let msg = HashType::from_str(msg).unwrap();
+    let pubk = PackedPublicKey::from((u256_to_h256(U256::from_str_radix(pk_x, 16).unwrap()),
+                                      u256_to_h256(U256::from_str_radix(pk_y, 16).unwrap())));
+    let pubkey = PublicKeyType::deserialize_str(pubk.to_string().as_str()).unwrap();
+    sig.verify(&pubkey.0, msg.as_bytes())
+}
+
+
+pub fn pubkey_from_x_y(x: &str, y: &str) -> PublicKeyType {
+    let pubk = PackedPublicKey::from((u256_to_h256(U256::from_str_radix(x, 16).unwrap()),
+                                      u256_to_h256(U256::from_str_radix(y, 16).unwrap())));
+    PublicKeyType::deserialize_str(pubk.to_string().as_str()).unwrap()
 }
 
 #[cfg(test)]

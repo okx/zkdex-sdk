@@ -163,6 +163,25 @@ impl JubjubSignature {
             sig_s: h256_to_u256(H256(s)).0,
         }
     }
+
+    pub fn from_x_y(x: &str, y: &str, s: &str) -> Self {
+        let s: [u8; 32] = hex::decode(s).unwrap().try_into().unwrap();
+        // let x: [u8; 32] = hex::decode(x).unwrap().try_into().unwrap();
+        // let y: [u8; 32] = hex::decode(y).unwrap().try_into().unwrap();
+        // let r = get_r_from_xy(H256::fr, &h256_to_u256(H256(y)));
+        // H256::from_str()
+
+
+
+        // let (x, y) = get_xy_from_r(r);
+        // let x = fr_to_u256(&x).unwrap();
+        // let y = fr_to_u256(&y).unwrap();
+
+        JubjubSignature {
+            sig_r: BabyJubjubPoint { x: U256::from_str_radix(x,16).unwrap(), y: U256::from_str_radix(y,16).unwrap()},
+            sig_s: h256_to_u256(H256(s)).0,
+        }
+    }
 }
 
 #[cfg(test)]
