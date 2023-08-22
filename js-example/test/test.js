@@ -64,6 +64,13 @@ describe('test zkdex js function', function () {
         assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, hash), true);
         assert.equal(wasm.verify_signature(sig.r,sig.s, pub_key, err_hash), false);
     });
+
+    it('test l1_sign', function() {
+        let hash = "1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
+        let ret = wasm.l1_sign(hash, pri_key);
+        console.log(ret)
+
+    });
 })
 
 
