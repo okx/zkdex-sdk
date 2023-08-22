@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
 use anyhow::Result;
+use num_bigint::BigUint;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
@@ -32,6 +33,7 @@ use crate::transaction::transfer::{transfer_hash, TransferRequest};
 use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
+use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{convert_to_pubkey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
@@ -257,6 +259,27 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> R
     let msg = HashType::from_str(msg)?;
     let pubkey = PublicKeyType::deserialize_str(pub_key)?;
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
+}
+
+pub fn l1_sign(msg: &str, private_key: &str) -> Result<Vec<String>> {
+    let b = BigUint::from_str_radix(msg, 16)?;
+    let msg = &hex::encode(b.to_bytes_le());
+    let private_key = private_key_from_string(private_key)?;
+    let msg = HashType::from_str(msg)?;
+    let (sig, _) = TxSignature::sign_msg(&private_key, msg.as_bytes());
+    let p_g = FixedGenerators::SpendingKeyGenerator;
+    let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
+    let (pk_x,pk_y) = pk.0.into_xy();
+    let (x, y) = sig.signature.0.r.into_xy();
+    Ok(vec![x.to_hex(), y.to_hex(), sig.signature.0.s.to_hex(), pk_x.to_hex(), pk_y.to_hex()])
+}
+
+#[test]
+pub fn test_l1_sign() {
+    let msg = "1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
+    let priv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let s = l1_sign(msg, priv_key).unwrap();
+    println!("{:#?}", s);
 }
 
 #[test]

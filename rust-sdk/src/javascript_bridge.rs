@@ -1,6 +1,6 @@
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
-use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
+use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, l1_sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 #[wasm_bindgen(js_name = sign_transfer)]
 pub fn js_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
@@ -117,6 +117,13 @@ pub fn js_hash_signed_oracle_price(json: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = verify_signature)]
 pub fn js_verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool,JsValue> {
     match verify_signature(sig_r,sig_s,pub_key,msg) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str()))
+    }
+}
+
+pub fn js_l1_sign(msg: &str, private_key: &str)-> Result<Vec<String>,JsValue> {
+    match  l1_sign(msg,private_key) {
         Ok(ret) => Ok(ret),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str()))
     }
