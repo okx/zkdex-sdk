@@ -77,8 +77,7 @@ describe('test zkdex js function', function () {
             pk_x: "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b",
             pk_y: "0x2917e2b130d3c0b999870048591eff578da75c0b5fb1c4c5c99a7fd9cbd3cb42"
         }
-
-        assertDeepEqual(o,expected);
+        assert.equals(o, expected);
 
     });
 })
