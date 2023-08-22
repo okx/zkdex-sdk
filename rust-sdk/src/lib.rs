@@ -36,6 +36,7 @@ use crate::transaction::transfer::{transfer_hash, TransferRequest};
 use crate::transaction::types::{HashType, SignatureType};
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 use crate::tx::{h256_to_u256, JUBJUB_PARAMS as OtherJUBJUB_PARAM, u256_to_h256};
+use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::{PackedSignature, point_from_xy};
 use crate::tx::sign::TxSignature;
@@ -439,14 +440,16 @@ pub fn test_pubkey() {
 // s 大端
 #[test]
 pub fn test_sign2() {
-    let msg = "1aef70c82253f60ada41125af01a26281d0fe9bc368faad3496d70bd14bf284e";
+    let msg = "1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
     let b = BigUint::from_str_radix(msg,16).unwrap();
-
+    // let msg = &hex::encode(v);
     let msg = &hex::encode(b.to_bytes_le());
     println!("{}",msg);
+
     let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let private_key = private_key_from_string(pri_key).unwrap();
     let msg = HashType::from_str(msg).unwrap();
+    println!("{}", hex::encode(msg.as_bytes()));
     let (sig, pk) = TxSignature::sign_msg(&private_key, msg.as_bytes());
 
 
@@ -458,13 +461,13 @@ pub fn test_sign2() {
 
     println!("{:#?}", sig.signature.0.r.into_xy());
     println!("{:#?}", sig.signature.0.s.to_string());
+    println!("{:#?}", sig.signature.0.s.to_hex());
     let sig:JubjubSignature = sig.clone().into();
 
 
 
     println!("{:#?}", serde_json::to_string(&sig));
     let s = BigUint::from_str_radix("bd365afd65bc240a6b00f2d501d100788a3a19f37faac41d3b312b6218aad603", 16).unwrap();
-    let s = BigUint::from_bytes_be(s.to_bytes_be().as_slice());
+    let s = BigUint::from_bytes_le(s.to_bytes_le().as_slice());
     println!("{:#?}", s.to_str_radix(16))
-
 }

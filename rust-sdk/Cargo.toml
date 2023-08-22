@@ -21,7 +21,8 @@ default = ["console_error_panic_hook"]
 [dependencies]
 #delphinus-zkwasm = { package = "delphinus-zkwasm", git = "https://github.com/okx/zkWasm.git", branch = "dev",features = ["default"] }
 #zkwasm-rust-sdk = { git = "https://github.com/DelphinusLab/zkWasm-rust.git" }
-franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
+#franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
+franklin_crypto = {path ="/Users/finefine/workspace/ok/franklin-crypto" , package = "franklin-crypto" , features = ["multicore", "plonk"]}
 rand = "0.4"
 mio = "0.7.12"
 serde = { version = "1.0.152", features = ["derive"] }

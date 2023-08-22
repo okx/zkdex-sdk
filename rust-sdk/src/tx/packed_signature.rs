@@ -131,6 +131,7 @@ impl Serialize for JubjubSignature {
 use super::*;
 use crate::tx::packed_public_key::fr_to_u256;
 use std::convert::TryInto;
+use pairing_ce::from_hex;
 
 impl JubjubSignature {
     pub fn from_str(r: &str, s: &str) -> Self {

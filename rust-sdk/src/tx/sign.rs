@@ -170,6 +170,7 @@ mod tests {
     #[test]
     pub fn test_pubkey() {
         let pubkey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
-
+        let pk = PublicKeyType::deserialize_str(pubkey).unwrap();
+        println!("{:#?}", pk)
     }
 }

@@ -622,7 +622,6 @@ dependencies = [
 [[package]]
 name = "franklin-crypto"
 version = "0.0.5"
-source = "git+https://github.com/okx/franklin-crypto.git?branch=beta#500ea23d4e06734273d7d77fa5e83e407f8ccd21"
 dependencies = [
  "bellman_ce",
  "bit-vec",
