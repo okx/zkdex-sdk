@@ -271,7 +271,8 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<Vec<String>> {
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
     let (pk_x,pk_y) = pk.0.into_xy();
     let (x, y) = sig.signature.0.r.into_xy();
-    Ok(vec![x.to_hex(), y.to_hex(), sig.signature.0.s.to_hex(), pk_x.to_hex(), pk_y.to_hex()])
+    let arr = vec![x.to_hex(), y.to_hex(), sig.signature.0.s.to_hex(), pk_x.to_hex(), pk_y.to_hex()];
+    Ok(arr.iter().map(|e|"0x".to_owned()+e).collect())
 }
 
 #[test]
@@ -279,7 +280,14 @@ pub fn test_l1_sign() {
     let msg = "1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
     let priv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let s = l1_sign(msg, priv_key).unwrap();
-    println!("{:#?}", s);
+    let expected = vec![
+        "0x02c5c5ab6dc2ae39c6bf239acd233c412ceebba1370cd4679ff78c3e57a33f90".to_string(),
+        "0x1fc29405cb5021e77aec60bfdd9ed43b245569e4cfc6e5720207e015662fd3b9".to_string(),
+        "0x03fcedddaa3803bc26fa98926d224f13857c1b600a3e99ba01cfcee8d54deaa3".to_string(),
+        "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b".to_string(),
+        "0x2917e2b130d3c0b999870048591eff578da75c0b5fb1c4c5c99a7fd9cbd3cb42".to_string(),
+    ];
+    assert!(s == expected)
 }
 
 #[test]
