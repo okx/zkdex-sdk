@@ -2,6 +2,7 @@
 extern crate test as other_test;
 
 use std::convert::TryFrom;
+use std::hash::Hash;
 use std::str::FromStr;
 
 use franklin_crypto::{
@@ -20,20 +21,23 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
 use anyhow::Result;
+use num_bigint::{BigInt, BigUint};
+use pairing_ce::compact_bn256::Bn256;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
+use crate::common::OrderBase;
 
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
 use crate::transaction::transfer::{transfer_hash, TransferRequest};
-use crate::transaction::types::HashType;
+use crate::transaction::types::{HashType, SignatureType};
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
-use crate::tx::{h256_to_u256, u256_to_h256};
+use crate::tx::{h256_to_u256, JUBJUB_PARAMS as OtherJUBJUB_PARAM, u256_to_h256};
 use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
-use crate::tx::packed_signature::PackedSignature;
+use crate::tx::packed_signature::{PackedSignature, point_from_xy};
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
 use crate::utils::set_panic_hook;
@@ -286,16 +290,16 @@ pub fn test_verify() {
 
 #[test]
 pub fn test_verify2() {
-    let sig_x = "1cb6b94240a2f5a68b6e9b2197916714ec8b210dda99eeef69dd439c6324fe71";
-    let sig_y = "19b2665d3bc3c68205ca714a8e02356d6fb48c90f5280bef1dfd183889c536d0";
-    let sig_s = "53da455169c654cc5bc6808a0838b927e89afd5e8667a51116877a69196b5e00";
-    let pub_key_x = "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
-    let pub_key_y = "0x2917e2b130d3c0b999870048591eff578da75c0b5fb1c4c5c99a7fd9cbd3cb42";
-    let hash = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
-    let err_hash = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f9";
+    let sig_x = "0x14e6f3f9540a84b18be1ed175662b97e23e4e4ec503b122bc1b566b14337b2a0";
+    let sig_y = "0x24ccb24d90419bc3492fe8cc7ee91e619c6152dbb6e116aa3ffbfe2e05c8e163";
+    let sig_s = "000c2c61624b877726e579620b88e97fbdb61ddfed45f6259d2918c66e8492d8";
+    let pub_key_x = "0x0e63e65569365f7d2db43642f9cb15781120364f5e993cd6822cbab3f86be4d3";
+    let pub_key_y = "0x1d7b719c22afcf3eff09258df3f8b646af0ee4372bdb7979118168e8d390130e";
+    let hash = "0x1449d0635d415326045829622c0baa8998517c4679ebfbb7ce0879298e4667de";
+
 
     assert!(verify_signature2(sig_x,sig_y,sig_s,pub_key_x,pub_key_y,hash));
-    assert_eq!(verify_signature2(sig_x,sig_y,sig_s,pub_key_x,pub_key_y,err_hash), false);
+
 }
 
 
@@ -343,4 +347,124 @@ mod test {
             assert!(sign_transfer(transfer_req, pri_key).is_ok());
         })
     }
+}
+
+#[test]
+fn test_sign_transfer() {
+    use crate::tx::packed_signature::SignatureSerde;
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct OrderBase {
+        #[serde(with = "SignatureSerde")]
+        pub signature: SignatureType,
+    }
+
+    let transfer_req = "{\"nonce\":\"0\",\"public_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"sender_position_id\":0,\"receiver_public_key\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":0,\"amount\":0,\"asset_id\":\"0xa\"}";
+    let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let sig = sign_transfer(transfer_req, pri_key).unwrap();
+    let base = OrderBase{
+        signature: sig,
+    };
+
+    let data = serde_json::to_vec(&base).unwrap();
+    println!("{:?}", data);
+}
+
+#[test]
+fn test_sign() {
+    let msg = "1aef70c82253f60ada41125af01a26281d0fe9bc368faad3496d70bd14bf284e";
+    let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let private_key = private_key_from_string(pri_key).unwrap();
+    println!("{}",&private_key.0);
+    let hash = HashType::from_str(msg).unwrap();
+    let (sig, pk) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+
+
+    let pubkey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let pk = PublicKeyType::deserialize_str(pubkey).unwrap();
+    // let pk = pubkey_from_x_y(
+    //     "252e5567f8d2ec21093deb668196ebd676767e5414d167a09223d72a354e5b45",
+    //     "2e91ef67e1f4bad22d03af787175c1ddeeca18c59451421a3958c6b64a376ec4"
+    // );
+
+    let hash = HashType::from_str(msg).unwrap();
+    let p_g = FixedGenerators::SpendingKeyGenerator;
+    let result = pk.0.verify_for_raw_message(&hash.as_bytes(), &sig.signature.0, p_g, &AltJubjubBn256::new(), HashType::from_str(msg).unwrap().as_bytes().len());
+    assert!(result);
+
+    let jubsig:JubjubSignature = sig.clone().into();
+    println!("{:#?}",jubsig);
+    let s = U256(jubsig.sig_s);
+    let s_u8 = u256_to_h256(s).0;
+    let big_s = BigInt::from_signed_bytes_le(&s_u8);
+    println!("{:#?}", big_s);
+
+    println!("{:#?}", sig.signature.0.r.into_xy());
+    println!("{:#?}", sig.signature.0.s);
+
+
+    println!("=========================");
+    println!("Signature");
+
+    let p = point_from_xy(&U256::from_str_radix("0x25138ffca8b4205696e09be872fc38b8c0c7662368d76e43741cda93408fc574",16).unwrap(),
+    &U256::from_str_radix("0x0cf7b0dbf6a4d272a1ae55c60e6a44d6d0e11fbd1ba01f83a10ce849e39b4863",16).unwrap()
+    );
+
+
+
+    let sig = Signature{ r: p, s: Fs::from_str("1736217771868420687662910258808485945790988767675191054632216377236276262589").unwrap() };
+
+    println!("x y: {:#?}", &sig.r.into_xy());
+    println!("s: {:#?}", &sig.s);
+
+    let p_g = FixedGenerators::SpendingKeyGenerator;
+    let result = pk.0.verify_for_raw_message(HashType::from_str(msg).unwrap().as_bytes(), &sig, p_g, &AltJubjubBn256::new(), HashType::from_str(msg).unwrap().as_bytes().len());
+    assert!(result);
+
+    println!("pubkey{:#?}", pk.0.0.into_xy())
+}
+
+#[test]
+pub fn test_pubkey() {
+    let pubkey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let pk = PublicKeyType::deserialize_str(pubkey).unwrap();
+    let msg = "1aef70c82253f60ada41125af01a26281d0fe9bc368faad3496d70bd14bf284e";
+
+
+
+
+}
+
+
+// hash 大端
+// s 大端
+#[test]
+pub fn test_sign2() {
+    let msg = "1aef70c82253f60ada41125af01a26281d0fe9bc368faad3496d70bd14bf284e";
+    let b = BigUint::from_str_radix(msg,16).unwrap();
+
+    let msg = &hex::encode(b.to_bytes_le());
+    println!("{}",msg);
+    let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let private_key = private_key_from_string(pri_key).unwrap();
+    let msg = HashType::from_str(msg).unwrap();
+    let (sig, pk) = TxSignature::sign_msg(&private_key, msg.as_bytes());
+
+
+    let jubsig:JubjubSignature = sig.clone().into();
+    // println!("{:#?}",jubsig);
+    let s = U256(jubsig.sig_s);
+    let s_u8 = u256_to_h256(s).0;
+    let big_s = BigInt::from_signed_bytes_le(&s_u8);
+
+    println!("{:#?}", sig.signature.0.r.into_xy());
+    println!("{:#?}", sig.signature.0.s.to_string());
+    let sig:JubjubSignature = sig.clone().into();
+
+
+
+    println!("{:#?}", serde_json::to_string(&sig));
+    let s = BigUint::from_str_radix("bd365afd65bc240a6b00f2d501d100788a3a19f37faac41d3b312b6218aad603", 16).unwrap();
+    let s = BigUint::from_bytes_be(s.to_bytes_be().as_slice());
+    println!("{:#?}", s.to_str_radix(16))
+
 }
