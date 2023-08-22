@@ -122,6 +122,7 @@ pub fn js_verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -
     }
 }
 
+#[wasm_bindgen(js_name = l1_sign)]
 pub fn js_l1_sign(msg: &str, private_key: &str)-> Result<Vec<String>,JsValue> {
     match  l1_sign(msg,private_key) {
         Ok(ret) => Ok(ret),
