@@ -5,7 +5,7 @@
 Get zkdex-sdk from github
 
 ```shell
-git clone https://github.com/okx/zkwasm-sdk.git
+git clone https://github.com/okx/zkdex-sdk.git
 ```
 
 ## Getting start with javascript-sdk
@@ -13,13 +13,13 @@ git clone https://github.com/okx/zkwasm-sdk.git
 1. compile rust to npm package
 
 ```
-cd zkwasm-sdk
+cd zkdex-sdk
 make all
 ```
 2. run js example
 
 ```shell
-cd zkwasm-sdk/js-example
+cd zkdex-sdk/js-example
 npm i && npm run test
 ```
 3. Please refer to the javascript-sdk‘s REAMDE for detailed api.
@@ -29,7 +29,7 @@ npm i && npm run test
 1. Compile the dynamic libraries, it's in . /rust-sdk/target/release directory. 
 
 ```
-cd zkwasm-sdk
+cd zkdex-sdk
 make all
 ```
 
