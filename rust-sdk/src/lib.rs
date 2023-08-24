@@ -22,6 +22,7 @@ use wasm_bindgen::prelude::*;
 use anyhow::{Error, Result};
 use num_bigint::BigUint;
 use pairing_ce::bn256::Bn256;
+use serde_json::map;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
@@ -271,12 +272,19 @@ pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     Ok(sig.into())
 }
 
-pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, msg: &str) -> Result<bool> {
+pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
     let msg = HashType::from_str(msg)?;
-    let pubkey = PublicKeyType::deserialize_str(pub_key_x)?;
+    let pubkey = PublicKeyType::deserialize_str(pub_key)?;
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
+}
+
+pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
+    let pubKey = PublicKeyType::deserialize_str(x)?;
+    let (pk_x,pk_y) = pubKey.0.0.into_xy();
+    let y = Fr::from_hex(y)?;
+    Ok(pk_x == y)
 }
 
 #[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
@@ -347,7 +355,7 @@ pub fn test_verify() {
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use crate::{hash_transfer, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
+    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
 
 
     #[bench]
@@ -385,5 +393,13 @@ mod test {
         let seed = "hello world good life 996 very nice";
         let priKey = private_key_from_seed(seed.as_bytes()).unwrap();
         assert!(priKey == "02aca28609503a6474ec0a115b8662dbf760b6da6109e17c757dbbd3835c93f9")
+    }
+
+    #[test]
+    fn test_is_on_curve() {
+        let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
+        println!("x:{x}  y:{y}");
+        assert!(is_on_curve(&x,&y).unwrap())
     }
 }

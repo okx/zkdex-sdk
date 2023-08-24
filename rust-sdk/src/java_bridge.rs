@@ -2,7 +2,8 @@ pub mod java_bridge {
     use jni::objects::*;
     use jni::JNIEnv;
     use jni::sys::{jboolean, jstring};
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
+    use serde::Serialize;
+    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, private_key_from_seed, private_key_to_pubkey_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 
     #[no_mangle]
@@ -181,6 +182,70 @@ pub mod java_bridge {
         match hash_signed_oracle_price(&json) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_sign<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, private_key: JString<'local>, msg: JString<'local>) -> jstring {
+        let private_key: String = env.get_string(&private_key).expect("Couldn't get java json").into();
+        let msg: String = env.get_string(&msg).expect("Couldn't get java json").into();
+        match sign(&private_key, &msg) {
+            Ok(ret) => {
+                let output = env.new_string(serde_json::to_string(&ret).unwrap()).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_privateKeyFromSeed<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, seed: JString<'local>) -> jstring {
+        let seed: String = env.get_string(&seed).expect("Couldn't get java json").into();
+
+        match private_key_from_seed(seed.as_bytes()) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_privateKeyToPublicKeyXY<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, private_key: JString<'local>) -> jstring {
+        let private_key: String = env.get_string(&private_key).expect("Couldn't get java json").into();
+
+        match private_key_to_pubkey_xy(&private_key) {
+            Ok(ret) => {
+
+                #[derive(Serialize)]
+                struct XY {
+                    x: String,
+                    y: String,
+                }
+                let xy = XY{
+                    x: ret.0,
+                    y: ret.1,
+                };
+                let output = env.new_string(serde_json::to_string(&xy).unwrap()).expect("Couldn't create java string!");
                 output.into_raw()
             }
             Err(e) => {
