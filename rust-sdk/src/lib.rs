@@ -19,8 +19,9 @@ use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
-use anyhow::Result;
+use anyhow::{Error, Result};
 use num_bigint::BigUint;
+use pairing_ce::bn256::Bn256;
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
@@ -34,7 +35,7 @@ use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{convert_to_pubkey, private_key_from_string, public_key_from_private, PublicKeyType};
+use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
@@ -97,10 +98,10 @@ pub fn zksync_crypto_init() {
     set_panic_hook();
 }
 
-#[wasm_bindgen(js_name = privateKeyFromSeed)]
-pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
+// #[wasm_bindgen(js_name = privateKeyFromSeed)]
+pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
-        return Err(JsValue::from_str("Seed is too short"));
+        return Err(Error::msg("seed is too short"));
     };
 
     let sha256_bytes = |input: &[u8]| -> Vec<u8> {
@@ -118,7 +119,7 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
             .read_be(&raw_priv_key[..])
             .expect("failed to read raw_priv_key");
         if Fs::from_repr(fs_repr).is_ok() {
-            return Ok(raw_priv_key);
+            return Ok(hex::encode(raw_priv_key));
         } else {
             effective_seed = raw_priv_key;
         }
@@ -239,7 +240,17 @@ pub fn private_key_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
     Ok(pubkey_buf)
 }
 
-#[wasm_bindgen]
+pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
+    let pri_key = private_key_from_string(private_key)?;
+    let packed_pk: PackedPublicKey = public_key_from_private(&pri_key);
+    let p_g = FixedGenerators::SpendingKeyGenerator;
+    let pk = PublicKey::from_private(&pri_key, p_g, &AltJubjubBn256::new());
+    let (pk_x, _) = pk.0.into_xy();
+    let x = packed_pk.serialize_packed()?;
+    Ok((hex::encode(x), pk_x.to_hex()))
+}
+
+
 pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
     let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE + PACKED_POINT_SIZE);
     let pubkey = privkey_to_pubkey_internal(private_key)?;
@@ -253,15 +264,22 @@ pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsVa
     Ok(pubkey_buf)
 }
 
-pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool> {
+pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
+    let hash = HashType::from_str(msg)?;
+    let private_key = private_key_from_string(private_key)?;
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    Ok(sig.into())
+}
+
+pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, msg: &str) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
     let msg = HashType::from_str(msg)?;
-    let pubkey = PublicKeyType::deserialize_str(pub_key)?;
+    let pubkey = PublicKeyType::deserialize_str(pub_key_x)?;
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
 }
 
-#[derive(Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct L1Signature {
     pub x: String,
     pub y: String,
@@ -282,7 +300,7 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let msg = &hex::encode(b.to_bytes_le());
     let private_key = private_key_from_string(private_key)?;
     let msg = HashType::from_str(msg)?;
-    let (sig, _) = TxSignature::sign_msg(&private_key, msg.as_bytes());
+    let (sig, packed_pk) = TxSignature::sign_msg(&private_key, msg.as_bytes());
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
     let (pk_x, pk_y) = pk.0.into_xy();
@@ -291,8 +309,8 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
         x: "0x".to_owned() + &x.to_hex(),
         y: "0x".to_owned() + &y.to_hex(),
         s: "0x".to_owned() + &sig.signature.0.s.to_hex(),
-        pk_x: "0x".to_owned() + &pk_x.to_hex(),
-        pk_y: "0x".to_owned() + &pk_y.to_hex(),
+        pk_x: packed_pk.to_string(),
+        pk_y: "0x".to_owned() + &pk_x.to_hex(),
     })
 }
 
@@ -302,12 +320,13 @@ pub fn test_l1_sign() {
     let msg = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
     let priv_key = "0x05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let s = l1_sign(msg, priv_key).unwrap();
+    println!("{:#?}", s.clone());
     let expected = L1Signature {
         x: "0x02c5c5ab6dc2ae39c6bf239acd233c412ceebba1370cd4679ff78c3e57a33f90".to_string(),
         y: "0x1fc29405cb5021e77aec60bfdd9ed43b245569e4cfc6e5720207e015662fd3b9".to_string(),
         s: "0x03fcedddaa3803bc26fa98926d224f13857c1b600a3e99ba01cfcee8d54deaa3".to_string(),
-        pk_x: "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b".to_string(),
-        pk_y: "0x2917e2b130d3c0b999870048591eff578da75c0b5fb1c4c5c99a7fd9cbd3cb42".to_string(),
+        pk_x: "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9".to_string(),
+        pk_y: "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b".to_string(),
     };
     assert!(s == expected)
 }
@@ -328,7 +347,7 @@ pub fn test_verify() {
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use crate::{hash_transfer, sign_transfer, verify_signature};
+    use crate::{hash_transfer, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
 
 
     #[bench]
@@ -351,5 +370,20 @@ mod test {
             let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
             assert!(sign_transfer(transfer_req, pri_key).is_ok());
         })
+    }
+
+
+    #[test]
+    fn test_private_key_to_pubkey_xy() {
+        let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
+        println!("x:{x}  y:{y}");
+    }
+
+    #[test]
+    fn test_private_key_from_seed() {
+        let seed = "hello world good life 996 very nice";
+        let priKey = private_key_from_seed(seed.as_bytes()).unwrap();
+        assert!(priKey == "02aca28609503a6474ec0a115b8662dbf760b6da6109e17c757dbbd3835c93f9")
     }
 }
