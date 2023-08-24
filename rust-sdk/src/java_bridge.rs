@@ -3,7 +3,7 @@ pub mod java_bridge {
     use jni::JNIEnv;
     use jni::sys::{jboolean, jstring};
     use serde::Serialize;
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, private_key_from_seed, private_key_to_pubkey_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
+    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 
     #[no_mangle]
@@ -230,18 +230,25 @@ pub mod java_bridge {
     }
 
     #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_isOnCurve<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, x: JString<'local>, y: JString<'local>) -> jboolean {
+        let x: String = env.get_string(&x).expect("Couldn't get java string").into();
+        let y: String = env.get_string(&y).expect("Couldn't get java string").into();
+        let result = is_on_curve(&x,&y).expect("Couldn't get verify_signature result");
+        jboolean::from(result)
+    }
+
+    #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_privateKeyToPublicKeyXY<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, private_key: JString<'local>) -> jstring {
         let private_key: String = env.get_string(&private_key).expect("Couldn't get java json").into();
 
         match private_key_to_pubkey_xy(&private_key) {
             Ok(ret) => {
-
                 #[derive(Serialize)]
                 struct XY {
                     x: String,
                     y: String,
                 }
-                let xy = XY{
+                let xy = XY {
                     x: ret.0,
                     y: ret.1,
                 };
