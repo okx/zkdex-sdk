@@ -158,3 +158,30 @@
 | params | type   | remark                    |
 | ------ | ------ | ------------------------- |
 | json   | String | json of SignedOraclePrice |
+
+`ZKDEX.sign` sign a msg
+
+| params     | type   | remark      |
+| ---------- | ------ | ----------- |
+| privateKey | String | private key |
+| msg        | String | hash of msg |
+
+`ZKDEX.privateKeyFromSeed` generate a private key from a seed
+
+| params | type   | remark    |
+| ------ | ------ | --------- |
+| seed   | String | rand seed |
+
+`ZKDEX.isOnCurve` check if  publick key xy is on the curve
+
+| params | type   | remark       |
+| ------ | ------ | ------------ |
+| x      | String | public key x |
+| y      | String | public key y |
+
+`ZKDEX.privateKeyToPublicKeyXY` derive public key xy  from private key
+
+| params | type   | remark    |
+| ------ | ------ | --------- |
+| seed   | String | rand seed |
+
