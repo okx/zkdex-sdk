@@ -5,7 +5,7 @@ public class ZKDEX {
         System.loadLibrary("zkdex_sdk");
     }
 
-    public static native boolean verifySignature(String sig_r, String sig_s, String pubKey, String msg);
+    public static native boolean verifySignature(String sig_r, String sig_s, String pubKeyX,String pubKeyY, String msg);
 
     public static native String signWithdraw(String json, String assetId, String priKey) throws Exception;
 
@@ -26,4 +26,13 @@ public class ZKDEX {
     public static native String hashLiquidate(String json) throws Exception;
 
     public static native String hashSignedOraclePrice(String json) throws Exception;
+
+    public static native String sign(String privateKey, String msg) throws Exception;
+
+    public static native String privateKeyFromSeed(String seed) throws Exception;
+
+    public static native boolean isOnCurve(String x, String y) throws Exception;
+
+    public static native String privateKeyToPublicKeyXY(String privateKey) throws Exception;
+
 }

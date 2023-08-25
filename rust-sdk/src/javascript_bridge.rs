@@ -115,8 +115,8 @@ pub fn js_hash_signed_oracle_price(json: &str) -> Result<String, JsValue> {
 }
 
 #[wasm_bindgen(js_name = verify_signature)]
-pub fn js_verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool,JsValue> {
-    match verify_signature(sig_r,sig_s,pub_key,msg) {
+pub fn js_verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y:&str, msg: &str) -> Result<bool,JsValue> {
+    match verify_signature(sig_r,sig_s,pub_key_x,pub_key_y,msg) {
         Ok(ret) => Ok(ret),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str()))
     }

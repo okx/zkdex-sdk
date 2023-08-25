@@ -4,6 +4,7 @@ extern crate test as other_test;
 use std::convert::TryFrom;
 use std::str::FromStr;
 
+use anyhow::{Error, Result};
 use franklin_crypto::{
     alt_babyjubjub::{AltJubjubBn256, edwards, FixedGenerators, fs::FsRepr},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
@@ -14,15 +15,14 @@ pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use hex::ToHex;
 use jni::objects::*;
+use num_bigint::BigUint;
 use num_traits::Num;
+use pairing_ce::bn256::Bn256;
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use wasm_bindgen::prelude::*;
-use anyhow::{Error, Result};
-use num_bigint::BigUint;
-use pairing_ce::bn256::Bn256;
-use serde_json::map;
+
 pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
@@ -272,17 +272,17 @@ pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     Ok(sig.into())
 }
 
-pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key: &str, msg: &str) -> Result<bool> {
+pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y: &str, msg: &str) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
     let msg = HashType::from_str(msg)?;
-    let pubkey = PublicKeyType::deserialize_str(pub_key)?;
+    let pubkey = PublicKeyType::deserialize_str(pub_key_x)?;
     Ok(sig.verify(&pubkey.0, msg.as_bytes()))
 }
 
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
     let pubKey = PublicKeyType::deserialize_str(x)?;
-    let (pk_x,pk_y) = pubKey.0.0.into_xy();
+    let (pk_x, pk_y) = pubKey.0.0.into_xy();
     let y = Fr::from_hex(y)?;
     Ok(pk_x == y)
 }
@@ -343,20 +343,21 @@ pub fn test_l1_sign() {
 pub fn test_verify() {
     let r = "0x353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
     let s = "0xc80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
-    let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let pub_key_x = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let pub_key_y = "210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
     let msg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520";
     let msg1 = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab00af1a520";
-    let ret = verify_signature(r, s, pub_key, msg).unwrap();
+    let ret = verify_signature(r, s, pub_key_x, pub_key_y, msg).unwrap();
     assert!(ret);
-    let ret = verify_signature(r, s, pub_key, msg1).unwrap();
+    let ret = verify_signature(r, s, pub_key_x, pub_key_y,msg1).unwrap();
     assert!(!ret)
 }
 
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
 
+    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
@@ -365,8 +366,9 @@ mod test {
             let hash = hash_transfer(transfer_req).unwrap();
             let sig_r = "0c2b9b07a37711498dc9cdd2585c66b07d110fc69c2b31e43376cdf16d266099";
             let sig_s = "b7d9032ae2e7ff265910db676685e60eb22aa01f1e6c6587beb024373b58fa05";
-            let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
-            assert!(verify_signature(sig_r, sig_s, pub_key, &hash).unwrap());
+            let pub_key_x = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+            let pub_key_y = "210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
+            assert!(verify_signature(sig_r, sig_s, pub_key_x, pub_key_y,&hash).unwrap());
         })
     }
 
@@ -400,6 +402,6 @@ mod test {
         let pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
         let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
         println!("x:{x}  y:{y}");
-        assert!(is_on_curve(&x,&y).unwrap())
+        assert!(is_on_curve(&x, &y).unwrap())
     }
 }

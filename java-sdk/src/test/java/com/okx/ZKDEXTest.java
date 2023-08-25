@@ -1,13 +1,15 @@
 package com.okx;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ZKDEXTest {
     static String priKey = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    static String pubKey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    static String pubKeyX = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    static String pubKeyY = "210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
 
     @Test
     void verifySignature() throws Exception {
@@ -16,8 +18,8 @@ class ZKDEXTest {
         String pubKey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
         String msg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520";
         String errMsg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d1a5ab082f1a520";
-        assert ZKDEX.verifySignature(sigr, sigs, pubKey, msg);
-        assert !ZKDEX.verifySignature(sigr, sigs, pubKey, errMsg);
+        assert ZKDEX.verifySignature(sigr, sigs, pubKeyX, pubKeyY, msg);
+        assert !ZKDEX.verifySignature(sigr, sigs, pubKeyX, pubKeyY, errMsg);
     }
 
     @Test
@@ -29,7 +31,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashWithdraw(json, "1");
-        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
 
     }
 
@@ -42,7 +44,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashTransfer(json);
-        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
@@ -54,7 +56,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLimitOrder(json);
-        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
@@ -66,7 +68,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLiquidate(json);
-        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
@@ -78,7 +80,7 @@ class ZKDEXTest {
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashSignedOraclePrice(json);
-        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKey, hash);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
@@ -114,5 +116,39 @@ class ZKDEXTest {
         String json = "{\"signer_key\":\"42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"external_price\":1,\"timestamp\":2,\"signed_asset_id\":\"0x3\"}";
         String hash = ZKDEX.hashSignedOraclePrice(json);
         assertEquals("01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520", hash);
+    }
+
+
+    @Test
+    void sign() throws Exception {
+        String hash = "0x4068df25a7d520d7b11133a1c6ef27d009400e55bba6bf9b59c6cef63cb37d12";
+        String sigStr = ZKDEX.sign(priKey, hash);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        assertEquals(new Signature("0x7e43943b23c798aebfbc002aa15d01a8a1a413c64773e241e78848a953b7a92a", "0x0088408fadc401b97354c9bfb982cdb0885c97f038de1e131a52772720944900"), signature);
+    }
+
+    @Test
+    void isOnCurve() throws Exception {
+        String x = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+        String y = "210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
+        boolean ret = ZKDEX.isOnCurve(x, y);
+        assertEquals(true, ret);
+    }
+
+
+    @Test
+    void privateKeyFromSeed() throws Exception {
+        String seed = "hello world good life 996 very nice";
+        String priKey = ZKDEX.privateKeyFromSeed(seed);
+        assertEquals(priKey, "02aca28609503a6474ec0a115b8662dbf760b6da6109e17c757dbbd3835c93f9");
+    }
+
+    @Test
+    void privateKeyToPublicKeyXY() throws Exception {
+        String pri_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        String xy = ZKDEX.privateKeyToPublicKeyXY(pri_key);
+        JSONObject object = JSON.parseObject(xy);
+        assertEquals("42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9", object.get("x"));
+        assertEquals("210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b", object.get("y"));
     }
 }

@@ -7,12 +7,13 @@ pub mod java_bridge {
 
 
     #[no_mangle]
-    pub extern "system" fn Java_com_okx_ZKDEX_verifySignature<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, sig_r: JString<'local>, sig_s: JString<'local>, pub_key: JString<'local>, msg: JString<'local>) -> jboolean {
+    pub extern "system" fn Java_com_okx_ZKDEX_verifySignature<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, sig_r: JString<'local>, sig_s: JString<'local>, pub_key_x: JString<'local>, pub_key_y: JString<'local>, msg: JString<'local>) -> jboolean {
         let sig_r: String = env.get_string(&sig_r).expect("Couldn't get java sig_r").into();
         let sig_s: String = env.get_string(&sig_s).expect("Couldn't get java sig_rs").into();
-        let pub_key: String = env.get_string(&pub_key).expect("Couldn't get java pub_key").into();
+        let pub_key_x: String = env.get_string(&pub_key_x).expect("Couldn't get java pub_key_x").into();
+        let pub_key_y: String = env.get_string(&pub_key_y).expect("Couldn't get java pub_key_x").into();
         let msg: String = env.get_string(&msg).expect("Couldn't get java msg").into();
-        let result = verify_signature(&sig_r, &sig_s, &pub_key, &msg).expect("Couldn't get verify_signature result");
+        let result = verify_signature(&sig_r, &sig_s, &pub_key_x, &pub_key_y,&msg).expect("Couldn't get verify_signature result");
         jboolean::from(result)
     }
 
@@ -231,15 +232,15 @@ pub mod java_bridge {
 
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_isOnCurve<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, x: JString<'local>, y: JString<'local>) -> jboolean {
-        let x: String = env.get_string(&x).expect("Couldn't get java string").into();
-        let y: String = env.get_string(&y).expect("Couldn't get java string").into();
+        let x: String = env.get_string(&x).expect("Couldn't get java string x").into();
+        let y: String = env.get_string(&y).expect("Couldn't get java string y").into();
         let result = is_on_curve(&x,&y).expect("Couldn't get verify_signature result");
         jboolean::from(result)
     }
 
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_privateKeyToPublicKeyXY<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, private_key: JString<'local>) -> jstring {
-        let private_key: String = env.get_string(&private_key).expect("Couldn't get java json").into();
+        let private_key: String = env.get_string(&private_key).expect("Couldn't get java string").into();
 
         match private_key_to_pubkey_xy(&private_key) {
             Ok(ret) => {
