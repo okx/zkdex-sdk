@@ -1,8 +1,61 @@
 package com.okx;
 
+import java.io.*;
+
 public class ZKDEX {
+
     static {
-        System.loadLibrary("zkdex_sdk");
+
+        String osName = System.getProperty("os.name").toLowerCase();
+        String arch = System.getProperty("os.arch").toLowerCase();
+        String  fileName = "";
+       if (osName.contains("mac")) {
+           if ((arch.contains("amd64") || arch.contains("x86_64"))) {
+               fileName = "x86_64_libzkdex_sdk.dylib";
+           }else {
+               fileName = "arm_libzkdex_sdk.dylib";
+           }
+        } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+            fileName = "libzkdex_sdk.so";
+        } else {
+            System.out.println("Unsupported operating system");
+            System.exit(-1);
+        }
+
+        loadLib("/tmp", fileName);
+    }
+
+    private static void loadLib(String path, String name) {
+        try {
+            InputStream in = ZKDEX.class.getResourceAsStream(name);
+            String tmpPath = path;
+
+            // check path whether created
+            File fileOutDic = new File(tmpPath);
+            if (!fileOutDic.exists()) {
+                fileOutDic.mkdirs();
+            }
+
+            // create target file
+            File fileOut = new File(tmpPath + "/" + name);
+            if (!fileOut.exists()) {
+                fileOut.createNewFile();
+            }
+
+            // copy from source file
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(in);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileOut));
+            byte[] buf = new byte[4096];
+            while ((bufferedInputStream.read(buf)) != -1) {
+                bufferedOutputStream.write(buf);
+                bufferedOutputStream.flush();
+            }
+
+            // load library file
+            System.load(fileOut.getAbsolutePath());
+        } catch (Exception e) {
+            throw new RuntimeException("loading dynamic library failed", e);
+        }
     }
 
     /**
