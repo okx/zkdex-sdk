@@ -187,6 +187,7 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 /**
+* sign a transfer transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -221,6 +222,7 @@ export function sign_transfer(json, private_key) {
 }
 
 /**
+* hash a transfer transaction
 * @param {string} json
 * @returns {string}
 */
@@ -252,6 +254,7 @@ export function hash_transfer(json) {
 }
 
 /**
+* sign a withdraw transaction
 * @param {string} json
 * @param {string} asset_id_collateral
 * @param {string} private_key
@@ -289,6 +292,7 @@ export function sign_withdraw(json, asset_id_collateral, private_key) {
 }
 
 /**
+* hash a withdraw transaction
 * @param {string} json
 * @param {string} asset_id_collateral
 * @returns {string}
@@ -323,6 +327,7 @@ export function hash_withdraw(json, asset_id_collateral) {
 }
 
 /**
+* sign a limit order transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -357,6 +362,7 @@ export function sign_limit_order(json, private_key) {
 }
 
 /**
+* sign a limit order transaction
 * @param {string} json
 * @returns {string}
 */
@@ -388,6 +394,7 @@ export function hash_limit_order(json) {
 }
 
 /**
+* sign a liquidate transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -422,6 +429,7 @@ export function sign_liquidate(json, private_key) {
 }
 
 /**
+* hash a liquidate transaction
 * @param {string} json
 * @returns {string}
 */
@@ -453,6 +461,7 @@ export function hash_liquidate(json) {
 }
 
 /**
+* sign a signed oracle price transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -487,6 +496,7 @@ export function sign_signed_oracle_price(json, private_key) {
 }
 
 /**
+* hash a signed oracle price transaction
 * @param {string} json
 * @returns {string}
 */
@@ -518,6 +528,7 @@ export function hash_signed_oracle_price(json) {
 }
 
 /**
+* verify a signature
 * @param {string} sig_r
 * @param {string} sig_s
 * @param {string} pub_key_x
@@ -552,6 +563,9 @@ export function verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg) {
 }
 
 /**
+* l1 sign
+* sign a msg on l1
+* when signing a eth address
 * @param {string} msg
 * @param {string} private_key
 * @returns {string}
@@ -586,6 +600,7 @@ export function l1_sign(msg, private_key) {
 }
 
 /**
+* check the (x,y) is on curve
 * @param {string} pub_key_x
 * @param {string} pub_key_y
 * @returns {boolean}
@@ -611,6 +626,7 @@ export function is_on_curve(pub_key_x, pub_key_y) {
 }
 
 /**
+* sign a msg on l2
 * @param {string} pri_key
 * @param {string} msg
 * @returns {string}
@@ -645,6 +661,7 @@ export function sign(pri_key, msg) {
 }
 
 /**
+* derive a private key from a random seed, the seed could be anything
 * @param {string} seed
 * @returns {string}
 */
@@ -676,6 +693,7 @@ export function private_key_from_seed(seed) {
 }
 
 /**
+* derive a public with xy from private key
 * @param {string} pri_key
 * @returns {string}
 */
