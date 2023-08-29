@@ -44,8 +44,8 @@ pub fn js_sign_withdraw(
 
 /// hash a withdraw transaction
 #[wasm_bindgen(js_name = hash_withdraw)]
-pub fn js_hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String, JsValue> {
-    match hash_withdraw(json, asset_id_collateral) {
+pub fn js_hash_withdraw(json: &str) -> Result<String, JsValue> {
+    match hash_withdraw(json) {
         Ok(ret) => {
             Ok(ret)
         }

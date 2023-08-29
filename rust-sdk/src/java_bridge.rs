@@ -108,10 +108,9 @@ pub mod java_bridge {
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_com_okx_ZKDEX_hashWithdraw<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, json: JString<'local>, asset_id: JString<'local>) -> jstring {
+    pub extern "system" fn Java_com_okx_ZKDEX_hashWithdraw<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, json: JString<'local>) -> jstring {
         let json: String = env.get_string(&json).expect("Couldn't get java json").into();
-        let assert_id: String = env.get_string(&asset_id).expect("Couldn't get java asset_id").into();
-        match hash_withdraw(&json, &assert_id) {
+        match hash_withdraw(&json) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
                 output.into_raw()

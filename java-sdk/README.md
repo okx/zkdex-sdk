@@ -60,7 +60,7 @@
     "amount_collateral": "2",
     "amount_fee": "3",
     "asset_id_synthetic": "4",
-    "asset_id_collateral": "5",
+    "asset_id_collateral": "0x5",
     "position_id": "6",
     "is_buying_synthetic": false
   },

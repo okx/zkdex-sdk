@@ -120,7 +120,7 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
             .read_be(&raw_priv_key[..])
             .expect("failed to read raw_priv_key");
         if Fs::from_repr(fs_repr).is_ok() {
-            return Ok(hex::encode(raw_priv_key));
+            return Ok("0x".to_string() + &hex::encode(raw_priv_key));
         } else {
             effective_seed = raw_priv_key;
         }
@@ -169,7 +169,7 @@ pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
 
 pub fn hash_transfer(json: &str) -> Result<String> {
     let req: Transfer = serde_json::from_str(json).unwrap();
-    Ok(transfer_hash(&req, 0).encode_hex::<String>())
+    Ok("0x".to_owned() + &transfer_hash(&req, 0).encode_hex::<String>())
 }
 
 
@@ -178,7 +178,7 @@ pub fn sign_withdraw(
     private_key: &str,
 ) -> Result<JubjubSignature> {
     let withdrawReq: WithdrawRequest = serde_json::from_str(json)?;
-    let withdraw = Withdraw{
+    let withdraw = Withdraw {
         base: withdrawReq.base,
         position_id: withdrawReq.position_id,
         amount: withdrawReq.amount,
@@ -188,10 +188,15 @@ pub fn sign_withdraw(
 }
 
 
-pub fn hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String> {
-    let req: Withdraw = serde_json::from_str(json)?;
-    let asset_id = CollateralAssetId::from_str(asset_id_collateral)?;
-    Ok(withdrawal_hash(&req, &asset_id).encode_hex::<String>())
+pub fn hash_withdraw(json: &str) -> Result<String> {
+    let withdrawReq: WithdrawRequest = serde_json::from_str(json)?;
+    let withdraw = Withdraw {
+        base: withdrawReq.base,
+        position_id: withdrawReq.position_id,
+        amount: withdrawReq.amount,
+        owner_key: withdrawReq.owner_key,
+    };
+    Ok("0x".to_owned() + &withdrawal_hash(&withdraw, &withdrawReq.asset_id).encode_hex::<String>())
 }
 
 
@@ -203,7 +208,7 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
-    Ok(limit_order_hash(&req).encode_hex::<String>())
+    Ok("0x".to_owned() + &limit_order_hash(&req).encode_hex::<String>())
 }
 
 
@@ -215,7 +220,7 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> 
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
-    Ok(limit_order_hash(&req.liquidator_order).encode_hex::<String>())
+    Ok("0x".to_owned() + &limit_order_hash(&req.liquidator_order).encode_hex::<String>())
 }
 
 
@@ -230,7 +235,7 @@ pub fn sign_signed_oracle_price(
 
 pub fn hash_signed_oracle_price(json: &str) -> Result<String> {
     let req: SignedOraclePrice = serde_json::from_str(json)?;
-    Ok(signed_oracle_price_hash(&req).encode_hex::<String>())
+    Ok("0x".to_owned() + &signed_oracle_price_hash(&req).encode_hex::<String>())
 }
 
 
@@ -252,7 +257,7 @@ pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
     let pk = PublicKey::from_private(&pri_key, p_g, &AltJubjubBn256::new());
     let (pk_x, _) = pk.0.into_xy();
     let x = packed_pk.serialize_packed()?;
-    Ok((hex::encode(x), pk_x.to_hex()))
+    Ok(("0x".to_owned() + &hex::encode(x), "0x".to_owned() + &pk_x.to_hex()))
 }
 
 
@@ -353,7 +358,7 @@ pub fn test_verify() {
     let msg1 = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab00af1a520";
     let ret = verify_signature(r, s, pub_key_x, pub_key_y, msg).unwrap();
     assert!(ret);
-    let ret = verify_signature(r, s, pub_key_x, pub_key_y,msg1).unwrap();
+    let ret = verify_signature(r, s, pub_key_x, pub_key_y, msg1).unwrap();
     assert!(!ret)
 }
 
@@ -372,7 +377,7 @@ mod test {
             let sig_s = "b7d9032ae2e7ff265910db676685e60eb22aa01f1e6c6587beb024373b58fa05";
             let pub_key_x = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
             let pub_key_y = "210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b";
-            assert!(verify_signature(sig_r, sig_s, pub_key_x, pub_key_y,&hash).unwrap());
+            assert!(verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, &hash).unwrap());
         })
     }
 

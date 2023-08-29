@@ -72,12 +72,11 @@ public class ZKDEX {
     /**
      * sign a Withdraw
      * @param json json of Withdraw
-     * @param assetId assetId
      * @param priKey private key
      * @return signature
      * @throws Exception
      */
-    public static native String signWithdraw(String json, String assetId, String priKey) throws Exception;
+    public static native String signWithdraw(String json, String priKey) throws Exception;
 
     /**
      * sign a Transfer
@@ -118,11 +117,10 @@ public class ZKDEX {
     /**
      * hash a Withdraw
      * @param json json of Withdraw
-     * @param assetId assetId
      * @return hash
      * @throws Exception
      */
-    public static native String hashWithdraw(String json, String assetId) throws Exception;
+    public static native String hashWithdraw(String json) throws Exception;
 
     /**
      * hash a Transfer
