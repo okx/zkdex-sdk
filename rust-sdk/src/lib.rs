@@ -99,7 +99,7 @@ pub fn zksync_crypto_init() {
     set_panic_hook();
 }
 
-// #[wasm_bindgen(js_name = privateKeyFromSeed)]
+
 pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
         return Err(Error::msg("seed is too short"));
@@ -260,6 +260,13 @@ pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
     Ok(("0x".to_owned() + &hex::encode(x), "0x".to_owned() + &pk_x.to_hex()))
 }
 
+pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
+    let pk = PublicKeyType::deserialize_str(pub_key)?;
+    let (pk_x, _) = pk.0.0.into_xy();
+    let x = &pk.serialize_packed()?;
+    Ok(("0x".to_owned() + &hex::encode(x), "0x".to_owned() + &pk_x.to_hex()))
+}
+
 
 pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
     let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE + PACKED_POINT_SIZE);
@@ -273,6 +280,7 @@ pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsVa
         .expect("failed to write b to buffer");
     Ok(pubkey_buf)
 }
+
 
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     let hash = HashType::from_str(msg)?;
@@ -366,7 +374,7 @@ pub fn test_verify() {
 mod test {
     use other_test::Bencher;
 
-    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, sign_transfer, verify_signature};
+    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign_transfer, verify_signature};
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
@@ -412,5 +420,12 @@ mod test {
         let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
         println!("x:{x}  y:{y}");
         assert!(is_on_curve(&x, &y).unwrap())
+    }
+
+    #[test]
+    fn test_pub_key_to_xy() {
+        let pub_key = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+        let (x,y) = pub_key_to_xy(pub_key).unwrap();
+        println!("x:{x} y:{y}")
     }
 }

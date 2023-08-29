@@ -188,4 +188,12 @@ public class ZKDEX {
      */
     public static native String privateKeyToPublicKeyXY(String privateKey) throws Exception;
 
+    /**
+     * convert public key to xy
+     * @param publicKey
+     * @return
+     * @throws Exception
+     */
+    public static native String publicKeyToXY(String publicKey) throws Exception;
+
 }

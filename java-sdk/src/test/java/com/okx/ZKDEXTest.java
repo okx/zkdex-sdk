@@ -124,6 +124,7 @@ class ZKDEXTest {
         String hash = "0x4068df25a7d520d7b11133a1c6ef27d009400e55bba6bf9b59c6cef63cb37d12";
         String sigStr = ZKDEX.sign(priKey, hash);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
+        System.out.println(signature);
         assertEquals(new Signature("0x7e43943b23c798aebfbc002aa15d01a8a1a413c64773e241e78848a953b7a92a", "0x0088408fadc401b97354c9bfb982cdb0885c97f038de1e131a52772720944900"), signature);
     }
 
@@ -146,9 +147,17 @@ class ZKDEXTest {
     @Test
     void privateKeyToPublicKeyXY() throws Exception {
         String pri_key = "0x05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-        String xy = ZKDEX.privateKeyToPublicKeyXY(pri_key);
-        JSONObject object = JSON.parseObject(xy);
-        assertEquals("0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9", object.get("x"));
-        assertEquals("0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b", object.get("y"));
+        String  publickeyStr = ZKDEX.privateKeyToPublicKeyXY(pri_key);
+        Publickey publickey = JSON.parseObject(publickeyStr, Publickey.class);
+        assertEquals("0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9", publickey.getX());
+        assertEquals("0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b", publickey.getY());
+    }
+
+    @Test
+    void publicKeyToXY() throws Exception {
+        String publickeyStr = ZKDEX.publicKeyToXY("0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9");
+        Publickey publickey = JSON.parseObject(publickeyStr, Publickey.class);
+        assertEquals("0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9", publickey.getX());
+        assertEquals("0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b", publickey.getY());
     }
 }
