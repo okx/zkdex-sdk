@@ -13,16 +13,33 @@ use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::privkey_to_pubkey_internal;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
-use crate::tx::TxSignature;
+use crate::tx::{TxSignature, withdraw};
 use crate::types::h256_to_u256;
 use crate::zkw::JubjubSignature;
 
+use crate::U256SerdeAsRadix16Prefix0xString;
 
 pub type AmountType = u64;
 pub type PositionIdType = u64;
 
+use crate::U64SerdeAsString;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {
+    #[serde(flatten)]
+    pub base: OrderBase,
+    #[serde(rename = "position_id", with = "U64SerdeAsString")]
+    pub position_id: PositionIdType,
+    #[serde(rename = "amount", with = "U64SerdeAsString")]
+    pub amount: AmountType,
+    #[serde(rename = "eth_address")]
+    pub owner_key: PublicKeyType,
+    #[serde(rename = "asset_id", with = "U256SerdeAsRadix16Prefix0xString")]
+    pub asset_id: CollateralAssetId,
+
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Withdraw {
     #[serde(flatten)]
     pub base: OrderBase,
     #[serde(rename = "position_id")]
@@ -34,7 +51,7 @@ pub struct WithdrawRequest {
 }
 
 pub fn sign_withdraw(
-    withdrawal: WithdrawRequest,
+    withdrawal: Withdraw,
     asset_id_collateral: &CollateralAssetId,
     prvk: &str,
 ) -> Result<JubjubSignature> {
@@ -48,7 +65,7 @@ pub type CollateralAssetId = U256;
 pub type HashType = H256;
 
 pub fn withdrawal_hash(
-    withdrawal: &WithdrawRequest,
+    withdrawal: &Withdraw,
     asset_id_collateral: &CollateralAssetId,
 ) -> HashType {
     let packed_message0;
@@ -92,7 +109,7 @@ pub fn test_withdraw() {
     let pub_key = public_key_from_private(&private_key);
     let expire = 1684832800i64;
     let pub_key = PublicKeyType::from(pub_key.clone());
-    let req = WithdrawRequest {
+    let req = Withdraw {
         base: OrderBase {
             nonce: 1,
             public_key: pub_key.clone(),
@@ -107,4 +124,22 @@ pub fn test_withdraw() {
     //c1434d28
     let w = sign_withdraw(req, &CollateralAssetId::from(10), prv_key).unwrap();
     println!("{:#?}", w);
+}
+
+#[test]
+pub fn test_deserialize() {
+    let json = r#"{
+        "nonce":"1",
+        "public_key":"0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "expiration_timestamp":"1684832800",
+        "position_id":"2",
+        "amount":"3",
+        "eth_address":"0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "asset_id": "0x1a"
+    }"#;
+
+
+    let withdraw = serde_json::from_str::<WithdrawRequest>(json);
+    assert!(withdraw.is_ok());
+    println!("{:?}",withdraw.unwrap());
 }

@@ -18,11 +18,10 @@ pub mod java_bridge {
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_com_okx_ZKDEX_signWithdraw<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, json: JString<'local>, asset_id: JString<'local>, pri_key: JString<'local>) -> jstring {
+    pub extern "system" fn Java_com_okx_ZKDEX_signWithdraw<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, json: JString<'local>, pri_key: JString<'local>) -> jstring {
         let json: String = env.get_string(&json).expect("Couldn't get java json").into();
-        let assert_id: String = env.get_string(&asset_id).expect("Couldn't get java asset_id").into();
         let pri_key: String = env.get_string(&pri_key).expect("Coludn't get java pri_key").into();
-        match sign_withdraw(&json, &assert_id, &pri_key) {
+        match sign_withdraw(&json, &pri_key) {
             Ok(ret) => {
                 let output = env.new_string(serde_json::to_string(&ret).unwrap()).expect("Couldn't create java string!");
                 output.into_raw()

@@ -31,9 +31,9 @@ use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
-use crate::transaction::transfer::{transfer_hash, TransferRequest};
+use crate::transaction::transfer::{transfer_hash, Transfer};
 use crate::transaction::types::HashType;
-use crate::transaction::withdraw::{CollateralAssetId, WithdrawRequest};
+use crate::transaction::withdraw::{CollateralAssetId, Withdraw, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
@@ -162,30 +162,34 @@ pub fn private_key_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, JsValue
 
 
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
-    let req: TransferRequest = serde_json::from_str(json).unwrap();
+    let req: Transfer = serde_json::from_str(json).unwrap();
     Ok(transfer::sign_transfer(req, private_key)?)
 }
 
 
 pub fn hash_transfer(json: &str) -> Result<String> {
-    let req: TransferRequest = serde_json::from_str(json).unwrap();
+    let req: Transfer = serde_json::from_str(json).unwrap();
     Ok(transfer_hash(&req, 0).encode_hex::<String>())
 }
 
 
 pub fn sign_withdraw(
     json: &str,
-    asset_id_collateral: &str,
     private_key: &str,
 ) -> Result<JubjubSignature> {
-    let asset_id = CollateralAssetId::from_str(asset_id_collateral)?;
-    let withdraw: WithdrawRequest = serde_json::from_str(json)?;
-    Ok(withdraw::sign_withdraw(withdraw, &asset_id.clone(), private_key)?)
+    let withdrawReq: WithdrawRequest = serde_json::from_str(json)?;
+    let withdraw = Withdraw{
+        base: withdrawReq.base,
+        position_id: withdrawReq.position_id,
+        amount: withdrawReq.amount,
+        owner_key: withdrawReq.owner_key,
+    };
+    Ok(withdraw::sign_withdraw(withdraw, &withdrawReq.asset_id, private_key)?)
 }
 
 
 pub fn hash_withdraw(json: &str, asset_id_collateral: &str) -> Result<String> {
-    let req: WithdrawRequest = serde_json::from_str(json)?;
+    let req: Withdraw = serde_json::from_str(json)?;
     let asset_id = CollateralAssetId::from_str(asset_id_collateral)?;
     Ok(withdrawal_hash(&req, &asset_id).encode_hex::<String>())
 }

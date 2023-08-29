@@ -33,10 +33,9 @@ pub fn js_hash_transfer(json: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = sign_withdraw)]
 pub fn js_sign_withdraw(
     json: &str,
-    asset_id_collateral: &str,
     private_key: &str,
 ) -> Result<String, JsValue> {
-    let withdraw = sign_withdraw(json, &asset_id_collateral, private_key);
+    let withdraw = sign_withdraw(json, private_key);
     match withdraw {
         Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str()))
