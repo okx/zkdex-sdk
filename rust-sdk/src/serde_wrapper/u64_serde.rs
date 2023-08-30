@@ -20,6 +20,27 @@ impl U64SerdeAsString {
     }
 }
 
+pub struct U64SerdeAsRadix16Prefix0xString;
+
+impl U64SerdeAsRadix16Prefix0xString {
+    pub fn serialize<S>(val: &u64, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        String::serialize(&format!("0x{:x}", val), serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<u64, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        let hex_str = String::deserialize(deserializer)?;
+        let hex_str = hex_str.trim_start_matches("0x").trim_start_matches("0X");
+        u64::from_str_radix(hex_str, 16)
+            .map_err(|e| de::Error::custom(format!("u64 from string error: {}", e)))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

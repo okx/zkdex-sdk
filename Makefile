@@ -18,3 +18,9 @@ java_sdk:
 	cd java-sdk && mvn clean verify
 java_script_bench: java_script_sdk
 	cd js-example && npm i && npm run bench
+
+lib:
+	cd rust-sdk && cargo build --release
+	cd rust-sdk && cargo build --target=x86_64-apple-darwin --release
+	cp -f rust-sdk/target/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/arm_libzkdex_sdk.dylib
+	cp -f rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_libzkdex_sdk.dylib

@@ -13,7 +13,8 @@ use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
-use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
+use crate::serde_wrapper::U64SerdeAsString;
+use crate::transaction::types::{AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::{JUBJUB_PARAMS, TxSignature};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::zkw::JubjubSignature;
@@ -33,8 +34,8 @@ pub struct LimitOrderRequest {
     pub amount_collateral: AmountType,
     #[serde(rename = "amount_fee", with = "U64SerdeAsString")]
     pub amount_fee: AmountType,
-    #[serde(rename = "asset_id_synthetic", with = "U64SerdeAsString")]
-    pub asset_id_synthetic: AmountType,
+    #[serde(rename = "asset_id_synthetic", with = "I128SerdeAsRadix16Prefix0xString")]
+    pub asset_id_synthetic: AssetIdType,
     #[serde(
     rename = "asset_id_collateral",
     with = "U256SerdeAsRadix16Prefix0xString"

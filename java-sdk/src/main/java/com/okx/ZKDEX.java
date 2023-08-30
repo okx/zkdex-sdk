@@ -67,7 +67,7 @@ public class ZKDEX {
      * @param msg hash of msg
      * @return bool
      */
-    public static native boolean verifySignature(String sig_r, String sig_s, String pubKeyX,String pubKeyY, String msg);
+    public static native boolean verifySignature(String sig_r, String sig_s, String pubKeyX,String pubKeyY, String msg) throws Exception;
 
     /**
      * sign a Withdraw
