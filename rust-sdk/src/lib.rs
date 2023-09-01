@@ -145,22 +145,6 @@ pub fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey<Engine
     Ok(JUBJUB_PARAMS.with(|params| PublicKey::from_private(&sk, p_g, params)))
 }
 
-#[wasm_bindgen(js_name = pubKeyHash)]
-pub fn pub_key_hash(pubkey: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let pubkey = JUBJUB_PARAMS
-        .with(|params| PublicKey::read(pubkey, params))
-        .map_err(|_| JsValue::from_str("couldn't read public key"))?;
-    Ok(utils::pub_key_hash(&pubkey))
-}
-
-#[wasm_bindgen]
-pub fn private_key_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
-    Ok(utils::pub_key_hash(&privkey_to_pubkey_internal(
-        private_key,
-    )?))
-}
-
-
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let req: Transfer = serde_json::from_str(json).unwrap();
     Ok(transfer::sign_transfer(req, private_key)?)
