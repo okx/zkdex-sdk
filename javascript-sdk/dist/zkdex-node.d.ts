@@ -4,7 +4,7 @@
 * This method initializes params for current thread, otherwise they will be initialized when signing
 * first message.
 */
-export function zksync_crypto_init(): void;
+export function zkdex_init(): void;
 /**
 * @param {Uint8Array} pubkey
 * @returns {Uint8Array}
@@ -31,18 +31,16 @@ export function hash_transfer(json: string): string;
 /**
 * sign a withdraw transaction
 * @param {string} json
-* @param {string} asset_id_collateral
 * @param {string} private_key
 * @returns {string}
 */
-export function sign_withdraw(json: string, asset_id_collateral: string, private_key: string): string;
+export function sign_withdraw(json: string, private_key: string): string;
 /**
 * hash a withdraw transaction
 * @param {string} json
-* @param {string} asset_id_collateral
 * @returns {string}
 */
-export function hash_withdraw(json: string, asset_id_collateral: string): string;
+export function hash_withdraw(json: string): string;
 /**
 * sign a limit order transaction
 * @param {string} json
@@ -94,8 +92,7 @@ export function hash_signed_oracle_price(json: string): string;
 export function verify_signature(sig_r: string, sig_s: string, pub_key_x: string, pub_key_y: string, msg: string): boolean;
 /**
 * l1 sign
-* sign a msg on l1
-* when signing a eth address
+* sign a msg on l1 when signing a eth address
 * @param {string} msg
 * @param {string} private_key
 * @returns {string}
@@ -127,3 +124,9 @@ export function private_key_from_seed(seed: string): string;
 * @returns {string}
 */
 export function private_key_to_pubkey_xy(pri_key: string): string;
+/**
+* convert public key to xy
+* @param {string} pub_key
+* @returns {string}
+*/
+export function public_key_to_xy(pub_key: string): string;

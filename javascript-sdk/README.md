@@ -1,7 +1,7 @@
 ## Functions
 
 <dl>
-<dt><a href="#zksync_crypto_init">zksync_crypto_init()</a></dt>
+<dt><a href="#zkdex_init">zkdex_init()</a></dt>
 <dd><p>This method initializes params for current thread, otherwise they will be initialized when signing
 first message.</p>
 </dd>
@@ -15,10 +15,10 @@ first message.</p>
 <dt><a href="#hash_transfer">hash_transfer(json)</a> ⇒ <code>string</code></dt>
 <dd><p>hash a transfer transaction</p>
 </dd>
-<dt><a href="#sign_withdraw">sign_withdraw(json, asset_id_collateral, private_key)</a> ⇒ <code>string</code></dt>
+<dt><a href="#sign_withdraw">sign_withdraw(json, private_key)</a> ⇒ <code>string</code></dt>
 <dd><p>sign a withdraw transaction</p>
 </dd>
-<dt><a href="#hash_withdraw">hash_withdraw(json, asset_id_collateral)</a> ⇒ <code>string</code></dt>
+<dt><a href="#hash_withdraw">hash_withdraw(json)</a> ⇒ <code>string</code></dt>
 <dd><p>hash a withdraw transaction</p>
 </dd>
 <dt><a href="#sign_limit_order">sign_limit_order(json, private_key)</a> ⇒ <code>string</code></dt>
@@ -44,8 +44,7 @@ first message.</p>
 </dd>
 <dt><a href="#l1_sign">l1_sign(msg, private_key)</a> ⇒ <code>string</code></dt>
 <dd><p>l1 sign
-sign a msg on l1
-when signing a eth address</p>
+sign a msg on l1 when signing a eth address</p>
 </dd>
 <dt><a href="#is_on_curve">is_on_curve(pub_key_x, pub_key_y)</a> ⇒ <code>boolean</code></dt>
 <dd><p>check the (x,y) is on curve</p>
@@ -59,11 +58,14 @@ when signing a eth address</p>
 <dt><a href="#private_key_to_pubkey_xy">private_key_to_pubkey_xy(pri_key)</a> ⇒ <code>string</code></dt>
 <dd><p>derive a public with xy from private key</p>
 </dd>
+<dt><a href="#public_key_to_xy">public_key_to_xy(pub_key)</a> ⇒ <code>string</code></dt>
+<dd><p>convert public key to xy</p>
+</dd>
 </dl>
 
-<a name="zksync_crypto_init"></a>
+<a name="zkdex_init"></a>
 
-## zksync\_crypto\_init()
+## zkdex\_init()
 This method initializes params for current thread, otherwise they will be initialized when signing
 first message.
 
@@ -111,7 +113,7 @@ hash a transfer transaction
 
 <a name="sign_withdraw"></a>
 
-## sign\_withdraw(json, asset_id_collateral, private_key) ⇒ <code>string</code>
+## sign\_withdraw(json, private_key) ⇒ <code>string</code>
 sign a withdraw transaction
 
 **Kind**: global function  
@@ -119,12 +121,11 @@ sign a withdraw transaction
 | Param | Type |
 | --- | --- |
 | json | <code>string</code> | 
-| asset_id_collateral | <code>string</code> | 
 | private_key | <code>string</code> | 
 
 <a name="hash_withdraw"></a>
 
-## hash\_withdraw(json, asset_id_collateral) ⇒ <code>string</code>
+## hash\_withdraw(json) ⇒ <code>string</code>
 hash a withdraw transaction
 
 **Kind**: global function  
@@ -132,7 +133,6 @@ hash a withdraw transaction
 | Param | Type |
 | --- | --- |
 | json | <code>string</code> | 
-| asset_id_collateral | <code>string</code> | 
 
 <a name="sign_limit_order"></a>
 
@@ -222,8 +222,7 @@ verify a signature
 
 ## l1\_sign(msg, private_key) ⇒ <code>string</code>
 l1 sign
-sign a msg on l1
-when signing a eth address
+sign a msg on l1 when signing a eth address
 
 **Kind**: global function  
 
@@ -277,4 +276,15 @@ derive a public with xy from private key
 | Param | Type |
 | --- | --- |
 | pri_key | <code>string</code> | 
+
+<a name="public_key_to_xy"></a>
+
+## public\_key\_to\_xy(pub_key) ⇒ <code>string</code>
+convert public key to xy
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| pub_key | <code>string</code> | 
 
