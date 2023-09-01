@@ -1,7 +1,7 @@
 use serde::Serialize;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
-use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
+use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 /// sign a transfer transaction
 #[wasm_bindgen(js_name = sign_transfer)]
@@ -134,8 +134,7 @@ pub fn js_verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y:
 }
 
 /// l1 sign
-/// sign a msg on l1
-/// when signing a eth address
+/// sign a msg on l1 when signing a eth address
 #[wasm_bindgen(js_name = l1_sign)]
 pub fn js_l1_sign(msg: &str, private_key: &str) -> Result<String, JsValue> {
     match l1_sign(msg, private_key) {
@@ -183,6 +182,22 @@ pub fn js_private_key_from_seed(seed: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = private_key_to_pubkey_xy)]
 pub fn js_private_to_public_key_xy(pri_key: &str) -> Result<String, JsValue> {
     match private_key_to_pubkey_xy(pri_key) {
+        Ok(ret) => {
+            #[derive(Serialize)]
+            struct XY {
+                x: String,
+                y: String,
+            }
+            Ok(serde_json::to_string(&XY { x: ret.0, y: ret.1 }).unwrap())
+        }
+        Err(e) => Err(JsValue::from_str(e.to_string().as_str()))
+    }
+}
+
+/// convert public key to xy
+#[wasm_bindgen(js_name = public_key_to_xy)]
+pub fn js_public_key_to_xy(pub_key: &str) -> Result<String, JsValue> {
+    match pub_key_to_xy(pub_key) {
         Ok(ret) => {
             #[derive(Serialize)]
             struct XY {

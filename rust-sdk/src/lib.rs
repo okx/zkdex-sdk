@@ -93,7 +93,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen(start)]
 /// This method initializes params for current thread, otherwise they will be initialized when signing
 /// first message.
-pub fn zksync_crypto_init() {
+pub fn zkdex_init() {
     JUBJUB_PARAMS.with(|_| {});
     RESCUE_PARAMS.with(|_| {});
     set_panic_hook();
@@ -238,18 +238,6 @@ pub fn hash_signed_oracle_price(json: &str) -> Result<String> {
     Ok("0x".to_owned() + &signed_oracle_price_hash(&req).encode_hex::<String>())
 }
 
-
-pub fn private_key_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
-
-    let pubkey = privkey_to_pubkey_internal(private_key)?;
-    pubkey
-        .write(&mut pubkey_buf)
-        .expect("failed to write pubkey to buffer");
-
-    Ok(pubkey_buf)
-}
-
 pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
     let pri_key = private_key_from_string(private_key)?;
     let packed_pk: PackedPublicKey = public_key_from_private(&pri_key);
@@ -267,21 +255,6 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
     Ok(("0x".to_owned() + &hex::encode(x), "0x".to_owned() + &pk_x.to_hex()))
 }
 
-
-pub fn private_key_to_pubkey_with_xy(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
-    let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE + PACKED_POINT_SIZE);
-    let pubkey = privkey_to_pubkey_internal(private_key)?;
-    let (a, b) = pubkey.0.into_xy();
-    a.into_repr()
-        .write_be(&mut pubkey_buf)
-        .expect("failed to write a to buffer");
-    b.into_repr()
-        .write_be(&mut pubkey_buf)
-        .expect("failed to write b to buffer");
-    Ok(pubkey_buf)
-}
-
-
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     let hash = HashType::from_str(msg)?;
     let private_key = private_key_from_string(private_key)?;
@@ -298,8 +271,8 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y: &s
 }
 
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
-    let pubKey = PublicKeyType::deserialize_str(x)?;
-    let (pk_x, pk_y) = pubKey.0.0.into_xy();
+    let pub_key = PublicKeyType::deserialize_str(x)?;
+    let (pk_x, pk_y) = pub_key.0.0.into_xy();
     let y = Fr::from_hex(y)?;
     Ok(pk_x == y)
 }
