@@ -1,22 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
-*/
-export function zkdex_init(): void;
-/**
-* @param {Uint8Array} pubkey
-* @returns {Uint8Array}
-*/
-export function pubKeyHash(pubkey: Uint8Array): Uint8Array;
-/**
-* @param {Uint8Array} private_key
-* @returns {Uint8Array}
-*/
-export function private_key_to_pubkey_hash(private_key: Uint8Array): Uint8Array;
-/**
 * sign a transfer transaction
+* @param {string} json of transfer transaction
+* @param {string} private key hex with 0x prefix
+* @returns {string} signature of transfer transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -130,3 +118,8 @@ export function private_key_to_pubkey_xy(pri_key: string): string;
 * @returns {string}
 */
 export function public_key_to_xy(pub_key: string): string;
+/**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+export function zkdex_init(): void;

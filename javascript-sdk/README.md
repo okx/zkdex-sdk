@@ -1,15 +1,7 @@
 ## Functions
 
 <dl>
-<dt><a href="#zkdex_init">zkdex_init()</a></dt>
-<dd><p>This method initializes params for current thread, otherwise they will be initialized when signing
-first message.</p>
-</dd>
-<dt><a href="#pubKeyHash">pubKeyHash(pubkey)</a> ⇒ <code>Uint8Array</code></dt>
-<dd></dd>
-<dt><a href="#private_key_to_pubkey_hash">private_key_to_pubkey_hash(private_key)</a> ⇒ <code>Uint8Array</code></dt>
-<dd></dd>
-<dt><a href="#sign_transfer">sign_transfer(json, private_key)</a> ⇒ <code>string</code></dt>
+<dt><a href="#sign_transfer">sign_transfer(json, private, json, private_key)</a> ⇒ <code>string</code> | <code>string</code></dt>
 <dd><p>sign a transfer transaction</p>
 </dd>
 <dt><a href="#hash_transfer">hash_transfer(json)</a> ⇒ <code>string</code></dt>
@@ -61,44 +53,26 @@ sign a msg on l1 when signing a eth address</p>
 <dt><a href="#public_key_to_xy">public_key_to_xy(pub_key)</a> ⇒ <code>string</code></dt>
 <dd><p>convert public key to xy</p>
 </dd>
+<dt><a href="#zkdex_init">zkdex_init()</a></dt>
+<dd><p>This method initializes params for current thread, otherwise they will be initialized when signing
+first message.</p>
+</dd>
 </dl>
-
-<a name="zkdex_init"></a>
-
-## zkdex\_init()
-This method initializes params for current thread, otherwise they will be initialized when signing
-first message.
-
-**Kind**: global function  
-<a name="pubKeyHash"></a>
-
-## pubKeyHash(pubkey) ⇒ <code>Uint8Array</code>
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| pubkey | <code>Uint8Array</code> | 
-
-<a name="private_key_to_pubkey_hash"></a>
-
-## private\_key\_to\_pubkey\_hash(private_key) ⇒ <code>Uint8Array</code>
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| private_key | <code>Uint8Array</code> | 
 
 <a name="sign_transfer"></a>
 
-## sign\_transfer(json, private_key) ⇒ <code>string</code>
+## sign\_transfer(json, private, json, private_key) ⇒ <code>string</code> \| <code>string</code>
 sign a transfer transaction
 
 **Kind**: global function  
+**Returns**: <code>string</code> - signature of transfer transaction<code>string</code>  
 
-| Param | Type |
-| --- | --- |
-| json | <code>string</code> | 
-| private_key | <code>string</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of transfer transaction |
+| private | <code>string</code> | key hex with 0x prefix |
+| json | <code>string</code> |  |
+| private_key | <code>string</code> |  |
 
 <a name="hash_transfer"></a>
 
@@ -288,3 +262,10 @@ convert public key to xy
 | --- | --- |
 | pub_key | <code>string</code> | 
 
+<a name="zkdex_init"></a>
+
+## zkdex\_init()
+This method initializes params for current thread, otherwise they will be initialized when signing
+first message.
+
+**Kind**: global function  

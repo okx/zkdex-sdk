@@ -1,22 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
-*/
-export function zkdex_init(): void;
-/**
-* @param {Uint8Array} pubkey
-* @returns {Uint8Array}
-*/
-export function pubKeyHash(pubkey: Uint8Array): Uint8Array;
-/**
-* @param {Uint8Array} private_key
-* @returns {Uint8Array}
-*/
-export function private_key_to_pubkey_hash(private_key: Uint8Array): Uint8Array;
-/**
 * sign a transfer transaction
+* @param {string} json of transfer transaction
+* @param {string} private key hex with 0x prefix
+* @returns {string} signature of transfer transaction
 * @param {string} json
 * @param {string} private_key
 * @returns {string}
@@ -130,30 +118,16 @@ export function private_key_to_pubkey_xy(pri_key: string): string;
 * @returns {string}
 */
 export function public_key_to_xy(pub_key: string): string;
+/**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+export function zkdex_init(): void;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly Java_com_okx_ZKDEX_verifySignature: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
-  readonly Java_com_okx_ZKDEX_signWithdraw: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_signTransfer: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_signLimitOrder: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_signLiquidate: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_signSignedOraclePrice: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_hashWithdraw: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_hashTransfer: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_hashLimitOrder: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_hashLiquidate: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_hashSignedOraclePrice: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_sign: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_privateKeyFromSeed: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_isOnCurve: (a: number, b: number, c: number, d: number) => number;
-  readonly Java_com_okx_ZKDEX_privateKeyToPublicKeyXY: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_publicKeyToXY: (a: number, b: number, c: number) => number;
-  readonly zkdex_init: () => void;
-  readonly pubKeyHash: (a: number, b: number, c: number) => void;
-  readonly private_key_to_pubkey_hash: (a: number, b: number, c: number) => void;
   readonly sign_transfer: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly hash_transfer: (a: number, b: number, c: number) => void;
   readonly sign_withdraw: (a: number, b: number, c: number, d: number, e: number) => void;
@@ -171,10 +145,27 @@ export interface InitOutput {
   readonly private_key_from_seed: (a: number, b: number, c: number) => void;
   readonly private_key_to_pubkey_xy: (a: number, b: number, c: number) => void;
   readonly public_key_to_xy: (a: number, b: number, c: number) => void;
+  readonly zkdex_init: () => void;
+  readonly Java_com_okx_ZKDEX_verifySignature: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+  readonly Java_com_okx_ZKDEX_signWithdraw: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_signTransfer: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_signLimitOrder: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_signLiquidate: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_signSignedOraclePrice: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_hashWithdraw: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_hashTransfer: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_hashLimitOrder: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_hashLiquidate: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_hashSignedOraclePrice: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_sign: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_privateKeyFromSeed: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_isOnCurve: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_privateKeyToPublicKeyXY: (a: number, b: number, c: number) => number;
+  readonly Java_com_okx_ZKDEX_publicKeyToXY: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_start: () => void;
 }
 
