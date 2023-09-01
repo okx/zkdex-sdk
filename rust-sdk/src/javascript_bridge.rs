@@ -7,7 +7,7 @@ use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_tra
 /// @param {string} json of transfer transaction
 /// @param {string} private key hex with 0x prefix
 /// @returns {string} signature of transfer transaction
-#[wasm_bindgen(js_name = sign_transfer)]
+#[wasm_bindgen(js_name = sign_transfer), skip_jsdoc]
 pub fn js_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_transfer(json, private_key) {
         Ok(ret) => {
