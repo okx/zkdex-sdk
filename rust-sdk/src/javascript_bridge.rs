@@ -4,6 +4,9 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 /// sign a transfer transaction
+/// @param {string} json of transfer transaction
+/// @param {string} private key hex with 0x prefix
+/// @returns {string} signature of transfer transaction
 #[wasm_bindgen(js_name = sign_transfer)]
 pub fn js_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_transfer(json, private_key) {
