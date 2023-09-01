@@ -5,9 +5,6 @@
 * @param {string} json of transfer transaction
 * @param {string} private key hex with 0x prefix
 * @returns {string} signature of transfer transaction
-* @param {string} json
-* @param {string} private_key
-* @returns {string}
 */
 export function sign_transfer(json: string, private_key: string): string;
 /**

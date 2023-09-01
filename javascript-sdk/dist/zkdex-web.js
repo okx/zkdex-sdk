@@ -115,9 +115,6 @@ function getInt32Memory0() {
 * @param {string} json of transfer transaction
 * @param {string} private key hex with 0x prefix
 * @returns {string} signature of transfer transaction
-* @param {string} json
-* @param {string} private_key
-* @returns {string}
 */
 export function sign_transfer(json, private_key) {
     let deferred4_0;

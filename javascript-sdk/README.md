@@ -1,7 +1,7 @@
 ## Functions
 
 <dl>
-<dt><a href="#sign_transfer">sign_transfer(json, private, json, private_key)</a> ⇒ <code>string</code> | <code>string</code></dt>
+<dt><a href="#sign_transfer">sign_transfer(json, private)</a> ⇒ <code>string</code></dt>
 <dd><p>sign a transfer transaction</p>
 </dd>
 <dt><a href="#hash_transfer">hash_transfer(json)</a> ⇒ <code>string</code></dt>
@@ -61,18 +61,16 @@ first message.</p>
 
 <a name="sign_transfer"></a>
 
-## sign\_transfer(json, private, json, private_key) ⇒ <code>string</code> \| <code>string</code>
+## sign\_transfer(json, private) ⇒ <code>string</code>
 sign a transfer transaction
 
 **Kind**: global function  
-**Returns**: <code>string</code> - signature of transfer transaction<code>string</code>  
+**Returns**: <code>string</code> - signature of transfer transaction  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | json | <code>string</code> | of transfer transaction |
 | private | <code>string</code> | key hex with 0x prefix |
-| json | <code>string</code> |  |
-| private_key | <code>string</code> |  |
 
 <a name="hash_transfer"></a>
 
