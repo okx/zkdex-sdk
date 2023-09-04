@@ -4,9 +4,9 @@
 // divided by the ratio between a unit of synthetic asset and its resolution:
 //   (collateral_asset_unit / collateral_resolution) /
 //   (synthetic_asset_unit / synthetic_resolution).
-
+use crate::i128_serde::U128SerdeAsRadix16Prefix0xString;
 use std::ops::ShlAssign;
-
+use crate::I64SerdeAsString;
 use primitive_types::U256;
 use serde::Deserialize;
 
@@ -19,11 +19,13 @@ use crate::zkw::JubjubSignature;
 use anyhow::Result;
 
 // Represents a single signature on an external price with a timestamp.
-#[derive(Debug, Clone, PartialEq,Serialize,Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SignedOraclePrice {
-    #[serde(rename="signer_key")]
+    #[serde(rename = "signer_key")]
     pub signer_key: PublicKeyType,
+    #[serde(rename = "external_price", with = "U128SerdeAsRadix16Prefix0xString")]
     pub external_price: PriceType,
+    #[serde(rename = "timestamp", with = "I64SerdeAsString")]
     pub timestamp: TimestampType,
     #[serde(rename = "signed_asset_id", with = "U256SerdeAsRadix16Prefix0xString")]
     pub signed_asset_id: SignedAssetId,
@@ -74,4 +76,20 @@ pub fn sign_signed_oracle_price(
     let private_key = private_key_from_string(prvk)?;
     let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
     Ok(signature.into())
+}
+
+#[test]
+fn test_deserialize() {
+    let json = r#"
+    {
+  "signer_key": "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+  "external_price": "0xa",
+  "timestamp": "2",
+  "signed_asset_id": "0xa"
+}
+    "#;
+
+    let ret = serde_json::from_str::<SignedOraclePrice>(json);
+    assert!(ret.is_ok());
+    println!("{:?}", ret);
 }

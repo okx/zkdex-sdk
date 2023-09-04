@@ -129,4 +129,11 @@ mod tests {
         let obj = serde_json::from_str::<U8Array32Serde>(&json_str).unwrap();
         assert_eq!(obj, U8Array32Serde { v: expect });
     }
+
+    #[test]
+    fn test_hex() {
+        let a = [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,8,8,8,8,8,8,9,255,6,7,6,4,3,1,0,3,4];
+        let s = hex::encode(a.as_slice());
+        println!("{s}");
+    }
 }

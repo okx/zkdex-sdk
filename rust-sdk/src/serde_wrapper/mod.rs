@@ -6,7 +6,7 @@ mod other_serde;
 pub mod signature_serde;
 mod std_duration_serde;
 pub mod u256_serde;
-mod u64_serde;
+pub mod u64_serde;
 pub mod u8_array_serde;
 pub mod vec_signed_asset_id;
 
@@ -21,4 +21,5 @@ pub use other_serde::*;
 pub use std_duration_serde::{StdDurationSerdeAsSecondsStr, StdDurationSerdeAsSecondsU64};
 pub use u256_serde::U256SerdeAsRadix16Prefix0xString;
 pub use u64_serde::U64SerdeAsString;
+pub use u64_serde::U64SerdeAsRadix16Prefix0xString;
 pub use u8_array_serde::{U8Array32SerdeAsStringWith0x, U8Array64SignatureSerde};

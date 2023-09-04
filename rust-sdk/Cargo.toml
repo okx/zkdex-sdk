@@ -72,3 +72,11 @@ jni = {version = '0.21.1'}
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
 
+[target.x86_64-apple-darwin]
+linker = "x86_64-apple-darwin21.0.0-clang"
+
+[target.aarch64-apple-darwin]
+linker = "aarch64-apple-darwin21.0.0-clang"
+
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-linux-gnu-gcc"
