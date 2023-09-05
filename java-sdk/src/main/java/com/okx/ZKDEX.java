@@ -60,14 +60,14 @@ public class ZKDEX {
             // load library file
             System.load(fileOut.getAbsolutePath());
         } catch (Exception e) {
-            log.error(e.toString());
+            log.error("loadLib",e.toString());
             throw new RuntimeException("loading dynamic library failed", e);
         } finally {
            if  (bufferedInputStream != null) {
                try {
                    bufferedInputStream.close();
                } catch (IOException e) {
-                   log.error(e.toString());
+                   log.error("loadLib",e.toString());
                }
            }
 
@@ -75,7 +75,7 @@ public class ZKDEX {
                try {
                    bufferedOutputStream.close();
                } catch (IOException e) {
-                   throw new RuntimeException(e);
+                   log.error("loadLib",e.toString());
                }
            }
         }
