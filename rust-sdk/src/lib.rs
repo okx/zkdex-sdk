@@ -296,6 +296,12 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     })
 }
 
+pub fn reverse_hex(str: &str) -> anyhow::Result<String>{
+    let mut ret = hex::decode(str)?;
+    ret.as_mut_slice().reverse();
+    Ok(hex::encode(ret))
+}
+
 
 #[test]
 pub fn test_l1_sign() {
@@ -330,8 +336,9 @@ pub fn test_verify() {
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
+    use franklin_crypto::bellman::from_hex;
 
-    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign_transfer, verify_signature};
+    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_transfer, verify_signature};
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
@@ -385,4 +392,13 @@ mod test {
         let (x,y) = pub_key_to_xy(pub_key).unwrap();
         println!("x:{x} y:{y}")
     }
+
+    #[test]
+    fn test_reverse_hex() {
+        let num = "12ba9000";
+        println!("{:?}",reverse_hex(num).unwrap());
+    }
 }
+
+
+
