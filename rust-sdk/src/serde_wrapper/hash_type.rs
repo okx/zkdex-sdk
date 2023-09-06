@@ -27,19 +27,21 @@ impl HashTypeSerde {
     }
 }
 
+pub fn hash_type_to_string_with_0xprefix(hash:HashType) -> String{
+    let mut be = [0u8; 32];
+    hash.to_big_endian(&mut be);
+    format!("0x{:x}", primitive_types::H256(be))
+}
+
 pub fn string_to_hash_type(s: &str) -> Result<HashType, FromHexError> {
-    // let data = hex::decode(s.trim_start_matches("0x").trim_start_matches("0X"))?;
-    let data = vec![25u8,28u8];
+    let data = hex::decode(s.trim_start_matches("0x").trim_start_matches("0X"))?;
     let data:Vec<u8> = if data.len() < size_of::<HashType>() {
-        let prefix = vec![0u8]
+       vec![0u8]
             .into_iter()
             .cycle()
             .take(32 - data.len())
             .chain(data)
-            .collect::<Vec<u8>>();
-
-        prefix
-
+            .collect::<Vec<u8>>()
     } else {
         data
     };

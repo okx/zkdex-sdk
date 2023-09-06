@@ -15,7 +15,7 @@ pub trait Hasher {
             self.update_single(d);
         }
     }
-    fn finalize(&mut self) -> H256;
+    fn finalize(&mut self) -> U256;
 }
 
 pub fn new_hasher() -> impl Hasher {
@@ -74,8 +74,8 @@ mod zkw {
             }
         }
 
-        fn finalize(&mut self) -> H256 {
-            u256_to_h256(&U256(self.poseidon.finalize()))
+        fn finalize(&mut self) -> U256 {
+            U256(self.poseidon.finalize())
         }
     }
 }
@@ -128,7 +128,7 @@ impl ToHashable for H256 {
     }
 }
 
-pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> H256 {
+pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> U256 {
     let mut hasher = new_hasher();
     hasher.update_single(a);
     hasher.update_single(b);

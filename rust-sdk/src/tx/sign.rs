@@ -3,19 +3,16 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use ef::ff::{PrimeField, PrimeFieldRepr};
-use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::eddsa::{PrivateKey, PublicKey, Seed, Signature};
-use franklin_crypto::jubjub::edwards::Point;
 use franklin_crypto::jubjub::{FixedGenerators, JubjubEngine};
 use pairing_ce as ef;
 use pairing_ce::bn256::Bn256;
 use primitive_types::{H256, U256};
 use rand::{Rng, SeedableRng, XorShiftRng};
 use time::OffsetDateTime;
-use crate::Engine;
 
-use crate::tx::{h256_to_u256, JUBJUB_PARAMS, u256_to_h256};
+use crate::tx::{h256_to_u256, JUBJUB_PARAMS, le_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{fr_to_u256, PackedPublicKey, public_key_from_private, public_key_from_private_with_verify};
 use crate::tx::packed_signature::{PackedSignature, point_from_xy};
@@ -49,7 +46,7 @@ impl Into<JubjubSignature> for TxSignature {
         let mut packed_signature = [0u8; 32];
         let s_bar = packed_signature.as_mut();
         self.signature.0.s.into_repr().write_le(s_bar).unwrap();
-        let sig_s = h256_to_u256(H256(packed_signature));
+        let sig_s = le_to_u256(&packed_signature);
         JubjubSignature {
             sig_r,
             sig_s: sig_s.0,
@@ -119,12 +116,12 @@ pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryFrom;
     use std::str::FromStr;
+    use crate::felt::LeBytesConvert;
+
     use crate::tx;
-    use crate::tx::{convert_to_pubkey, PublicKeyType};
     use crate::tx::packed_public_key::private_key_from_string;
-    use crate::tx::withdraw::HashType;
+    use crate::tx::{HashType, PublicKeyType};
 
     use super::*;
 
@@ -158,11 +155,11 @@ mod tests {
         let pub_key = PublicKey::from_private(&private_key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
         // assert!(pack_sig.verify(&pub_key,hash.as_bytes()));
         let hash2 = HashType::from_str("0x01817ed5bea1d0082c0fbe02edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
-        assert_eq!(pack_sig.verify(&pub_key, hash.as_bytes()), true);
-        assert_eq!(pack_sig.verify(&pub_key, hash2.as_bytes()), false);
+        assert_eq!(pack_sig.verify(&pub_key, hash.as_le_bytes()), true);
+        assert_eq!(pack_sig.verify(&pub_key, hash2.as_le_bytes()), false);
         let pubkey = PublicKeyType::deserialize_str("42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9").unwrap();
 
-        assert_eq!(pack_sig.verify(&pubkey.0, hash.as_bytes()), true);
+        assert_eq!(pack_sig.verify(&pubkey.0, hash.as_le_bytes()), true);
         println!("{:#?}", pubkey);
         println!("{:#?}", pubkey);
     }

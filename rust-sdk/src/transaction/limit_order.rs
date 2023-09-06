@@ -19,6 +19,7 @@ use crate::tx::{JUBJUB_PARAMS, TxSignature};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::zkw::JubjubSignature;
 use anyhow::Result;
+use crate::felt::LeBytesConvert;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;
@@ -53,7 +54,7 @@ pub fn sign_limit_order(
 ) -> Result<JubjubSignature> {
     let hash = limit_order_hash(&req);
     let private_key = private_key_from_string(prvk)?;
-    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
 
@@ -180,12 +181,12 @@ pub fn test_sign2() {
     println!("{:?}", hash.clone());
     let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let private_key = private_key_from_string(prv_key).unwrap();
-    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
 
 
     let pub_key = PublicKey::from_private(&private_key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
-    assert!(sig.verify(&pub_key, hash.as_bytes()));
-    assert!(!sig.verify(&pub_key, hash1.as_bytes()));
+    assert!(sig.verify(&pub_key, hash.as_le_bytes()));
+    assert!(!sig.verify(&pub_key, hash1.as_le_bytes()));
 }
 
 #[test]

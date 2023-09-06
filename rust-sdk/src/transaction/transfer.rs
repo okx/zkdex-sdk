@@ -7,6 +7,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::common::OrderBase;
+use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;

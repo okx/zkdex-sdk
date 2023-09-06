@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use std::fmt::{Debug, Formatter};
 
 use franklin_crypto::alt_babyjubjub::{AltJubjubBn256, FixedGenerators};
@@ -12,7 +13,7 @@ use thiserror::Error;
 use crate::new_public_key::u256_to_h256;
 
 use crate::tx::{JUBJUB_PARAMS, le_to_u256, u256_to_le};
-use crate::tx::packed_public_key::u256_to_fr;
+use crate::tx::packed_public_key::{fr_to_u256, u256_to_fr};
 use crate::U256SerdeAsRadix16Prefix0xString;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
@@ -134,6 +135,18 @@ pub(crate) fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
 
     Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).unwrap()
 }
+
+impl JubjubSignature {
+    pub fn from_str(r: &str, s: &str) -> Self {
+        let r_str = r.trim_start_matches("0x").trim_start_matches("0X");
+        let r = U256::from_str_radix(r_str, 16).unwrap();
+
+        let s_str = s.trim_start_matches("0x").trim_start_matches("0X");
+        let s = U256::from_str_radix(s_str, 16).unwrap();
+        signature_from_rs(&r, &s)
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

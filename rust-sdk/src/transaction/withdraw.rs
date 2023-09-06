@@ -9,11 +9,12 @@ use crate::constant::{
     AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
     POSITION_ID_UPPER_BOUND_U256,
 };
+use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::new_public_key::PublicKeyType;
 use crate::privkey_to_pubkey_internal;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
-use crate::tx::{TxSignature, withdraw};
+use crate::tx::{HashType, TxSignature, withdraw};
 use crate::types::h256_to_u256;
 use crate::zkw::JubjubSignature;
 
@@ -62,7 +63,7 @@ pub fn sign_withdraw(
 }
 
 pub type CollateralAssetId = U256;
-pub type HashType = H256;
+
 
 pub fn withdrawal_hash(
     withdrawal: &Withdraw,
@@ -84,7 +85,7 @@ pub fn withdrawal_hash(
         packed_message1 = WITHDRAWAL;
     } else {
         let message = hash2(asset_id_collateral, &withdrawal.owner_key);
-        packed_message0 = h256_to_u256(&message);
+        packed_message0 = message;
         packed_message1 = WITHDRAWAL_TO_OWNER_KEY;
     }
     let packed_message1 = packed_message1 * POSITION_ID_UPPER_BOUND_U256 + withdrawal.position_id;

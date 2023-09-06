@@ -1,13 +1,13 @@
 #![feature(test)]
-extern crate test as other_test;
 extern crate core;
+extern crate test as other_test;
 
 use std::convert::TryFrom;
 use std::str::FromStr;
 
 use anyhow::{Error, Result};
 use franklin_crypto::{
-    alt_babyjubjub::{AltJubjubBn256, edwards, FixedGenerators, fs::FsRepr},
+    alt_babyjubjub::{AltJubjubBn256, FixedGenerators, fs::FsRepr},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
     eddsa::{PrivateKey, PublicKey, Signature as EddsaSignature},
     jubjub::JubjubEngine,
@@ -18,7 +18,6 @@ use hex::ToHex;
 use jni::objects::*;
 use num_bigint::BigUint;
 use num_traits::Num;
-use pairing_ce::bn256::Bn256;
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -28,16 +27,18 @@ pub use convert::*;
 pub use format::*;
 pub use serde_wrapper::*;
 
+use crate::felt::LeBytesConvert;
+use crate::hash_type::{hash_type_to_string_with_0xprefix, string_to_hash_type};
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
-use crate::transaction::transfer::{transfer_hash, Transfer};
+use crate::transaction::transfer::{Transfer, transfer_hash};
 use crate::transaction::types::HashType;
-use crate::transaction::withdraw::{CollateralAssetId, Withdraw, WithdrawRequest};
+use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
+use crate::tx::packed_public_key::{PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
@@ -154,7 +155,7 @@ pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
 
 pub fn hash_transfer(json: &str) -> Result<String> {
     let req: Transfer = serde_json::from_str(json).unwrap();
-    Ok("0x".to_owned() + &transfer_hash(&req, 0).encode_hex::<String>())
+    Ok("0x".to_owned() + &transfer_hash(&req, 0).to_string())
 }
 
 
@@ -181,7 +182,7 @@ pub fn hash_withdraw(json: &str) -> Result<String> {
         amount: withdrawReq.amount,
         owner_key: withdrawReq.owner_key,
     };
-    Ok("0x".to_owned() + &withdrawal_hash(&withdraw, &withdrawReq.asset_id).encode_hex::<String>())
+    Ok(hash_type_to_string_with_0xprefix(withdrawal_hash(&withdraw, &withdrawReq.asset_id)))
 }
 
 
@@ -193,7 +194,7 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
-    Ok("0x".to_owned() + &limit_order_hash(&req).encode_hex::<String>())
+    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(&req)))
 }
 
 
@@ -205,7 +206,7 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> 
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
-    Ok("0x".to_owned() + &limit_order_hash(&req.liquidator_order).encode_hex::<String>())
+    Ok(hash_type_to_string_with_0xprefix( limit_order_hash(&req.liquidator_order)))
 }
 
 
@@ -220,7 +221,7 @@ pub fn sign_signed_oracle_price(
 
 pub fn hash_signed_oracle_price(json: &str) -> Result<String> {
     let req: SignedOraclePrice = serde_json::from_str(json)?;
-    Ok("0x".to_owned() + &signed_oracle_price_hash(&req).encode_hex::<String>())
+    Ok(hash_type_to_string_with_0xprefix(signed_oracle_price_hash(&req)))
 }
 
 pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
@@ -243,16 +244,16 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     let hash = HashType::from_str(msg)?;
     let private_key = private_key_from_string(private_key)?;
-    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
 
 pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y: &str, msg: &str) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
-    let msg = HashType::from_str(msg)?;
+    let msg = string_to_hash_type(msg)?;
     let pubkey = PublicKeyType::deserialize_str(pub_key_x)?;
-    Ok(sig.verify(&pubkey.0, msg.as_bytes()))
+    Ok(sig.verify(&pubkey.0, msg.as_le_bytes()))
 }
 
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
@@ -283,7 +284,7 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let msg = &hex::encode(b.to_bytes_le());
     let private_key = private_key_from_string(private_key)?;
     let msg = HashType::from_str(msg)?;
-    let (sig, packed_pk) = TxSignature::sign_msg(&private_key, msg.as_bytes());
+    let (sig, packed_pk) = TxSignature::sign_msg(&private_key, msg.as_le_bytes());
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
     let (pk_x, pk_y) = pk.0.into_xy();
@@ -334,10 +335,34 @@ pub fn test_verify() {
     assert!(!ret)
 }
 
+#[test]
+pub fn test_sign_oracle_price() {
+    let json = r#"
+    {
+  "signer_key": "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+  "external_price": "100",
+  "timestamp": "2",
+  "signed_asset_id": "0xa"
+}
+    "#;
+    let pri = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let sig = sign_signed_oracle_price(json, pri).unwrap();
+    let hash = hash_signed_oracle_price(json).unwrap();
+    println!("hash:{}",hash);
+    println!("sig:{}",serde_json::to_string(&sig).unwrap());
+    let sig = PackedSignature::from(sig);
+    let pk = "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
+    let pk = PublicKeyType::deserialize_str(pk).unwrap();
+    let ret = sig.verify(&pk.0,string_to_hash_type(&hash).unwrap().as_le_bytes());
+    assert!(ret);
+    let error_hash = "0x15318118b6f0c3fe74923ff85fbd7d225c75672469280ec9db92509e46bff100";
+    let ret = sig.verify(&pk.0,string_to_hash_type(error_hash).unwrap().as_le_bytes());
+    assert!(!ret);
+}
+
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use franklin_crypto::bellman::from_hex;
 
     use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_transfer, verify_signature};
 
