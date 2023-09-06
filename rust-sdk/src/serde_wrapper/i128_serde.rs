@@ -28,17 +28,16 @@ impl U128SerdeAsRadix16Prefix0xString {
         where
             S: Serializer,
     {
-        String::serialize(&format!("0x{:x}", val), serializer)
+        String::serialize(&format!("{}", val), serializer)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<u128, D::Error>
         where
             D: Deserializer<'de>,
     {
-        let hex_str = String::deserialize(deserializer)?;
-        let hex_str = hex_str.trim_start_matches("0x").trim_start_matches("0X");
-        u128::from_str_radix(hex_str, 16)
-            .map_err(|e| de::Error::custom(format!("decode hex string error: {}", e)))
+        let str = String::deserialize(deserializer)?;
+        u128::from_str_radix(&str, 10)
+            .map_err(|e| de::Error::custom(format!("decode u128 string error: {}", e)))
     }
 }
 

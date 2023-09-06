@@ -337,8 +337,10 @@ pub fn test_verify() {
 mod test {
     use other_test::Bencher;
     use franklin_crypto::bellman::from_hex;
+    use primitive_types::U256;
 
-    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_transfer, verify_signature};
+    use crate::{hash_signed_oracle_price, hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_signed_oracle_price, sign_transfer, verify_signature};
+    use crate::hash::hash2;
 
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
@@ -397,6 +399,25 @@ mod test {
     fn test_reverse_hex() {
         let num = "12ba9000";
         println!("{:?}",reverse_hex(num).unwrap());
+    }
+
+    #[test]
+    fn test_hash_signed_oracle_price() {
+        let data = r#"
+        {"external_price":"28409392522000000000000","signed_asset_id":"0x425443555344434f4b580000000000005374437277","signer_key":"0x2a7cbe3ca4491e20263bab3451b6179f9268097a9af449eaab7a88093a694a0d","timestamp":"1693907824"}
+        "#;
+
+        let sig = sign_signed_oracle_price(data,"01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe").unwrap();
+        let a = serde_json::to_string(&sig).unwrap();
+        println!("{:#?}", a);
+
+        let hash = hash_signed_oracle_price(data).unwrap();
+        println!("{:?}", hash);
+
+        // let x = U256::from(1);
+        // let y = U256::from(2);
+        // let a = hash2(&x, &y);
+        // println!("{:#?}", a)
     }
 }
 
