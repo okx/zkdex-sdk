@@ -25,5 +25,5 @@ mac_lib:
 	cp -f rust-sdk/target/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/arm_libzkdex_sdk.dylib
 	cp -f rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_libzkdex_sdk.dylib
 linux_lib:
-	cd rust-sdk && cargo build --release
-	cp -f rust-sdk/target/release/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk.so
+	cd rust-sdk && cross build --target x86_64-unknown-linux-gnu --release
+	cp -f rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk.so
