@@ -1,5 +1,6 @@
 #![feature(test)]
 extern crate test as other_test;
+extern crate core;
 
 use std::convert::TryFrom;
 use std::str::FromStr;

@@ -1,6 +1,6 @@
 use super::convert::FeConvert;
 use crate::tx::packed_signature::get_xy_from_r;
-use crate::tx::{h256_to_u256, JUBJUB_PARAMS};
+use crate::tx::{h256_to_u256, JUBJUB_PARAMS, u256_to_le};
 use anyhow::{anyhow, Error};
 use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::bellman::bn256::Fr;
@@ -10,19 +10,21 @@ use pairing_ce as ef;
 use pairing_ce::bn256::{Bn256, FrRepr};
 use std::convert::{TryFrom, TryInto};
 use std::fmt::Debug;
+use pairing_ce::ff::{PrimeField, PrimeFieldRepr};
 
 
 use crate::zkw::BabyJubjubPoint;
 use primitive_types::{H256, U256};
 use rand::Rng;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use sha2::digest::generic_array::typenum::U25;
 use thiserror::{Error as ThisError, Error};
 use crate::Engine;
 
 pub type PrivateKeyType = PrivateKey<Bn256>;
 
 #[derive(Clone, Debug)]
-pub struct PackedPublicKey(pub H256);
+pub struct PackedPublicKey(pub U256);
 
 impl ToString for PackedPublicKey {
     fn to_string(&self) -> String {
@@ -45,7 +47,7 @@ impl TryFrom<String> for PackedPublicKey {
 
         let mut bytes_array = [0u8; 32];
         let bytes = if bytes_vec.len() < 32 {
-            bytes_array[0..bytes_vec.len()].copy_from_slice(&bytes_vec);
+            bytes_array[32 - bytes_vec.len()..32].copy_from_slice(&bytes_vec);
             bytes_array.as_slice()
         } else if bytes_vec.len() == 32 {
             bytes_vec.as_slice()
@@ -62,10 +64,10 @@ impl Into<BabyJubjubPoint> for PackedPublicKey {
         if self.is_address() {
             BabyJubjubPoint {
                 x: Default::default(),
-                y: h256_to_u256(H256(self.0.try_into().unwrap())),
+                y: self.0.clone(),
             }
         } else {
-            let r = self.0 .0;
+            let r = &self.0;
             let (x, y) = get_xy_from_r(r);
             let x = fr_to_u256(&x).unwrap();
             let y = fr_to_u256(&y).unwrap();
@@ -75,14 +77,14 @@ impl Into<BabyJubjubPoint> for PackedPublicKey {
 }
 impl PackedPublicKey {
     pub fn is_address(&self) -> bool {
-        return is_address(&self.0 .0);
+        return is_address(&self.0);
     }
     pub fn new_address_public_key(address: String) -> Self {
         PackedPublicKey::try_from(address).unwrap()
     }
     pub fn serialize_packed(&self) -> std::io::Result<Vec<u8>> {
-        let mut packed_point = [0u8; 32];
-        packed_point.copy_from_slice(&self.0[..]);
+        let mut packed_point = [0; 32];
+        self.0.to_big_endian(&mut packed_point);
         Ok(packed_point.to_vec())
     }
 
@@ -90,17 +92,19 @@ impl PackedPublicKey {
         if bytes.len() != 32 {
             return Err(DeserializeError::IncorrectPublicKeyLength);
         }
-        Ok(PackedPublicKey(H256::from_slice(&bytes)))
+        Ok(PackedPublicKey(U256::from_big_endian(&bytes)))
     }
 }
-pub fn is_address(data: &[u8; 32]) -> bool {
+pub fn is_address(data: &U256) -> bool {
+    let data = u256_to_le(data);
     let suffix_slice: &[u8] = &data[20..];
-    return if suffix_slice == [0; 12] && data != &[0; 32] {
+    return if suffix_slice == [0; 12] && &data != &[0; 32] {
         true
     } else {
         false
     };
 }
+
 #[derive(Debug, ThisError)]
 pub enum DeserializeError {
     #[error("Public key size mismatch")]
@@ -143,18 +147,18 @@ pub fn public_key_from_private_with_verify(
     let a = aaa.verify_for_raw_message(msg, sig, p_g, &JUBJUB_PARAMS, msg.len());
     assert_eq!(a, true);
     point.write(packed_point.as_mut()).unwrap();
-    PackedPublicKey(H256(packed_point))
+    PackedPublicKey(U256::from_little_endian(&packed_point))
 }
+
 pub fn public_key_from_private(pk: &PrivateKey<Bn256>) -> PackedPublicKey {
     let pubkey = PublicKey::from_private(pk, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
     let point = pubkey.0;
     let mut packed_point = [0u8; 32];
     point.write(packed_point.as_mut()).unwrap();
-    PackedPublicKey(H256(packed_point))
+    PackedPublicKey(U256::from_little_endian(&packed_point))
 }
 
 pub fn fr_to_u256(fr: &Fr) -> Result<U256, anyhow::Error> {
-    use ef::ff::{PrimeField, PrimeFieldRepr};
     let repr = fr.into_repr();
     let mut buf = [0u8; 32];
     repr.write_le(&mut buf[..])
@@ -162,35 +166,34 @@ pub fn fr_to_u256(fr: &Fr) -> Result<U256, anyhow::Error> {
     Ok(U256::from_little_endian(&buf))
 }
 
-pub fn h256_to_fr(u: H256) -> Result<Fr, anyhow::Error> {
-    use ef::ff::{PrimeField, PrimeFieldRepr};
+pub fn u256_to_fr(u: &U256) -> Result<Fr, anyhow::Error> {
     let mut s_repr = FrRepr::default();
     s_repr
-        .read_le(u.0.as_slice())
+        .read_le(&u256_to_le(u)[..])
         .map_err(|e| anyhow!(e.to_string()))?;
     let s = Fr::from_repr(s_repr)?;
     Ok(s)
 }
 
-pub fn convert_to_pubkey(x: H256, y: H256) -> Result<PublicKey<Bn256>, anyhow::Error> {
-    let x = h256_to_fr(x)?;
-    let y = h256_to_fr(y)?;
+pub fn convert_to_pubkey(x: &U256, y: &U256) -> Result<PublicKey<Bn256>, anyhow::Error> {
+    let x = u256_to_fr(x)?;
+    let y = u256_to_fr(y)?;
     let point = edwards::Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).ok_or(anyhow!(
         String::from("could not decode public key by x and y")
     ))?;
     Ok(PublicKey(point))
 }
 
-impl From<(H256, H256)> for PackedPublicKey {
-    fn from(value: (H256, H256)) -> Self {
-        if value.0 == H256::zero() && is_address(&value.1 .0) {
-            return PackedPublicKey(H256(value.1 .0));
+impl From<(U256, U256)> for PackedPublicKey {
+    fn from(value: (U256, U256)) -> Self {
+        if value.0 == U256::zero() && is_address(&value.1) {
+            return PackedPublicKey(value.1);
         }
-        let pubkey = convert_to_pubkey(value.0, value.1).unwrap();
+        let pubkey = convert_to_pubkey(&value.0, &value.1).unwrap();
         let point = pubkey.0;
         let mut packed_point = [0u8; 32];
         point.write(packed_point.as_mut()).unwrap();
-        PackedPublicKey(H256(packed_point))
+        PackedPublicKey(U256::from_little_endian(&packed_point))
     }
 }
 

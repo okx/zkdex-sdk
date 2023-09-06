@@ -23,9 +23,8 @@ impl PublicKeyType {
         Self::from_xy(U256::zero(), U256::one())
     }
 
-    // #[cfg(feature = "notwasm")]
     pub fn is_address(&self) -> bool {
-        return if self.0.x == U256::zero() && is_address(&(u256_to_h256(&self.0.y).0)) {
+        return if self.0.x == U256::zero() && is_address(&(&self.0.y)) {
             true
         } else {
             false
@@ -33,16 +32,15 @@ impl PublicKeyType {
     }
 }
 
-// #[cfg(feature = "notwasm")]
 impl From<PackedPublicKey> for PublicKeyType {
     fn from(value: PackedPublicKey) -> Self {
         if value.is_address() {
             PublicKeyType(BabyJubjubPoint {
                 x: Default::default(),
-                y: h256_to_u256(&value.0),
+                y: value.0,
             })
         } else {
-            let (x, y) = get_xy_from_r(value.0 .0);
+            let (x, y) = get_xy_from_r(&value.0);
             let x = fr_to_u256(&x).unwrap();
             let y = fr_to_u256(&y).unwrap();
             PublicKeyType(BabyJubjubPoint { x, y })
@@ -53,23 +51,22 @@ impl From<PackedPublicKey> for PublicKeyType {
 impl Into<PackedPublicKey> for PublicKeyType {
     fn into(self) -> PackedPublicKey {
         let r = get_r_from_xy(&self.0.x, &self.0.y);
-        PackedPublicKey(H256(r))
+        PackedPublicKey(r)
     }
 }
 
-// #[cfg(feature = "notwasm")]
 impl Serialize for PublicKeyType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
+        where
+            S: serde::Serializer,
     {
-        let x = u256_to_h256(&self.0.x);
-        let y = u256_to_h256(&self.0.y);
+        let x = self.0.x.clone();
+        let y = self.0.y.clone();
         PackedPublicKey::from((x, y)).serialize(serializer)
     }
 }
 
-// #[cfg(feature = "notwasm")]
+
 impl<'de> Deserialize<'de> for PublicKeyType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -121,9 +118,7 @@ pub fn h256_to_u256(h: &H256) -> U256 {
     U256::from_little_endian(&h[..])
 }
 
-// pub fn h256_as_u256(h: &H256) -> &U256 {
-//     unsafe { &*(h as *const H256 as *const U256) }
-// }
+
 
 pub fn u256_to_h256(u: &U256) -> H256 {
     let mut h = [0u8; 32];
@@ -132,7 +127,6 @@ pub fn u256_to_h256(u: &U256) -> H256 {
 }
 
 #[cfg(test)]
-#[cfg(feature = "notwasm")]
 mod tests {
     use super::*;
 
@@ -158,7 +152,7 @@ mod tests {
     #[test]
     pub fn test_zero() {
         let origin = TmpSerde {
-            v: PublicKeyType(PackedPublicKey(H256([0u8; 32])).into()),
+            v: PublicKeyType(PackedPublicKey(U256([0u64; 4])).into()),
         };
         let json_str = serde_json::to_string(&origin).unwrap();
         println!("{:?}", &json_str);

@@ -24,3 +24,13 @@ pub fn u256_to_h256(u: U256) -> H256 {
     u.to_little_endian(&mut h[..]);
     H256(h)
 }
+
+pub fn le_to_u256(h: &[u8; 32]) -> U256 {
+    U256::from_little_endian(&h[..])
+}
+
+pub fn u256_to_le(u: &U256) -> [u8; 32] {
+    let mut h = [0u8; 32];
+    u.to_little_endian(&mut h[..]);
+    h
+}

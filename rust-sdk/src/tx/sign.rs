@@ -17,8 +17,8 @@ use crate::Engine;
 
 use crate::tx::{h256_to_u256, JUBJUB_PARAMS, u256_to_h256};
 use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{fr_to_u256, h256_to_fr, PackedPublicKey, public_key_from_private, public_key_from_private_with_verify};
-use crate::tx::packed_signature::{get_r_from_xy, PackedSignature, point_from_xy};
+use crate::tx::packed_public_key::{fr_to_u256, PackedPublicKey, public_key_from_private, public_key_from_private_with_verify};
+use crate::tx::packed_signature::{PackedSignature, point_from_xy};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 /// zkSync transaction signature.
