@@ -57,7 +57,7 @@ pub fn sign_withdraw(
 ) -> Result<JubjubSignature> {
     let hash = withdrawal_hash(&withdrawal, asset_id_collateral);
     let private_key = private_key_from_string(prvk).unwrap();
-    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
 

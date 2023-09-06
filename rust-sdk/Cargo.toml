@@ -59,6 +59,7 @@ primitive-types = "0.12.1"
 thiserror = "1.0.38"
 anyhow = "1.0"
 bigdecimal = { version = "=0.3.0", features = ["serde"]}
+static_assertions = "1.1.0"
 #rust-crypto="0.2.12"
 #crypto_lib={git="https://github.com/matter-labs/zksync.git",package="zksync_crypto"}
 #openssl = { version = "0.10.52", features = ["vendored"] }

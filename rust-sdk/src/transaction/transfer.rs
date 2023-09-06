@@ -38,7 +38,7 @@ pub fn sign_transfer(
 ) -> Result<JubjubSignature> {
     let hash = transfer_hash(&transfer, 0);
     let private_key = private_key_from_string(private_key).unwrap();
-    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
 

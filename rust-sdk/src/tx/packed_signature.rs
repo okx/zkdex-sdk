@@ -1,14 +1,15 @@
 use std::fmt::{Debug, Formatter};
 
-use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
+use franklin_crypto::alt_babyjubjub::{AltJubjubBn256, FixedGenerators};
 use franklin_crypto::bellman::PrimeField;
-use franklin_crypto::eddsa::Signature;
+use franklin_crypto::eddsa::{PublicKey, Signature};
 use franklin_crypto::jubjub::{edwards, Unknown};
 use franklin_crypto::jubjub::edwards::Point;
 use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
+use crate::new_public_key::u256_to_h256;
 
 use crate::tx::{JUBJUB_PARAMS, le_to_u256, u256_to_le};
 use crate::tx::packed_public_key::u256_to_fr;
@@ -47,6 +48,27 @@ impl Debug for PackedSignature {
         msg.push_str(&format!("y:{:?},", y));
         msg.push_str(&format!("s:{:?}", self.0.s));
         f.write_str(&msg)
+    }
+}
+
+impl PackedSignature {
+    pub fn verify(&self, pk: &PublicKey<Bn256>, msg: &[u8]) -> bool {
+        let p_g = FixedGenerators::SpendingKeyGenerator;
+        pk.verify_for_raw_message(msg, &self.0, p_g, &JUBJUB_PARAMS, msg.len())
+    }
+}
+
+impl Serialize for JubjubSignature {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        let mut r = [0u8; 32];
+        let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
+        r_point.write(r.as_mut()).unwrap();
+
+        let r = le_to_u256(&r);
+        let s = U256(self.sig_s);
+        let sign = SignatureOriginal { r, s };
+
+        SignatureOriginal::serialize(&sign, serializer)
     }
 }
 
