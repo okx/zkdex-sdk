@@ -199,6 +199,16 @@ public class ZKDEX {
     public static native String sign(String privateKey, String msg) throws Exception;
 
     /**
+     * sign a eth address
+     *
+     * @param privateKey
+     * @param msg        hash of msg
+     * @return EthAddressSignature @see{com.okx.EthAddressSignature}
+     * @throws Exception
+     */
+    public static native String ethSign(String privateKey, String msg) throws Exception;
+
+    /**
      * derive a private key from a rand seed
      *
      * @param seed random string
