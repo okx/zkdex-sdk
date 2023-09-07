@@ -16,7 +16,6 @@ pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use hex::ToHex;
 use jni::objects::*;
-use num_bigint::BigUint;
 use num_traits::Num;
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
@@ -292,10 +291,8 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
         msg
     };
 
-    let b = BigUint::from_str_radix(msg, 16)?;
-    let msg = &hex::encode(b.to_bytes_le());
     let private_key = private_key_from_string(private_key)?;
-    let msg = HashType::from_str(msg)?;
+    let msg = string_to_hash_type(msg)?;
     let (sig, packed_pk) = TxSignature::sign_msg(&private_key, msg.as_le_bytes());
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
@@ -319,16 +316,16 @@ pub fn reverse_hex(str: &str) -> anyhow::Result<String>{
 
 #[test]
 pub fn test_l1_sign() {
-    let msg = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
-    let priv_key = "0x05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+    let priv_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
     let s = l1_sign(msg, priv_key).unwrap();
     println!("{:#?}", s.clone());
     let expected = L1Signature {
-        x: "0x02c5c5ab6dc2ae39c6bf239acd233c412ceebba1370cd4679ff78c3e57a33f90".to_string(),
-        y: "0x1fc29405cb5021e77aec60bfdd9ed43b245569e4cfc6e5720207e015662fd3b9".to_string(),
-        s: "0x03fcedddaa3803bc26fa98926d224f13857c1b600a3e99ba01cfcee8d54deaa3".to_string(),
-        pk_x: "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9".to_string(),
-        pk_y: "0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b".to_string(),
+        x: "0x2a10ad3523853ca4db3951fd5cb369c4b3209f11440afa326ab39288b50523b8".to_string(),
+        y: "0x1a3f4ef8c96e77c41ede330c83c8eb1f8030a8d6792cf7dfac5c07cc7efe1843".to_string(),
+        s: "0x05bff783626c524cdd04cea7d9168b44c47c89fc2e86e08cb922e016e811ddd0".to_string(),
+        pk_x: "0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86".to_string(),
+        pk_y: "0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55".to_string(),
     };
     assert!(s == expected)
 }
@@ -401,13 +398,8 @@ pub fn test_sign_oracle_price() {
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
-    use franklin_crypto::bellman::from_hex;
-    use primitive_types::U256;
-    use hex::ToHex;
 
-    use crate::{hash_signed_oracle_price, hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_signed_oracle_price, sign_transfer, verify_signature};
-    use crate::hash::hash2;
-    use crate::{hash_liquidate, hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_transfer, verify_signature};
+    use crate::{hash_transfer, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign_transfer, verify_signature};
     use crate::tx::{private_key_from_string, public_key_from_private};
 
     #[bench]
@@ -453,7 +445,7 @@ mod test {
 
     #[test]
     fn test_is_on_curve() {
-        let pri_key = "0x028dd913a169cf3732c306959e9c2a66a0075663e54e086977ed71c61fd7c273";
+        let pri_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
         let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
         println!("x:{x}  y:{y}");
         assert!(is_on_curve(&x, &y).unwrap())

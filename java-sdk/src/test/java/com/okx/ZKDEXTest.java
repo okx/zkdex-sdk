@@ -117,8 +117,6 @@ public class ZKDEXTest {
     @Test
    public void signLimitOrder() throws Exception {
         String json = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"2\",\"amount_synthetic\":\"3\",\"amount_collateral\":\"4\",\"amount_fee\":\"5\",\"asset_id_synthetic\":\"0x6\",\"asset_id_collateral\":\"0x7\",\"position_id\":\"8\",\"is_buying_synthetic\":false}";
-    public void signLimitOrder() throws Exception {
-        String json = "{\"nonce\":\"1\",\"public_key\":\"0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"2\",\"amount_synthetic\":\"3\",\"amount_collateral\":\"4\",\"amount_fee\":\"5\",\"asset_id_synthetic\":\"0x6\",\"asset_id_collateral\":\"0x7\",\"position_id\":\"8\",\"is_buying_synthetic\":false}";
         String sigStr = ZKDEX.signLimitOrder(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
         Signature expectSig = new Signature("0x3f3ab7c200c727633be0544f1bebe49ebb6ceebb6d76a026eef036d12ef2d1", "0x3a2ffcb3a5dfb21f0d58724f0451b18203f697095a61485fde4aa4601e2a8a3");
@@ -458,17 +456,17 @@ public class ZKDEXTest {
 
     @Test
     public void l1sign() throws Exception {
-        String msg = "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3";
-        String pri = "0x05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        String msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+        String pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
         String json = ZKDEX.ethSign(pri, msg);
         EthAddressSignature signature = JSON.parseObject(json, EthAddressSignature.class);
 
         EthAddressSignature expectedSig = new EthAddressSignature();
-        expectedSig.setX("0x02c5c5ab6dc2ae39c6bf239acd233c412ceebba1370cd4679ff78c3e57a33f90");
-        expectedSig.setY("0x1fc29405cb5021e77aec60bfdd9ed43b245569e4cfc6e5720207e015662fd3b9");
-        expectedSig.setS("0x03fcedddaa3803bc26fa98926d224f13857c1b600a3e99ba01cfcee8d54deaa3");
-        expectedSig.setPkX("0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9");
-        expectedSig.setPkY("0x210add7128da8f626145394a55df3e022f3994164c31803b3c8ac18edc91730b");
+        expectedSig.setX("0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a");
+        expectedSig.setY("0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595");
+        expectedSig.setS("0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4");
+        expectedSig.setPkX("0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86");
+        expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
 
         assertEquals(expectedSig, signature);
     }
