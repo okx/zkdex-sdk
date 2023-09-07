@@ -359,6 +359,8 @@ pub fn test_sign_oracle_price() {
     "#;
     let pri1 = "0358552c135d4302276000f9a7ca4e948cd3d23c9b3c3f878ad474e86461305d";
     let sig1 = sign_signed_oracle_price(json1,pri1).unwrap();
+    let hash1 = hash_signed_oracle_price(json1).unwrap();
+    println!("hash1: {}", hash1);
     println!("sig1: {}", serde_json::to_string(&sig1).unwrap());
 
     let json2 = r#"
@@ -392,7 +394,7 @@ pub fn test_sign_oracle_price() {
         println!("{}", pk.to_string())
     }
     let hash = hash_signed_oracle_price(json1).unwrap();
-    let a = verify_signature("0x87e73eeb61f5d8e7959230b95bd16cb43a3096728e84eafff7368cfa6a24739f","0x3efcc49e4717925d97d5a707ca27ca6fa7b961272444a13e4c56e26b67f87ce","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83",&hash.to_string());
+    let a = verify_signature("0x27b3ab353b810ab24cbec9ebcacd54afdea9dc906d4006fb455c4500163d0032","0x1f09b981ac723863aef7cbc89529e67ede075246b07a27d4cdea470264f144a","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83",&hash.to_string());
     assert!(a.unwrap())
 }
 
@@ -485,9 +487,55 @@ fn test_hash_liquidate() {
 
 #[test]
 fn test_hash_limit_order(){
-    let json = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"2\",\"amount_synthetic\":\"3\",\"amount_collateral\":\"4\",\"amount_fee\":\"5\",\"asset_id_synthetic\":\"0x6\",\"asset_id_collateral\":\"0x7\",\"position_id\":\"8\",\"is_buying_synthetic\":false}";
-    let hash = hash_limit_order(json).unwrap();
-    println!("{:?}", hash);
+    let json1 = r#"
+        {
+      "nonce": "1",
+      "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+      "expiration_timestamp": "3608164305",
+      "signature": {
+        "r": "0xaff60be77ca88a6bd9f25c06ee58e80cc27567022cb75a39d8de9bfad32b8f20",
+        "s": "0xc876eb02c24f639e47383e5da2a24a0fea9da2201077ba2fe75ba88c2d242304"
+      },
+      "amount_synthetic": "10000000000",
+      "amount_collateral": "30000000000",
+      "amount_fee": "0",
+      "asset_id_synthetic": "0x4254432d3130000000000000000000",
+      "asset_id_collateral": "0xa21edc9d9997b1b1956f542fe95922518a9e28ace11b7b2972a1974bf5971f",
+      "position_id": "10026",
+      "is_buying_synthetic": true
+    }
+    "#;
+
+    let json2 = r#"
+        {
+      "nonce": "0",
+      "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
+      "expiration_timestamp": "3608164305",
+      "signature": {
+        "r": "0x532a22fcdcf55ea7badfca68c1f04c2cd1eeaa1020d69c0c589aafd429fe040f",
+        "s": "0xad4c23dd453a9b313c451596d3797c9fbcdeb1e2fd654c4e24fe3a56350d7900"
+      },
+      "amount_synthetic": "10000000000",
+      "amount_collateral": "30000000000",
+      "amount_fee": "0",
+      "asset_id_synthetic": "0x4254432d3130000000000000000000",
+      "asset_id_collateral": "0xa21edc9d9997b1b1956f542fe95922518a9e28ace11b7b2972a1974bf5971f",
+      "position_id": "10027",
+      "is_buying_synthetic": false
+    }
+    "#;
+
+    let json_arr = vec![json1,json2];
+    let pri_arr = vec!["0279df312299a1400f0438e38a46432136306c531359a5edd359ae6556adf6cc","042f82c4c360326263672ae3feefd4509201989e0660c0f625f47af81c975fc8"];
+
+    for (i, v) in json_arr.into_iter().enumerate() {
+        println!("pk{}: {}",i,public_key_from_private(&private_key_from_string(pri_arr[i]).unwrap()).to_string());
+        let sig = sign_limit_order(v,pri_arr[i]).unwrap();
+        println!("sig{}: {}",i, serde_json::to_string(&sig).unwrap())
+    }
+
+
+
 }
 
 
