@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 pub struct PublicKeyType(pub BabyJubjubPoint);
 
 impl PublicKeyType {
-    pub fn get_y_h256(&self) -> H256 {
-        u256_to_h256(&self.0.y)
+    pub fn get_y_u256(&self) -> U256 {
+        self.0.y.clone()
     }
 
     pub fn from_xy(x: U256, y: U256) -> Self {
@@ -124,6 +124,16 @@ pub fn u256_to_h256(u: &U256) -> H256 {
     let mut h = [0u8; 32];
     u.to_little_endian(&mut h[..]);
     H256(h)
+}
+
+pub fn le_to_u256(h: &[u8; 32]) -> U256 {
+    U256::from_little_endian(&h[..])
+}
+
+pub fn u256_to_le(u: &U256) -> [u8; 32] {
+    let mut h = [0u8; 32];
+    u.to_little_endian(&mut h[..]);
+    h
 }
 
 #[cfg(test)]
