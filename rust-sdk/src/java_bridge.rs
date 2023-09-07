@@ -4,7 +4,7 @@ pub mod java_bridge {
     use jni::JNIEnv;
     use jni::sys::{jboolean, jstring};
     use serde::Serialize;
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
+    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw, verify_signature};
 
 
     #[no_mangle]
@@ -258,6 +258,28 @@ pub mod java_bridge {
             let msg: String = msg.expect("Couldn't get java msg").into();
             let private_key: String = private_key.expect("Couldn't get java json").into();
             sign(&private_key, &msg).expect("Couldn't sign msg")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(serde_json::to_string(&ret).unwrap()).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_ethSign<'local>(mut env: JNIEnv<'local>, class: JClass<'local>, private_key: JString<'local>, msg: JString<'local>) -> jstring {
+        let private_key = env.get_string(&private_key);
+        let msg = env.get_string(&msg);
+        match panic::catch_unwind(|| {
+            let msg: String = msg.expect("Couldn't get java msg").into();
+            let private_key: String = private_key.expect("Couldn't get java json").into();
+            l1_sign(&msg, &private_key).expect("Couldn't sign msg")
         }) {
             Ok(ret) => {
                 let output = env.new_string(serde_json::to_string(&ret).unwrap()).expect("Couldn't create java string!");
