@@ -1,8 +1,9 @@
+use std::mem::size_of;
 
-use crate::HashType;
 use hex::FromHexError;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-use std::mem::size_of;
+
+use crate::HashType;
 
 pub struct HashTypeSerde;
 
@@ -34,24 +35,27 @@ pub fn hash_type_to_string_with_0xprefix(hash:HashType) -> String{
 }
 
 pub fn string_to_hash_type(s: &str) -> Result<HashType, FromHexError> {
-    let data = hex::decode(s.trim_start_matches("0x").trim_start_matches("0X"))?;
-    let data:Vec<u8> = if data.len() < size_of::<HashType>() {
-       vec![0u8]
-            .into_iter()
+    let s = s.trim_start_matches("0x").trim_start_matches("0X");
+    let fixed_s = if s.len() < 64 {
+        let chars = vec!['0'].into_iter()
             .cycle()
-            .take(32 - data.len())
-            .chain(data)
-            .collect::<Vec<u8>>()
-    } else {
-        data
+            .take(64-s.len())
+            .chain(s.chars())
+            .collect::<String>();
+        chars
+    }else {
+        s.to_string()
     };
+
+    let data = hex::decode(fixed_s)?;
     Ok(HashType::from_big_endian(data.as_slice()))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use primitive_types::U256;
+
+    use super::*;
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
     struct TmpSerde {
@@ -89,5 +93,14 @@ mod tests {
                 v: HashType::from(0x3344)
             }
         );
+    }
+
+    #[test]
+    fn test_hash() {
+        let hash = string_to_hash_type("0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8").unwrap();
+        assert!(&hash_type_to_string_with_0xprefix(hash) == "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8");
+        let hash2 = string_to_hash_type("0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525").unwrap();
+        assert!(&hash_type_to_string_with_0xprefix(hash2)=="0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525");
+
     }
 }
