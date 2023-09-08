@@ -1,6 +1,6 @@
 
 use primitive_types::U256;
-use crate::new_public_key::PublicKeyType;
+use crate::tx::public_key_type::PublicKeyType;
 
 pub struct Felt<'a, T> {
     inner: &'a T,

@@ -11,10 +11,10 @@ use crate::constant::{
 };
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
-use crate::new_public_key::PublicKeyType;
 use crate::privkey_to_pubkey_internal;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::{HashType, TxSignature, withdraw};
+use crate::tx::public_key_type::PublicKeyType;
 use crate::types::h256_to_u256;
 use crate::zkw::JubjubSignature;
 

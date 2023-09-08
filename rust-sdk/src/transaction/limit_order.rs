@@ -10,7 +10,6 @@ use wasm_bindgen::JsValue;
 
 use crate::common::OrderBase;
 use crate::hash::hash2;
-use crate::new_public_key::PublicKeyType;
 pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
@@ -20,6 +19,7 @@ use crate::tx::packed_public_key::{private_key_from_string, public_key_from_priv
 use crate::zkw::JubjubSignature;
 use anyhow::Result;
 use crate::felt::LeBytesConvert;
+use crate::tx::public_key_type::PublicKeyType;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;

@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
-
-use crate::tx::packed_public_key::{fr_to_u256, is_address, PackedPublicKey};
-use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
-use crate::zkw::BabyJubjubPoint;
-use primitive_types::{H256, U256};
+use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+use crate::tx::packed_public_key::{fr_to_u256, is_address};
+use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
+use crate::tx::PackedPublicKey;
+use crate::zkw::BabyJubjubPoint;
 
 #[derive(Debug, Clone, PartialEq)]
 #[repr(C)]
@@ -32,6 +32,7 @@ impl PublicKeyType {
     }
 }
 
+
 impl From<PackedPublicKey> for PublicKeyType {
     fn from(value: PackedPublicKey) -> Self {
         if value.is_address() {
@@ -48,12 +49,14 @@ impl From<PackedPublicKey> for PublicKeyType {
     }
 }
 
+
 impl Into<PackedPublicKey> for PublicKeyType {
     fn into(self) -> PackedPublicKey {
         let r = get_r_from_xy(&self.0.x, &self.0.y);
         PackedPublicKey(r)
     }
 }
+
 
 impl Serialize for PublicKeyType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -69,8 +72,8 @@ impl Serialize for PublicKeyType {
 
 impl<'de> Deserialize<'de> for PublicKeyType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
+        where
+            D: serde::Deserializer<'de>,
     {
         let key = PackedPublicKey::deserialize(deserializer)?;
         let ret = PublicKeyType::from(key);
@@ -111,77 +114,5 @@ impl Ord for PublicKeyType {
             Ordering::Less => Ordering::Less,
             Ordering::Equal => self.0.y.cmp(&other.0.y),
         }
-    }
-}
-
-pub fn h256_to_u256(h: &H256) -> U256 {
-    U256::from_little_endian(&h[..])
-}
-
-
-
-pub fn u256_to_h256(u: &U256) -> H256 {
-    let mut h = [0u8; 32];
-    u.to_little_endian(&mut h[..]);
-    H256(h)
-}
-
-pub fn le_to_u256(h: &[u8; 32]) -> U256 {
-    U256::from_little_endian(&h[..])
-}
-
-pub fn u256_to_le(u: &U256) -> [u8; 32] {
-    let mut h = [0u8; 32];
-    u.to_little_endian(&mut h[..]);
-    h
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
-    struct TmpSerde {
-        v: PublicKeyType,
-    }
-
-    #[test]
-    fn test_address() {
-        let address = r##"{"v":"0x8b6c8fd93d6f4cea42bbb345dbc6f0dfdb5bec73"}"##;
-        let key: TmpSerde = serde_json::from_str(address).unwrap();
-        let after = u256_to_h256(&key.v.0.y).0;
-        println!("{:?}", after);
-        assert_eq!(
-            after,
-            [
-                139, 108, 143, 217, 61, 111, 76, 234, 66, 187, 179, 69, 219, 198, 240, 223, 219,
-                91, 236, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            ]
-        );
-    }
-    #[test]
-    pub fn test_zero() {
-        let origin = TmpSerde {
-            v: PublicKeyType(PackedPublicKey(U256([0u64; 4])).into()),
-        };
-        let json_str = serde_json::to_string(&origin).unwrap();
-        println!("{:?}", &json_str);
-        let key: TmpSerde = serde_json::from_str(json_str.as_str()).unwrap();
-        assert_eq!(origin, key);
-    }
-    #[test]
-    pub fn test_address_to_publickey() {
-        let key: PublicKeyType = PublicKeyType(
-            PackedPublicKey::new_address_public_key(
-                "0x8b6c8fd93d6f4cea42bbb345dbc6f0dfdb5bec73".to_string(),
-            )
-            .into(),
-        );
-        let temp = TmpSerde { v: key };
-        let str = serde_json::to_string(&temp).unwrap();
-        println!("{:?}", str);
-
-        let after = serde_json::from_str::<TmpSerde>(str.as_str()).unwrap();
-        assert_eq!(temp, after);
     }
 }

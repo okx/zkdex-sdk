@@ -5,7 +5,6 @@ use once_cell::sync::Lazy;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::new_public_key::PublicKeyType;
 use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
@@ -21,6 +20,7 @@ pub const CONDITIONAL_TRANSFER_ORDER_TYPE: u8 = 5;
 pub const POSITION_ID_UPPER_BOUND: u128 = 1 << 64;
 
 use crate::tx::packed_signature::SignatureSerde;
+use crate::tx::public_key_type::PublicKeyType;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 pub type TimestampType = i64;

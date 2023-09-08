@@ -37,7 +37,7 @@ use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
 use crate::tx::{h256_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private, PublicKeyType};
+use crate::tx::packed_public_key::{convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private};
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
@@ -50,7 +50,6 @@ mod convert;
 mod fr;
 
 mod models;
-mod new_public_key;
 
 mod types;
 mod utils;
@@ -205,7 +204,7 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> 
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
-    Ok(hash_type_to_string_with_0xprefix( limit_order_hash(&req.liquidator_order)))
+    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(&req.liquidator_order)))
 }
 
 
@@ -234,7 +233,7 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
     let bytes = hex::decode(pub_key)?;
     let packed_pk = PackedPublicKey::deserialize_packed(bytes.as_slice())?;
 
-    let jubjub_pk:BabyJubjubPoint = packed_pk.into();
+    let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let mut x_point = [0; 32];
     jubjub_pk.x.to_big_endian(&mut x_point);
 
@@ -244,8 +243,11 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
 #[test]
 fn test_sign12() {
     let hash = "0x231a10c16831385e52dd1dad738077e09f0b75e680c0c7ed76a0d76103815f53";
-    let pri =  "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+    let pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
     sign(pri, hash).unwrap();
+    let hash1 = HashType::from_str(hash).unwrap();
+    let hash2 = string_to_hash_type(hash).unwrap();
+    assert!(hash2 == hash1)
 }
 
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
@@ -260,7 +262,7 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y: &s
     let sig = PackedSignature::from(sig);
     let msg = string_to_hash_type(msg)?;
     let packed_pk = PackedPublicKey::try_from(pub_key_x.to_string())?;
-    let jubjub_pk:BabyJubjubPoint = packed_pk.into();
+    let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let pk = convert_to_pubkey(&jubjub_pk.x, &jubjub_pk.y)?;
     Ok(sig.verify(&pk, msg.as_le_bytes()))
 }
@@ -268,10 +270,10 @@ pub fn verify_signature(sig_r: &str, sig_s: &str, pub_key_x: &str, pub_key_y: &s
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
     let x = x.trim_start_matches("0x").trim_start_matches("0X");
     let y = y.trim_start_matches("0x").trim_start_matches("0X");
-    let (x1,y1) = pub_key_to_xy(x)?;
+    let (x1, y1) = pub_key_to_xy(x)?;
     let x1 = x1.trim_start_matches("0x").trim_start_matches("0X");
     let y1 = y1.trim_start_matches("0x").trim_start_matches("0X");
-    Ok(x1==x && y1 == y)
+    Ok(x1 == x && y1 == y)
 }
 
 #[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
@@ -307,7 +309,7 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     })
 }
 
-pub fn reverse_hex(str: &str) -> anyhow::Result<String>{
+pub fn reverse_hex(str: &str) -> anyhow::Result<String> {
     let mut ret = hex::decode(str)?;
     ret.as_mut_slice().reverse();
     Ok(hex::encode(ret))
@@ -348,40 +350,40 @@ pub fn test_verify() {
 pub fn test_sign_oracle_price() {
     let json1 = r#"
     {
-  "signer_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+  "signer_key": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
   "external_price": "28409392522000000000000",
   "timestamp": "1693907824",
   "signed_asset_id": "0x425443555344434f4b580000000000005374437277"
     }
     "#;
     let pri1 = "01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
-    let sig1 = sign_signed_oracle_price(json1,pri1).unwrap();
+    let sig1 = sign_signed_oracle_price(json1, pri1).unwrap();
     let hash1 = hash_signed_oracle_price(json1).unwrap();
     println!("hash1: {}", hash1);
     println!("sig1: {}", serde_json::to_string(&sig1).unwrap());
 
     let json2 = r#"
     {
-  "signer_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+  "signer_key": "0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355",
   "external_price": "6652695000000000000",
   "timestamp": "1693971434",
   "signed_asset_id": "0x534f4c555344434f4b580000000000005374437277"
     }
     "#;
     let pri2 = "0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
-    let sig2 = sign_signed_oracle_price(json2,pri2).unwrap();
+    let sig2 = sign_signed_oracle_price(json2, pri2).unwrap();
     println!("sig2: {}", serde_json::to_string(&sig2).unwrap());
 
     let json3 = r#"
     {
-  "signer_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+  "signer_key": "0x15d144b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4",
   "external_price": "1854072360000000000000",
   "timestamp": "1693971569",
   "signed_asset_id": "0x455448555344434f4b580000000000005374437277"
     }
     "#;
     let pri3 = "060a45bcd72c9e3c82bc1c57f63ad15b25f56bb13ce01d15fd4ab3f8f2de35bb";
-    let sig3 = sign_signed_oracle_price(json3,pri3).unwrap();
+    let sig3 = sign_signed_oracle_price(json3, pri3).unwrap();
     println!("sig3: {}", serde_json::to_string(&sig3).unwrap());
 
     let pri_arr = vec![pri1, pri2, pri3];
@@ -390,9 +392,12 @@ pub fn test_sign_oracle_price() {
         let pk = public_key_from_private(&pri);
         println!("{}", pk.to_string())
     }
-    // let hash = hash_signed_oracle_price(json1).unwrap();
-    // let a = verify_signature("0x27b3ab353b810ab24cbec9ebcacd54afdea9dc906d4006fb455c4500163d0032","0x1f09b981ac723863aef7cbc89529e67ede075246b07a27d4cdea470264f144a","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83","0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83",&hash.to_string());
-    // assert!(a.unwrap())
+
+    let json4 = r#"
+    {"external_price":"6462618000000000000","signed_asset_id":"0x534f4c555344434f4b580000000000005374437277","signer_key":"0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355","timestamp":"1694150131"}
+    "#;
+    let sig = sign_signed_oracle_price(json4, pri2).unwrap();
+    println!("sig4:{} ",serde_json::to_string(&sig).unwrap());
 }
 
 #[cfg(test)]
@@ -428,7 +433,7 @@ mod test {
 
     #[test]
     fn test_private_key_to_pubkey_xy() {
-        let pri_key = "0x028dd913a169cf3732c306959e9c2a66a0075663e54e086977ed71c61fd7c273";
+        let pri_key = "0x0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
         let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
         let prk = private_key_from_string(pri_key).unwrap();
         let pk = public_key_from_private(&prk);
@@ -445,31 +450,29 @@ mod test {
 
     #[test]
     fn test_is_on_curve() {
-        let pri_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+        let pri_key = "0x0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
+
         let (x, y) = private_key_to_pubkey_xy(pri_key).unwrap();
         println!("x:{x}  y:{y}");
-        assert!(is_on_curve(&x, &y).unwrap())
+        assert!(is_on_curve(&x, &y).unwrap());
     }
 
     #[test]
     fn test_pub_key_to_xy() {
         let pub_key = "8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
-        let (x,y) = pub_key_to_xy(pub_key).unwrap();
+        let (x, y) = pub_key_to_xy(pub_key).unwrap();
         println!("x:{x} y:{y}")
     }
 
     #[test]
     fn test_reverse_hex() {
         let num = "12ba9000";
-        println!("{:?}",reverse_hex(num).unwrap());
+        println!("{:?}", reverse_hex(num).unwrap());
     }
-
-
 }
 
 #[test]
 fn test_hash_liquidate() {
-
     let pri = private_key_from_seed("hldsadsadsadsadsadsadsadsaddsdsa".as_bytes()).unwrap();
     println!("{}", &pri);
     let pk = private_key_to_pubkey_xy(&pri).unwrap();
@@ -482,7 +485,7 @@ fn test_hash_liquidate() {
 }
 
 #[test]
-fn test_hash_limit_order(){
+fn test_hash_limit_order() {
     let json1 = r#"
         {
       "nonce": "1",
@@ -521,13 +524,13 @@ fn test_hash_limit_order(){
     }
     "#;
 
-    let json_arr = vec![json1,json2];
-    let pri_arr = vec!["0279df312299a1400f0438e38a46432136306c531359a5edd359ae6556adf6cc","042f82c4c360326263672ae3feefd4509201989e0660c0f625f47af81c975fc8"];
+    let json_arr = vec![json1, json2];
+    let pri_arr = vec!["0279df312299a1400f0438e38a46432136306c531359a5edd359ae6556adf6cc", "042f82c4c360326263672ae3feefd4509201989e0660c0f625f47af81c975fc8"];
 
     for (i, v) in json_arr.into_iter().enumerate() {
-        println!("pk{}: {}",i,public_key_from_private(&private_key_from_string(pri_arr[i]).unwrap()).to_string());
-        let sig = sign_limit_order(v,pri_arr[i]).unwrap();
-        println!("sig{}: {}",i, serde_json::to_string(&sig).unwrap())
+        println!("pk{}: {}", i, public_key_from_private(&private_key_from_string(pri_arr[i]).unwrap()).to_string());
+        let sig = sign_limit_order(v, pri_arr[i]).unwrap();
+        println!("sig{}: {}", i, serde_json::to_string(&sig).unwrap())
     }
 
 
@@ -539,7 +542,7 @@ fn test_hash_limit_order(){
         {"external_price":"28409392522000000000000","signed_asset_id":"0x425443555344434f4b580000000000005374437277","signer_key":"0x2a7cbe3ca4491e20263bab3451b6179f9268097a9af449eaab7a88093a694a0d","timestamp":"1693907824"}
         "#;
 
-        let sig = sign_signed_oracle_price(data,"01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe").unwrap();
+        let sig = sign_signed_oracle_price(data, "01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe").unwrap();
         let a = serde_json::to_string(&sig).unwrap();
         println!("{:#?}", a);
 

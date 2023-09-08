@@ -1,6 +1,7 @@
 pub mod convert;
 pub mod packed_public_key;
 pub mod packed_signature;
+pub mod public_key_type;
 pub mod sign;
 
 

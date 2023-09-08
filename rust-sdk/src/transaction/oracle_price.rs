@@ -12,12 +12,13 @@ use serde::Deserialize;
 
 use crate::hash::hash2;
 use crate::transaction::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
-use crate::tx::{PublicKeyType, Serialize, TxSignature};
+use crate::tx::{Serialize, TxSignature};
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use crate::zkw::JubjubSignature;
 use anyhow::Result;
 use crate::felt::LeBytesConvert;
+use crate::tx::public_key_type::PublicKeyType;
 
 // Represents a single signature on an external price with a timestamp.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

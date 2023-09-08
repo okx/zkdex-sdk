@@ -10,7 +10,6 @@ use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
-use crate::new_public_key::u256_to_h256;
 
 use crate::tx::{JUBJUB_PARAMS, le_to_u256, u256_to_le};
 use crate::tx::packed_public_key::{fr_to_u256, u256_to_fr};

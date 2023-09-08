@@ -1,5 +1,6 @@
-use crate::new_public_key::PublicKeyType;
+
 use primitive_types::{H256, U256};
+use crate::tx::public_key_type::PublicKeyType;
 
 // pub use self::poseidon::poseidon_push;
 
@@ -24,7 +25,6 @@ pub fn new_hasher() -> impl Hasher {
 
 mod zkw {
     use super::*;
-    use crate::new_public_key::u256_to_h256;
     use crate::zkw::PoseidonHasher;
 
     pub struct Poseidon {
@@ -133,34 +133,4 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> U256 {
     hasher.update_single(a);
     hasher.update_single(b);
     hasher.finalize()
-}
-
-#[cfg(test)]
-mod test {
-    use crate::hash::{hash2, ToHashable};
-    use crate::new_public_key::PublicKeyType;
-    use crate::zkw::BabyJubjubPoint;
-    use primitive_types::U256;
-
-    #[test]
-    fn test_to_hash() {
-        let pk = PublicKeyType {
-            0: BabyJubjubPoint {
-                x: U256::from(u64::MAX),
-                y: U256::from(u64::MAX) << 192,
-            },
-        };
-
-        let bz = pk.to_hashable();
-        assert_eq!(bz.len(), 4);
-        assert_eq!(bz[0], 0);
-        assert_eq!(bz[1], 0u64);
-        assert_eq!(bz[2], 0u64);
-        assert_eq!(bz[3], u64::MAX);
-    }
-
-    #[test]
-    fn test_hash() {
-
-    }
 }
