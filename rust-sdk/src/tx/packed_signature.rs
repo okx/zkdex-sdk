@@ -1,18 +1,20 @@
-use crate::tx::packed_public_key::{h256_to_fr, PackedPublicKey};
-use crate::tx::{h256_to_u256, u256_to_h256, JUBJUB_PARAMS};
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
-use crate::U8Array32SerdeAsStringWith0x;
-use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
+use std::convert::TryInto;
+use std::fmt::{Debug, Formatter};
+
+use franklin_crypto::alt_babyjubjub::{AltJubjubBn256, FixedGenerators};
+use franklin_crypto::bellman::PrimeField;
 use franklin_crypto::eddsa::{PublicKey, Signature};
 use franklin_crypto::jubjub::edwards::Point;
-use franklin_crypto::jubjub::{edwards, FixedGenerators, Unknown};
-use pairing_ce as ef;
+use franklin_crypto::jubjub::{edwards, Unknown};
 use pairing_ce::bn256::{Bn256, Fr};
-use primitive_types::{H256, U256};
+use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt::{Debug, Formatter};
-use franklin_crypto::bellman::PrimeField;
 use thiserror::Error;
+
+use crate::tx::packed_public_key::{fr_to_u256, u256_to_fr};
+use crate::tx::{le_to_u256, u256_to_le, JUBJUB_PARAMS};
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::U256SerdeAsRadix16Prefix0xString;
 
 pub struct SignatureSerde;
 
@@ -31,15 +33,14 @@ pub enum DeserializeError {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SignatureOriginal {
-    #[serde(rename = "r", with = "U8Array32SerdeAsStringWith0x")]
-    pub r: [u8; 32],
-    #[serde(rename = "s", with = "U8Array32SerdeAsStringWith0x")]
-    pub s: [u8; 32],
+    #[serde(rename = "r", with = "U256SerdeAsRadix16Prefix0xString")]
+    pub r: U256,
+    #[serde(rename = "s", with = "U256SerdeAsRadix16Prefix0xString")]
+    pub s: U256,
 }
 
 #[derive(Clone)]
 pub struct PackedSignature(pub Signature<Bn256>);
-
 impl Debug for PackedSignature {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let (x, y) = self.0.r.into_xy();
@@ -57,120 +58,106 @@ impl PackedSignature {
     }
 }
 
+impl Serialize for JubjubSignature {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut r = [0u8; 32];
+        let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
+        r_point.write(r.as_mut()).unwrap();
+
+        let r = le_to_u256(&r);
+        let s = U256(self.sig_s);
+        let sign = SignatureOriginal { r, s };
+
+        SignatureOriginal::serialize(&sign, serializer)
+    }
+}
+
 impl SignatureSerde {
     pub fn serialize<S>(val: &JubjubSignature, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut r = [0u8; 32];
         let r_point = point_from_xy(&val.sig_r.x, &val.sig_r.y);
         r_point.write(r.as_mut()).unwrap();
 
-        let s = u256_to_h256(U256(val.sig_s)).0;
+        let r = le_to_u256(&r);
+        let s = U256(val.sig_s);
         let sign = SignatureOriginal { r, s };
 
         SignatureOriginal::serialize(&sign, serializer)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<JubjubSignature, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let sign = SignatureOriginal::deserialize(deserializer)?;
 
-        let (x, y) = get_xy_from_r(sign.r);
-        use ef::ff::PrimeField;
-        let x_repr = x.into_repr();
-        let y_repr = y.into_repr();
-
-        Ok(JubjubSignature {
-            sig_r: BabyJubjubPoint {
-                x: U256(x_repr.0),
-                y: U256(y_repr.0),
-            },
-            sig_s: h256_to_u256(H256(sign.s)).0,
-        })
+        Ok(signature_from_rs(&sign.r, &sign.s))
     }
 }
 
-pub fn get_xy_from_r(r_bar: [u8; 32]) -> (Fr, Fr) {
+pub fn signature_from_rs(r: &U256, s: &U256) -> JubjubSignature {
+    let (x, y) = get_xy_from_r(r);
+
+    let x_repr = x.into_repr();
+    let y_repr = y.into_repr();
+
+    JubjubSignature {
+        sig_r: BabyJubjubPoint {
+            x: U256(x_repr.0),
+            y: U256(y_repr.0),
+        },
+        sig_s: s.0.clone(),
+    }
+}
+
+pub fn get_xy_from_r(r_bar: &U256) -> (Fr, Fr) {
+    let r_bar = u256_to_le(&r_bar);
     let r: Point<Bn256, Unknown> =
         edwards::Point::read(r_bar.as_slice(), &JUBJUB_PARAMS as &AltJubjubBn256)
             .map_err(DeserializeError::RestoreRPoint)
             .unwrap();
     r.into_xy()
 }
-
-pub fn get_r_from_xy(x: &U256, y: &U256) -> [u8; 32] {
+pub fn get_r_from_xy(x: &U256, y: &U256) -> U256 {
     let point = point_from_xy(x, y);
     let mut packed_point = [0u8; 32];
     point.write(packed_point.as_mut()).unwrap();
-    packed_point
+    le_to_u256(&packed_point)
 }
 
-pub fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
-    let x = h256_to_fr(u256_to_h256(x.clone())).unwrap();
-    let y = h256_to_fr(u256_to_h256(y.clone())).unwrap();
+pub(crate) fn point_from_xy(x: &U256, y: &U256) -> Point<Bn256, Unknown> {
+    let x = u256_to_fr(x).unwrap();
+    let y = u256_to_fr(y).unwrap();
 
     Point::from_xy(x, y, &JUBJUB_PARAMS as &AltJubjubBn256).unwrap()
 }
 
-impl Serialize for JubjubSignature {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        let mut r = [0u8; 32];
-        let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
-        r_point.write(r.as_mut()).unwrap();
-
-        let s = u256_to_h256(U256(self.sig_s)).0;
-        let sign = SignatureOriginal { r, s };
-
-        SignatureOriginal::serialize(&sign, serializer)
-    }
-}
-
-use super::*;
-use crate::tx::packed_public_key::fr_to_u256;
-use std::convert::TryInto;
-
 impl JubjubSignature {
     pub fn from_str(r: &str, s: &str) -> Self {
-        #[derive(Serialize, Deserialize)]
-        pub struct OrderBase {
-            pub nonce: u64,
-            #[serde(rename = "signature", with = "SignatureSerde")]
-            pub signature: JubjubSignature,
-        }
+        let r_str = r.trim_start_matches("0x").trim_start_matches("0X");
+        let r = U256::from_str_radix(r_str, 16).unwrap();
 
-        let r = if r.starts_with("0x") {
-            r.trim_start_matches("0x")
-        } else { r };
-
-        let s = if s.starts_with("0x") {
-            s.trim_start_matches("0x")
-        } else { s };
-
-        let r: [u8; 32] = hex::decode(&String::from(r))
-            .unwrap()
-            .try_into()
-            .unwrap();
-        let s: [u8; 32] = hex::decode(s).unwrap().try_into().unwrap();
-        let (x, y) = get_xy_from_r(r);
-        let x = fr_to_u256(&x).unwrap();
-        let y = fr_to_u256(&y).unwrap();
-
-        JubjubSignature {
-            sig_r: BabyJubjubPoint { x, y },
-            sig_s: h256_to_u256(H256(s)).0,
-        }
+        let s_str = s.trim_start_matches("0x").trim_start_matches("0X");
+        let s = U256::from_str_radix(s_str, 16).unwrap();
+        signature_from_rs(&r, &s)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::tx::packed_public_key::fr_to_u256;
-    use serde::{Deserialize, Serialize};
     use std::convert::TryInto;
+
+    use serde::{Deserialize, Serialize};
+
+    use crate::tx::packed_public_key::fr_to_u256;
+
+    use super::*;
 
     #[derive(Serialize, Deserialize)]
     pub struct OrderBase {
@@ -178,12 +165,10 @@ mod tests {
         #[serde(rename = "signature", with = "SignatureSerde")]
         pub signature: JubjubSignature,
     }
-
     pub const SIGNATURE_1_0_R: &str =
-        "353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6";
+        "5f00b6c207a8235426f6df1b3eab83a228bc711908b9536f51f34cae820e7c25";
     pub const SIGNATURE_1_0_S: &str =
-        "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502";
-
+        "f3fd87e986f383ea42342ed293f90351baece370d03fc082caccbfed419c0705";
     #[test]
     pub fn test_serialize_deserialize() {
         let r: [u8; 32] = hex::decode(&String::from(SIGNATURE_1_0_R))
@@ -191,7 +176,7 @@ mod tests {
             .try_into()
             .unwrap();
         let s: [u8; 32] = hex::decode(SIGNATURE_1_0_S).unwrap().try_into().unwrap();
-        let (x, y) = get_xy_from_r(r);
+        let (x, y) = get_xy_from_r(&le_to_u256(&r));
         let x = fr_to_u256(&x).unwrap();
         let y = fr_to_u256(&y).unwrap();
 
@@ -199,7 +184,7 @@ mod tests {
             nonce: 1,
             signature: JubjubSignature {
                 sig_r: BabyJubjubPoint { x, y },
-                sig_s: h256_to_u256(H256(s)).0,
+                sig_s: le_to_u256(&s).0,
             },
         };
         let data = serde_json::to_vec(&base).unwrap();

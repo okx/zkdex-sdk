@@ -9,14 +9,17 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use wasm_bindgen::JsValue;
 
 use crate::common::OrderBase;
+use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
-use crate::new_public_key::PublicKeyType;
-pub use crate::serde_wrapper::*;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
-use crate::transaction::types::{AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType};
-use crate::tx::{JUBJUB_PARAMS, TxSignature};
+pub use crate::serde_wrapper::*;
+use crate::transaction::types::{
+    AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType,
+};
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+use crate::tx::public_key_type::PublicKeyType;
+use crate::tx::{TxSignature, JUBJUB_PARAMS};
 use crate::zkw::JubjubSignature;
 use anyhow::Result;
 
@@ -34,11 +37,14 @@ pub struct LimitOrderRequest {
     pub amount_collateral: AmountType,
     #[serde(rename = "amount_fee", with = "U64SerdeAsString")]
     pub amount_fee: AmountType,
-    #[serde(rename = "asset_id_synthetic", with = "I128SerdeAsRadix16Prefix0xString")]
+    #[serde(
+        rename = "asset_id_synthetic",
+        with = "I128SerdeAsRadix16Prefix0xString"
+    )]
     pub asset_id_synthetic: AssetIdType,
     #[serde(
-    rename = "asset_id_collateral",
-    with = "U256SerdeAsRadix16Prefix0xString"
+        rename = "asset_id_collateral",
+        with = "U256SerdeAsRadix16Prefix0xString"
     )]
     pub asset_id_collateral: CollateralAssetId,
     #[serde(rename = "position_id", with = "U64SerdeAsString")]
@@ -47,13 +53,10 @@ pub struct LimitOrderRequest {
     pub is_buying_synthetic: bool,
 }
 
-pub fn sign_limit_order(
-    mut req: LimitOrderRequest,
-    prvk: &str,
-) -> Result<JubjubSignature> {
+pub fn sign_limit_order(mut req: LimitOrderRequest, prvk: &str) -> Result<JubjubSignature> {
     let hash = limit_order_hash(&req);
     let private_key = private_key_from_string(prvk)?;
-    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
 
@@ -172,20 +175,26 @@ pub fn test_sign() {
     println!("{:?}", w);
 }
 
-
 #[test]
 pub fn test_sign2() {
-    let hash = HashType::from_str("0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3").unwrap();
-    let hash1 = HashType::from_str("0x15a9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3").unwrap();
+    let hash =
+        HashType::from_str("0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3")
+            .unwrap();
+    let hash1 =
+        HashType::from_str("0x15a9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3")
+            .unwrap();
     println!("{:?}", hash.clone());
     let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
     let private_key = private_key_from_string(prv_key).unwrap();
-    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
 
-
-    let pub_key = PublicKey::from_private(&private_key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
-    assert!(sig.verify(&pub_key, hash.as_bytes()));
-    assert!(!sig.verify(&pub_key, hash1.as_bytes()));
+    let pub_key = PublicKey::from_private(
+        &private_key,
+        FixedGenerators::SpendingKeyGenerator,
+        &JUBJUB_PARAMS,
+    );
+    assert!(sig.verify(&pub_key, hash.as_le_bytes()));
+    assert!(!sig.verify(&pub_key, hash1.as_le_bytes()));
 }
 
 #[test]
@@ -193,7 +202,7 @@ fn test_deserialize() {
     let json = r#"
     {
   "nonce": "1",
-  "public_key": "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+  "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
   "expiration_timestamp": "2",
   "amount_synthetic": "3",
   "amount_collateral": "4",
@@ -203,11 +212,9 @@ fn test_deserialize() {
   "position_id": "8",
   "is_buying_synthetic": false
     }
-    "#;
+   "#;
 
     let ret = serde_json::from_str::<LimitOrderRequest>(json);
     assert!(ret.is_ok());
     println!("{:?}", ret.unwrap())
 }
-
-

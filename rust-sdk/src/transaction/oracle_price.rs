@@ -5,17 +5,19 @@
 //   (collateral_asset_unit / collateral_resolution) /
 //   (synthetic_asset_unit / synthetic_resolution).
 use crate::i128_serde::U128SerdeAsRadix16Prefix0xString;
-use std::ops::ShlAssign;
 use crate::I64SerdeAsString;
 use primitive_types::U256;
 use serde::Deserialize;
+use std::ops::ShlAssign;
 
+use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::transaction::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
-use crate::tx::{PublicKeyType, Serialize, TxSignature};
 use crate::tx::packed_public_key::private_key_from_string;
-use crate::U256SerdeAsRadix16Prefix0xString;
+use crate::tx::public_key_type::PublicKeyType;
+use crate::tx::{Serialize, TxSignature};
 use crate::zkw::JubjubSignature;
+use crate::U256SerdeAsRadix16Prefix0xString;
 use anyhow::Result;
 
 // Represents a single signature on an external price with a timestamp.
@@ -67,14 +69,10 @@ pub fn signed_oracle_price_hash(price: &SignedOraclePrice) -> HashType {
     hash2(&price.signed_asset_id, &y)
 }
 
-
-pub fn sign_signed_oracle_price(
-    price: SignedOraclePrice,
-    prvk: &str,
-) -> Result<JubjubSignature> {
+pub fn sign_signed_oracle_price(price: SignedOraclePrice, prvk: &str) -> Result<JubjubSignature> {
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk)?;
-    let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_bytes());
+    let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(signature.into())
 }
 
@@ -82,14 +80,28 @@ pub fn sign_signed_oracle_price(
 fn test_deserialize() {
     let json = r#"
     {
-  "signer_key": "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
-  "external_price": "0xa",
-  "timestamp": "2",
-  "signed_asset_id": "0xa"
-}
+    "signer_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
+    "external_price": "100",
+    "timestamp": "2",
+    "signed_asset_id": "0xa"
+    }
     "#;
 
     let ret = serde_json::from_str::<SignedOraclePrice>(json);
     assert!(ret.is_ok());
     println!("{:?}", ret);
+}
+
+#[test]
+fn test_oracle() {
+    let pri = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+    let mut data = SignedOraclePrice::default();
+    data.external_price = 100000;
+    data.timestamp = 18778987;
+    data.signed_asset_id = SignedAssetId::from(100);
+    let pri_key = private_key_from_string(pri).unwrap();
+    let sig = sign_signed_oracle_price(data, pri).unwrap();
+    let json = serde_json::to_string(&sig).unwrap();
+    println!("{:#?}", json);
+    println!("{:#?}", sig);
 }

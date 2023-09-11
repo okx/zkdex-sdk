@@ -154,6 +154,7 @@ export interface InitOutput {
   readonly Java_com_okx_ZKDEX_hashLiquidate: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_hashSignedOraclePrice: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_sign: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_ethSign: (a: number, b: number, c: number, d: number) => number;
   readonly Java_com_okx_ZKDEX_privateKeyFromSeed: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_isOnCurve: (a: number, b: number, c: number, d: number) => number;
   readonly Java_com_okx_ZKDEX_privateKeyToPublicKeyXY: (a: number, b: number, c: number) => number;

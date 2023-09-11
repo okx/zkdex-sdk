@@ -1,6 +1,6 @@
 use super::*;
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use crate::transaction::types::SignedAssetId;
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 pub struct VecSignedAssetIdSerdeAsRadix16String;
 

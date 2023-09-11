@@ -1,8 +1,8 @@
 pub mod convert;
 pub mod packed_public_key;
 pub mod packed_signature;
+pub mod public_key_type;
 pub mod sign;
-
 
 pub use crate::*;
 use franklin_crypto::{alt_babyjubjub::AltJubjubBn256, rescue::bn256::Bn256RescueParams};
@@ -23,4 +23,14 @@ pub fn u256_to_h256(u: U256) -> H256 {
     let mut h = [0u8; 32];
     u.to_little_endian(&mut h[..]);
     H256(h)
+}
+
+pub fn le_to_u256(h: &[u8; 32]) -> U256 {
+    U256::from_little_endian(&h[..])
+}
+
+pub fn u256_to_le(u: &U256) -> [u8; 32] {
+    let mut h = [0u8; 32];
+    u.to_little_endian(&mut h[..]);
+    h
 }

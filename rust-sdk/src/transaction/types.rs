@@ -1,12 +1,12 @@
-use primitive_types::{H256, U256};
 use crate::zkw::JubjubSignature;
+use primitive_types::{H256, U256};
 
 pub type AssetIdType = i128;
 pub type CollateralAssetId = U256;
 pub type SignedAssetId = U256;
 pub type PositionIdType = u64;
 pub type OrderIdType = u64;
-pub type HashType = H256;
+pub type HashType = U256;
 pub type IndexType = i128;
 pub type ResolutionType = u64;
 pub type RiskFactorType = u64;

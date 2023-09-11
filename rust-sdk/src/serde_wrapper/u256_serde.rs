@@ -8,7 +8,7 @@ impl U256SerdeAsRadix16Prefix0xString {
     where
         S: Serializer,
     {
-        String::serialize(&format!("0x{:x}", val), serializer)
+        String::serialize(&format!("0x{:064x}", val), serializer)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<U256, D::Error>
@@ -35,7 +35,7 @@ mod tests {
         let obj = U256Serde { v: U256::from(33) };
         let json_str = serde_json::to_string(&obj).unwrap();
 
-        assert_eq!(json_str, r##"{"v":"0x21"}"##)
+        assert_eq!(json_str, r##"{"v":"0x0000000000000000000000000000000000000000000000000000000000000021"}"##)
     }
 
     #[test]

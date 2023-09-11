@@ -1,10 +1,10 @@
+use halo2_proofs::arithmetic::FieldExt;
+use primitive_types::U256;
+
+use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
+
 mod poseidon;
 
-use franklin_crypto::eddsa::{PublicKey, Signature};
-use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
-use halo2_proofs::arithmetic::FieldExt;
-use pairing_ce::bn256::Bn256;
-use primitive_types::U256;
 // use serde::{Serialize, Serializer};
 // use serde_json::value::Serializer;
 // use crate::tx::jubjub::{babyjubjub_sum_finalize, babyjubjub_sum_new, babyjubjub_sum_push};
@@ -151,10 +151,8 @@ impl BabyJubjubPoint {
     // }
 }
 
-use crate::tx::packed_signature::SignatureSerde;
-
 #[derive(Debug, Clone, PartialEq)]
-pub struct JubjubSignature{
+pub struct JubjubSignature {
     pub sig_r: BabyJubjubPoint,
     pub sig_s: [u64; 4],
 }
@@ -179,7 +177,6 @@ const NEG_BASE: BabyJubjubPoint = BabyJubjubPoint {
 };
 
 impl JubjubSignature {
-
     // pub fn verify(&self, pk: &PublicKey<Bn256>, msghash: &[u8]) -> bool{
     //
     //     let sig = Signature{ r: (), s: () }
