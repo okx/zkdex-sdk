@@ -8,7 +8,7 @@ impl U256SerdeAsRadix16Prefix0xString {
     where
         S: Serializer,
     {
-        String::serialize(&format!("0x{:x}", val), serializer)
+        String::serialize(&format!("0x{:064x}", val), serializer)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<U256, D::Error>
