@@ -28,7 +28,7 @@ impl HashTypeSerde {
     }
 }
 
-pub fn hash_type_to_string_with_0xprefix(hash:HashType) -> String{
+pub fn hash_type_to_string_with_0xprefix(hash: HashType) -> String {
     let mut be = [0u8; 32];
     hash.to_big_endian(&mut be);
     format!("0x{:x}", primitive_types::H256(be))
@@ -37,13 +37,14 @@ pub fn hash_type_to_string_with_0xprefix(hash:HashType) -> String{
 pub fn string_to_hash_type(s: &str) -> Result<HashType, FromHexError> {
     let s = s.trim_start_matches("0x").trim_start_matches("0X");
     let fixed_s = if s.len() < 64 {
-        let chars = vec!['0'].into_iter()
+        let chars = vec!['0']
+            .into_iter()
             .cycle()
-            .take(64-s.len())
+            .take(64 - s.len())
             .chain(s.chars())
             .collect::<String>();
         chars
-    }else {
+    } else {
         s.to_string()
     };
 
@@ -97,10 +98,21 @@ mod tests {
 
     #[test]
     fn test_hash() {
-        let hash = string_to_hash_type("0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8").unwrap();
-        assert!(&hash_type_to_string_with_0xprefix(hash) == "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8");
-        let hash2 = string_to_hash_type("0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525").unwrap();
-        assert!(&hash_type_to_string_with_0xprefix(hash2)=="0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525");
-
+        let hash = string_to_hash_type(
+            "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8",
+        )
+        .unwrap();
+        assert!(
+            &hash_type_to_string_with_0xprefix(hash)
+                == "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8"
+        );
+        let hash2 = string_to_hash_type(
+            "0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525",
+        )
+        .unwrap();
+        assert!(
+            &hash_type_to_string_with_0xprefix(hash2)
+                == "0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525"
+        );
     }
 }

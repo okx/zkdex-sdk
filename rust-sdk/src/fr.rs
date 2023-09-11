@@ -1,5 +1,5 @@
-use franklin_crypto::bellman::{Field, PrimeField, PrimeFieldRepr};
 use franklin_crypto::bellman::plonk::transparent_engine::Fr;
+use franklin_crypto::bellman::{Field, PrimeField, PrimeFieldRepr};
 
 pub fn hash_to_fr(mut hash: [u8; 32]) -> Fr {
     // TODO: this is a comment from zksync, so what's the final solution?

@@ -4,17 +4,17 @@ use std::fmt::{Debug, Formatter};
 use franklin_crypto::alt_babyjubjub::{AltJubjubBn256, FixedGenerators};
 use franklin_crypto::bellman::PrimeField;
 use franklin_crypto::eddsa::{PublicKey, Signature};
-use franklin_crypto::jubjub::{edwards, Unknown};
 use franklin_crypto::jubjub::edwards::Point;
+use franklin_crypto::jubjub::{edwards, Unknown};
 use pairing_ce::bn256::{Bn256, Fr};
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-use crate::tx::{JUBJUB_PARAMS, le_to_u256, u256_to_le};
 use crate::tx::packed_public_key::{fr_to_u256, u256_to_fr};
-use crate::U256SerdeAsRadix16Prefix0xString;
+use crate::tx::{le_to_u256, u256_to_le, JUBJUB_PARAMS};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use crate::U256SerdeAsRadix16Prefix0xString;
 
 pub struct SignatureSerde;
 
@@ -59,7 +59,10 @@ impl PackedSignature {
 }
 
 impl Serialize for JubjubSignature {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
         let mut r = [0u8; 32];
         let r_point = point_from_xy(&self.sig_r.x, &self.sig_r.y);
         r_point.write(r.as_mut()).unwrap();
@@ -74,8 +77,8 @@ impl Serialize for JubjubSignature {
 
 impl SignatureSerde {
     pub fn serialize<S>(val: &JubjubSignature, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut r = [0u8; 32];
         let r_point = point_from_xy(&val.sig_r.x, &val.sig_r.y);
@@ -89,8 +92,8 @@ impl SignatureSerde {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<JubjubSignature, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let sign = SignatureOriginal::deserialize(deserializer)?;
 
@@ -145,7 +148,6 @@ impl JubjubSignature {
         signature_from_rs(&r, &s)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

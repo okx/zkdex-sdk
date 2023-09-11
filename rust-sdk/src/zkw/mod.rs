@@ -1,7 +1,7 @@
 use halo2_proofs::arithmetic::FieldExt;
 use primitive_types::U256;
 
-use crate::zkw::poseidon::{POSEIDON_HASHER, PoseidonContext};
+use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
 
 mod poseidon;
 
@@ -152,7 +152,7 @@ impl BabyJubjubPoint {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct JubjubSignature{
+pub struct JubjubSignature {
     pub sig_r: BabyJubjubPoint,
     pub sig_s: [u64; 4],
 }
@@ -177,7 +177,6 @@ const NEG_BASE: BabyJubjubPoint = BabyJubjubPoint {
 };
 
 impl JubjubSignature {
-
     // pub fn verify(&self, pk: &PublicKey<Bn256>, msghash: &[u8]) -> bool{
     //
     //     let sig = Signature{ r: (), s: () }

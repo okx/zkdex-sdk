@@ -1,5 +1,5 @@
-use primitive_types::{H256, U256};
 use crate::zkw::JubjubSignature;
+use primitive_types::{H256, U256};
 
 pub type AssetIdType = i128;
 pub type CollateralAssetId = U256;

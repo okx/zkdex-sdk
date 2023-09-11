@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::types::{AmountType, PositionIdType};
 use crate::U64SerdeAsString;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Liquidate {
@@ -19,14 +19,13 @@ pub struct Liquidate {
     pub actual_liquidator_fee: AmountType,
 }
 
-
 #[test]
 fn test_deserialize() {
     let json = r#"
     {
   "liquidator_order": {
     "nonce": "0",
-    "public_key": "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+    "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
     "expiration_timestamp": "0",
     "amount_synthetic": "1",
     "amount_collateral": "2",

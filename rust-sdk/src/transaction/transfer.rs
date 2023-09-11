@@ -5,8 +5,8 @@ use anyhow::Result;
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::common::OrderBase;
+use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
@@ -14,8 +14,8 @@ use crate::transaction::types::{AmountType, CollateralAssetId, HashType, Positio
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::TxSignature;
-use crate::U64SerdeAsString;
 use crate::zkw::JubjubSignature;
+use crate::U64SerdeAsString;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Transfer {
@@ -33,10 +33,7 @@ pub struct Transfer {
     pub asset_id: CollateralAssetId,
 }
 
-pub fn sign_transfer(
-    transfer: Transfer,
-    private_key: &str,
-) -> Result<JubjubSignature> {
+pub fn sign_transfer(transfer: Transfer, private_key: &str) -> Result<JubjubSignature> {
     let hash = transfer_hash(&transfer, 0);
     let private_key = private_key_from_string(private_key).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
@@ -148,10 +145,10 @@ pub fn test_sign_transfer() {
 fn test_deserialize() {
     let json = r#"{
         "nonce": "1",
-        "public_key": "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "expiration_timestamp": "11111111",
         "sender_position_id": "1",
-        "receiver_public_key": "0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "receiver_public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "receiver_position_id": "1",
         "amount": "1",
         "asset_id": "0xa8"

@@ -12,10 +12,12 @@ use primitive_types::{H256, U256};
 use rand::{Rng, SeedableRng, XorShiftRng};
 use time::OffsetDateTime;
 
-use crate::tx::{h256_to_u256, JUBJUB_PARAMS, le_to_u256, u256_to_h256};
 use crate::tx::convert::FeConvert;
-use crate::tx::packed_public_key::{fr_to_u256, PackedPublicKey, public_key_from_private, public_key_from_private_with_verify};
-use crate::tx::packed_signature::{PackedSignature, point_from_xy};
+use crate::tx::packed_public_key::{
+    fr_to_u256, public_key_from_private, public_key_from_private_with_verify, PackedPublicKey,
+};
+use crate::tx::packed_signature::{point_from_xy, PackedSignature};
+use crate::tx::{h256_to_u256, le_to_u256, u256_to_h256, JUBJUB_PARAMS};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 /// zkSync transaction signature.
@@ -61,7 +63,9 @@ impl From<JubjubSignature> for PackedSignature {
         let mut fspr = FsRepr::default();
         fspr.read_le(&s[..]).unwrap();
         let s = Fs::from_repr(fspr).unwrap();
-        PackedSignature { 0: Signature { r: r, s: s } }
+        PackedSignature {
+            0: Signature { r: r, s: s },
+        }
     }
 }
 
@@ -116,12 +120,12 @@ pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
     use crate::felt::LeBytesConvert;
+    use std::str::FromStr;
 
     use crate::tx;
     use crate::tx::packed_public_key::private_key_from_string;
-    use crate::tx::{HashType};
+    use crate::tx::HashType;
 
     use super::*;
 
@@ -133,40 +137,15 @@ mod tests {
             205, 154, 123, 60, 47, 41, 171, 133, 216, 161, 228, 205, 32,
         ];
         let sig = TxSignature::sign_msg(&key, msg.as_slice());
-        let pub_key = PublicKey::from_private(&key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
+        let pub_key =
+            PublicKey::from_private(&key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
 
         assert!(sig.0.verify(&pub_key, &msg));
         let a1 = sig.0.signature.clone();
-        let a2 = PackedSignature::from(<tx::sign::TxSignature as Into<JubjubSignature>>::into(sig.0));
+        let a2 = PackedSignature::from(<tx::sign::TxSignature as Into<JubjubSignature>>::into(
+            sig.0,
+        ));
         println!("{:#?}", a1);
         println!("{:#?}", a2);
-    }
-
-    #[test]
-    pub fn test_verify_from_poc() {
-        let hash = HashType::from_str("0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
-        let sig = JubjubSignature::from_str("353b5e0902f1918f2a5ed18d190c90d4c5bc0267566030283ecb996d2e4443a6",
-                                            "c80432d841049c2e71fcb590ff6ebcde58ae7cc1f064460bb4de474f93050502");
-        let pack_sig = PackedSignature::from(sig);
-
-
-        let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-        let private_key = private_key_from_string(prv_key).unwrap();
-        let pub_key = PublicKey::from_private(&private_key, FixedGenerators::SpendingKeyGenerator, &JUBJUB_PARAMS);
-        // assert!(pack_sig.verify(&pub_key,hash.as_bytes()));
-        let hash2 = HashType::from_str("0x01817ed5bea1d0082c0fbe02edb06c15f52e2bb98c2b92f36d160ab082f1a520").unwrap();
-        assert_eq!(pack_sig.verify(&pub_key, hash.as_le_bytes()), true);
-        assert_eq!(pack_sig.verify(&pub_key, hash2.as_le_bytes()), false);
-
-
-        // assert_eq!(pack_sig.verify(&pubkey.0, hash.as_le_bytes()), true);
-        // println!("{:#?}", pubkey);
-        // println!("{:#?}", pubkey);
-    }
-
-    #[test]
-    pub fn test_pubkey() {
-        let pubkey = "42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9";
-
     }
 }

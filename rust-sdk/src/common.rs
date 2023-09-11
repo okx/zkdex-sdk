@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use num_bigint::BigInt;
 use once_cell::sync::Lazy;
-use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::tx::public_key_type::PublicKeyType;
 use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
@@ -19,10 +19,6 @@ pub const TRANSFER_ORDER_TYPE: u8 = 4;
 pub const CONDITIONAL_TRANSFER_ORDER_TYPE: u8 = 5;
 pub const POSITION_ID_UPPER_BOUND: u128 = 1 << 64;
 
-use crate::tx::packed_signature::SignatureSerde;
-use crate::tx::public_key_type::PublicKeyType;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
-
 pub type TimestampType = i64;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -33,8 +29,6 @@ pub struct OrderBase {
     pub public_key: PublicKeyType,
     #[serde(rename = "expiration_timestamp", with = "I64SerdeAsString")]
     pub expiration_timestamp: TimestampType,
-    // #[serde(rename = "signature", with = "SignatureSerde")]
-    // pub signature: JubjubSignature,
 }
 
 impl Default for OrderBase {

@@ -1,6 +1,5 @@
-
-use primitive_types::{H256, U256};
 use crate::tx::public_key_type::PublicKeyType;
+use primitive_types::{H256, U256};
 
 // pub use self::poseidon::poseidon_push;
 

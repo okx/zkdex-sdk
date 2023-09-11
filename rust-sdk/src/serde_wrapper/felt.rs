@@ -1,6 +1,5 @@
-
-use primitive_types::U256;
 use crate::tx::public_key_type::PublicKeyType;
+use primitive_types::U256;
 
 pub struct Felt<'a, T> {
     inner: &'a T,
@@ -122,10 +121,10 @@ impl LeBytesConvert<32> for PublicKeyType {
 
 #[cfg(test)]
 mod tests {
-    use crate::felt::LeBytesConvert;
     use crate::felt;
-    use primitive_types::U256;
     use crate::felt::Felt;
+    use crate::felt::LeBytesConvert;
+    use primitive_types::U256;
 
     #[test]
     fn test_felt() {

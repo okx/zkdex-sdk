@@ -3,7 +3,6 @@ use std::convert::TryFrom;
 use primitive_types::{H256, U256};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use anyhow::Result;
 use crate::common::OrderBase;
 use crate::constant::{
     AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
@@ -13,10 +12,11 @@ use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::privkey_to_pubkey_internal;
 use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
-use crate::tx::{HashType, TxSignature, withdraw};
 use crate::tx::public_key_type::PublicKeyType;
+use crate::tx::{withdraw, HashType, TxSignature};
 use crate::types::h256_to_u256;
 use crate::zkw::JubjubSignature;
+use anyhow::Result;
 
 use crate::U256SerdeAsRadix16Prefix0xString;
 
@@ -36,7 +36,6 @@ pub struct WithdrawRequest {
     pub owner_key: PublicKeyType,
     #[serde(rename = "asset_id", with = "U256SerdeAsRadix16Prefix0xString")]
     pub asset_id: CollateralAssetId,
-
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -64,11 +63,7 @@ pub fn sign_withdraw(
 
 pub type CollateralAssetId = U256;
 
-
-pub fn withdrawal_hash(
-    withdrawal: &Withdraw,
-    asset_id_collateral: &CollateralAssetId,
-) -> HashType {
+pub fn withdrawal_hash(withdrawal: &Withdraw, asset_id_collateral: &CollateralAssetId) -> HashType {
     let packed_message0;
     let packed_message1;
     // If owner_key is equal to public key, this is a withdrawal of the old API and therefore the
@@ -131,16 +126,14 @@ pub fn test_withdraw() {
 pub fn test_deserialize() {
     let json = r#"{
         "nonce":"1",
-        "public_key":"0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "public_key":"0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "expiration_timestamp":"1684832800",
         "position_id":"2",
         "amount":"3",
-        "eth_address":"0x42cbd3cbd97f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9",
+        "eth_address":"0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "asset_id": "0x1a"
     }"#;
 
-
     let withdraw = serde_json::from_str::<WithdrawRequest>(json);
     assert!(withdraw.is_ok());
-    println!("{:?}",withdraw.unwrap());
 }
