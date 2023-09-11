@@ -13,7 +13,7 @@ publish = false # This library is not published stand-alone, it is bundled with 
 resolver = "2"
 
 [lib]
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [features]
 default = ["console_error_panic_hook"]
