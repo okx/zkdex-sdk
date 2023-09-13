@@ -16,8 +16,7 @@ impl U256SerdeAsRadix16Prefix0xString {
         D: Deserializer<'de>,
     {
         let hex_str = String::deserialize(deserializer)?;
-        let hex_str = hex_str.trim_start_matches("0x").trim_start_matches("0X");
-        U256::from_str_radix(hex_str, 16)
+        U256::from_str_radix(&hex_str, 16)
             .map_err(|e| de::Error::custom(format!("u256 from string error: {}", e)))
     }
 }

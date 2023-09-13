@@ -368,10 +368,10 @@ public class ZKDEXTest {
 
     @Test(expected = java.lang.Exception.class)
     public void isOnCurveWithErrParam() throws Exception {
-        String x = "0x42cbb15f0b5ca78d57ff1e5948008799b9c0d330b1e26423467867643217a9";
-        String y = "0x210add7125394a55df3e022f3994164c31803b3c8ac18edc91730b";
+        String x = "0x0d93a09887aaba49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
+        String y = "0x0a966094be6c8981a22359df81f7fcdd50ac725401e3fc5872c780d158fb18";
         boolean ret = ZKDEX.isOnCurve(x, y);
-        assertEquals(true, ret);
+        assertEquals(ret, true);
     }
 
     @Test(expected = java.lang.Exception.class)

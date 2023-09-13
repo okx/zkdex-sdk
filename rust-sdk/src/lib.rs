@@ -27,7 +27,7 @@ pub use format::*;
 pub use serde_wrapper::*;
 
 use crate::felt::LeBytesConvert;
-use crate::hash_type::{hash_type_to_string_with_0xprefix, string_to_hash_type};
+use crate::hash_type::{hash_type_to_string_with_0xprefix};
 use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
@@ -226,8 +226,7 @@ pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
 
 pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
     let pub_key = pub_key.trim_start_matches("0x").trim_start_matches("0X");
-    let bytes = hex::decode(pub_key)?;
-    let packed_pk = PackedPublicKey::deserialize_packed(bytes.as_slice())?;
+    let packed_pk =  PackedPublicKey::try_from(pub_key)?;
 
     let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let mut x_point = [0; 32];
@@ -240,7 +239,7 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
 }
 
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
-    let hash = string_to_hash_type(msg)?;
+    let hash = HashType::from_str(msg)?;
     let private_key = private_key_from_string(private_key)?;
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
@@ -255,8 +254,8 @@ pub fn verify_signature(
 ) -> Result<bool> {
     let sig = JubjubSignature::from_str(sig_r, sig_s);
     let sig = PackedSignature::from(sig);
-    let msg = string_to_hash_type(msg)?;
-    let packed_pk = PackedPublicKey::try_from(pub_key_x.to_string())?;
+    let msg = HashType::from_str(msg)?;
+    let packed_pk = PackedPublicKey::try_from(pub_key_x)?;
     let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let pk = convert_to_pubkey(&jubjub_pk.x, &jubjub_pk.y)?;
     Ok(sig.verify(&pk, msg.as_le_bytes()))
@@ -264,8 +263,8 @@ pub fn verify_signature(
 
 pub fn verify_jubjub_signature(sig: JubjubSignature, pub_key: &str, msg: &str) -> Result<bool> {
     let sig = PackedSignature::from(sig);
-    let msg = string_to_hash_type(msg)?;
-    let packed_pk = PackedPublicKey::try_from(pub_key.to_string())?;
+    let msg = HashType::from_str(msg)?;
+    let packed_pk = PackedPublicKey::try_from(pub_key)?;
     let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let pk = convert_to_pubkey(&jubjub_pk.x, &jubjub_pk.y)?;
     Ok(sig.verify(&pk, msg.as_le_bytes()))
@@ -292,7 +291,7 @@ pub struct L1Signature {
 pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let msg = msg.trim_start_matches("0x").trim_start_matches("0X");
     let private_key = private_key_from_string(private_key)?;
-    let msg = string_to_hash_type(msg)?;
+    let msg = HashType::from_str(msg)?;
     let (sig, packed_pk) = TxSignature::sign_msg(&private_key, msg.as_le_bytes());
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
@@ -995,15 +994,22 @@ mod test {
         let x = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
         let y = "0x0a3b966094be6c8981a22359df81f7fcdd50ac725401e3fc5872c780d158fb18";
         assert!(is_on_curve(x, y).unwrap());
+
+        let pri = "0x0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
+        let (x,y) = private_key_to_pubkey_xy(pri).unwrap();
+        assert!(is_on_curve(&x,&y).unwrap());
     }
 
     #[test]
     #[should_panic]
-    fn test_is_on_curve_with_err_() {
-        let x = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
+    fn test_is_on_curve_with_err_x() {
+        let x = "0x0d93a09887aaba49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
         let y = "0x0a966094be6c8981a22359df81f7fcdd50ac725401e3fc5872c780d158fb18";
-        assert!(is_on_curve(&x, &y).unwrap());
+        let ret = is_on_curve(&x, &y).unwrap();
+        assert!(ret == false);
     }
+
+
 
     #[test]
     fn test_pub_key_to_xy() {

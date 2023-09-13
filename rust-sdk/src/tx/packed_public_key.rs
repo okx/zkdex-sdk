@@ -10,10 +10,10 @@ use pairing_ce as ef;
 use pairing_ce::bn256::{Bn256, FrRepr};
 use pairing_ce::ff::{PrimeField, PrimeFieldRepr};
 use std::convert::{TryFrom, TryInto};
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 
 use crate::zkw::BabyJubjubPoint;
-use crate::Engine;
+use crate::{Engine, trim_0x};
 use primitive_types::{H256, U256};
 use rand::Rng;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
@@ -22,39 +22,34 @@ use thiserror::{Error as ThisError, Error};
 
 pub type PrivateKeyType = PrivateKey<Bn256>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PackedPublicKey(pub U256);
 
-impl ToString for PackedPublicKey {
-    fn to_string(&self) -> String {
-        let packed_point = self.serialize_packed().unwrap();
-        "0x".to_owned() + &hex::encode(packed_point)
+impl std::fmt::LowerHex for PackedPublicKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        std::fmt::LowerHex::fmt(&self.0, f)
     }
 }
 
-impl TryFrom<String> for PackedPublicKey {
-    type Error = Error;
+impl std::fmt::UpperHex for PackedPublicKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        std::fmt::UpperHex::fmt(&self.0, f)
+    }
+}
 
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        let key_str = value.trim_start_matches("0x").trim_start_matches("0X");
-        let bytes_vec = if key_str.len() % 2 != 0 {
-            // TODO: is there have a more efficient implement?
-            hex::decode(String::from("0") + key_str)?
-        } else {
-            hex::decode(key_str)?
-        };
+impl ToString for PackedPublicKey {
+    fn to_string(&self) -> String {
+        self.format_hex(true)
+    }
+}
 
-        let mut bytes_array = [0u8; 32];
-        let bytes = if bytes_vec.len() < 32 {
-            bytes_array[32 - bytes_vec.len()..32].copy_from_slice(&bytes_vec);
-            bytes_array.as_slice()
-        } else if bytes_vec.len() == 32 {
-            bytes_vec.as_slice()
-        } else {
-            panic!("invalid public key length");
-        };
-        let packed_point = bytes.to_vec();
-        Ok(PackedPublicKey::deserialize_packed(&packed_point)?)
+impl TryFrom<&str> for PackedPublicKey {
+    type Error = anyhow::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let key = U256::from_str_radix(value, 16)?;
+
+        Ok(Self(key))
     }
 }
 
@@ -74,26 +69,25 @@ impl Into<BabyJubjubPoint> for PackedPublicKey {
         }
     }
 }
+
 impl PackedPublicKey {
     pub fn is_address(&self) -> bool {
         return is_address(&self.0);
     }
-    pub fn new_address_public_key(address: String) -> Self {
+
+    pub fn new_address_public_key(address: &str) -> Self {
         PackedPublicKey::try_from(address).unwrap()
     }
-    pub fn serialize_packed(&self) -> std::io::Result<Vec<u8>> {
-        let mut packed_point = [0; 32];
-        self.0.to_big_endian(&mut packed_point);
-        Ok(packed_point.to_vec())
-    }
 
-    pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, DeserializeError> {
-        if bytes.len() != 32 {
-            return Err(DeserializeError::IncorrectPublicKeyLength);
+    pub fn format_hex(&self, x_prefix: bool) -> String {
+        if x_prefix {
+            format!("{:#066x}", self)
+        } else {
+            format!("{:064x}", self)
         }
-        Ok(PackedPublicKey(U256::from_big_endian(&bytes)))
     }
 }
+
 pub fn is_address(data: &U256) -> bool {
     let data = u256_to_le(data);
     let suffix_slice: &[u8] = &data[20..];
@@ -114,22 +108,21 @@ pub enum DeserializeError {
 
 impl Serialize for PackedPublicKey {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
-        let packed_point = self.serialize_packed().map_err(serde::ser::Error::custom)?;
-        serializer.serialize_str(&hex::encode(packed_point))
+        serializer.serialize_str(&self.format_hex(true))
     }
 }
 
 impl<'de> Deserialize<'de> for PackedPublicKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         use serde::de::Error;
         let string = String::deserialize(deserializer)?;
-        PackedPublicKey::try_from(string).map_err(Error::custom)
+        PackedPublicKey::try_from(string.as_str()).map_err(Error::custom)
     }
 }
 
@@ -207,8 +200,77 @@ pub fn private_key_to_string(pk: &PrivateKeyType) -> String {
 
 pub fn private_key_from_string(s: &str) -> Result<PrivateKeyType, anyhow::Error> {
     Ok(PrivateKey::<Bn256>(
-        <Bn256 as JubjubEngine>::Fs::from_bytes(
-            hex::decode(s.trim_start_matches("0x").trim_start_matches("0X"))?.as_slice(),
-        )?,
+        <Bn256 as JubjubEngine>::Fs::from_bytes(hex::decode(trim_0x(s))?.as_slice())?,
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_packed_pubkey_fmt() {
+        let packed_key = PackedPublicKey(U256::one() * 10);
+
+        assert_eq!(format!("{:x}", packed_key), "a");
+        assert_eq!(format!("{:X}", packed_key), "A");
+        assert_eq!(format!("{:#X}", packed_key), "0xA");
+        assert_eq!(format!("{:02x}", packed_key), "0a");
+        assert_eq!(
+            format!("{:#066x}", packed_key),
+            "0x000000000000000000000000000000000000000000000000000000000000000a"
+        );
+
+        let test_data = vec![
+            packed_key,
+            PackedPublicKey(U256::MAX),
+            PackedPublicKey(U256::zero()),
+        ];
+
+        for d in &test_data {
+            let mut be_bytes = [0u8; 32];
+            d.0.to_big_endian(&mut be_bytes);
+            assert_eq!(d.format_hex(false), hex::encode(be_bytes));
+            assert_eq!(d.format_hex(true), format!("0x{}", hex::encode(be_bytes)));
+            assert_eq!(d.format_hex(true), d.to_string());
+        }
+    }
+
+    #[test]
+    fn test_packed_pubkey_from() {
+        let test_data = vec![
+            ("", true),
+            ("0", true),
+            ("0x0000001", true),
+            (
+                "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                false,
+            ),
+        ];
+
+        for (i, (d, ok)) in test_data.into_iter().enumerate() {
+            let result = PackedPublicKey::try_from(d);
+            assert_eq!(result.is_ok(), ok, "{}", i);
+        }
+    }
+
+    #[test]
+    fn test_packed_pubkey_serde() {
+        for _ in 0..10 {
+            let pk = random_packed_pubkey();
+            let json = serde_json::to_string(&pk).unwrap();
+            let pk2: PackedPublicKey = serde_json::from_str(&json).unwrap();
+
+            assert_eq!(pk, pk2);
+        }
+    }
+
+    fn random_packed_pubkey() -> PackedPublicKey {
+        PackedPublicKey(U256([
+            rand::random::<u64>(),
+            rand::random::<u64>(),
+            rand::random::<u64>(),
+            rand::random::<u64>(),
+        ]))
+    }
 }

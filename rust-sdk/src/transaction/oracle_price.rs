@@ -4,7 +4,7 @@
 // divided by the ratio between a unit of synthetic asset and its resolution:
 //   (collateral_asset_unit / collateral_resolution) /
 //   (synthetic_asset_unit / synthetic_resolution).
-use crate::i128_serde::U128SerdeAsRadix16Prefix0xString;
+use crate::i128_serde::U128SerdeAsString;
 use crate::I64SerdeAsString;
 use primitive_types::U256;
 use serde::Deserialize;
@@ -25,7 +25,7 @@ use anyhow::Result;
 pub struct SignedOraclePrice {
     #[serde(rename = "signer_key")]
     pub signer_key: PublicKeyType,
-    #[serde(rename = "external_price", with = "U128SerdeAsRadix16Prefix0xString")]
+    #[serde(rename = "external_price", with = "U128SerdeAsString")]
     pub external_price: PriceType,
     #[serde(rename = "timestamp", with = "I64SerdeAsString")]
     pub timestamp: TimestampType,
