@@ -1,7 +1,6 @@
-use std::convert::TryFrom;
-
-use primitive_types::{H256, U256};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use anyhow::Result;
+use primitive_types::U256;
+use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::constant::{
@@ -10,20 +9,16 @@ use crate::constant::{
 };
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
-use crate::privkey_to_pubkey_internal;
-use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{withdraw, HashType, TxSignature};
-use crate::types::h256_to_u256;
+use crate::tx::{HashType, TxSignature};
 use crate::zkw::JubjubSignature;
-use anyhow::Result;
-
 use crate::U256SerdeAsRadix16Prefix0xString;
+use crate::U64SerdeAsString;
 
 pub type AmountType = u64;
 pub type PositionIdType = u64;
 
-use crate::U64SerdeAsString;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {
     #[serde(flatten)]
@@ -95,36 +90,40 @@ pub fn withdrawal_hash(withdrawal: &Withdraw, asset_id_collateral: &CollateralAs
     hash2(&packed_message0, &packed_message1)
 }
 
-#[test]
-pub fn test_withdraw() {
-    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let private_key = private_key_from_string(prv_key).unwrap();
-    let binding = hex::decode(&prv_key).unwrap();
-    let prv_bytes = binding.as_slice();
-    let pub_key = privkey_to_pubkey_internal(prv_bytes).unwrap();
-    let pub_key = public_key_from_private(&private_key);
-    let expire = 1684832800i64;
-    let pub_key = PublicKeyType::from(pub_key.clone());
-    let req = Withdraw {
-        base: OrderBase {
-            nonce: 1,
-            public_key: pub_key.clone(),
-            expiration_timestamp: expire,
-        },
-        position_id: 1,
-        amount: 1,
-        owner_key: pub_key.clone(),
-    };
+#[cfg(test)]
+mod test {
+    use crate::common::OrderBase;
+    use crate::transaction::withdraw::{sign_withdraw, CollateralAssetId};
+    use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::{private_key_from_string, public_key_from_private, Withdraw, WithdrawRequest};
 
-    // println!("{:#?}", serde_json::to_string(&req).unwrap());
-    //c1434d28
-    let w = sign_withdraw(req, &CollateralAssetId::from(10), prv_key).unwrap();
-    println!("{:#?}", w);
-}
+    #[test]
+    pub fn test_withdraw() {
+        let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let private_key = private_key_from_string(prv_key).unwrap();
+        let pub_key = public_key_from_private(&private_key);
+        let expire = 1684832800i64;
+        let pub_key = PublicKeyType::from(pub_key.clone());
+        let req = Withdraw {
+            base: OrderBase {
+                nonce: 1,
+                public_key: pub_key.clone(),
+                expiration_timestamp: expire,
+            },
+            position_id: 1,
+            amount: 1,
+            owner_key: pub_key.clone(),
+        };
 
-#[test]
-pub fn test_deserialize() {
-    let json = r#"{
+        // println!("{:#?}", serde_json::to_string(&req).unwrap());
+        //c1434d28
+        let w = sign_withdraw(req, &CollateralAssetId::from(10), prv_key).unwrap();
+        println!("{:#?}", w);
+    }
+
+    #[test]
+    pub fn test_deserialize() {
+        let json = r#"{
         "nonce":"1",
         "public_key":"0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "expiration_timestamp":"1684832800",
@@ -134,6 +133,7 @@ pub fn test_deserialize() {
         "asset_id": "0x1a"
     }"#;
 
-    let withdraw = serde_json::from_str::<WithdrawRequest>(json);
-    assert!(withdraw.is_ok());
+        let withdraw = serde_json::from_str::<WithdrawRequest>(json);
+        assert!(withdraw.is_ok());
+    }
 }

@@ -83,6 +83,7 @@ pub const MODULUS: [u64; 4] = [
     0x30644e72e131a029,
 ];
 
+#[allow(dead_code)]
 pub fn negative_of_fr(b: &[u64; 4]) -> [u64; 4] {
     let mut borrow = 0;
     let mut a = MODULUS.clone();
@@ -98,100 +99,13 @@ pub fn negative_of_fr(b: &[u64; 4]) -> [u64; 4] {
     a
 }
 
-impl BabyJubjubPoint {
-    // pub fn msm(points: Vec<(&BabyJubjubPoint, &[u64; 4])>) -> BabyJubjubPoint {
-    //     let mut len = points.len();
-    //     unsafe {
-    //         babyjubjub_sum_new(1u64);
-    //     }
-    //     for (point, scalar) in points {
-    //         unsafe {
-    //             babyjubjub_sum_push(point.x.0[0]);
-    //             babyjubjub_sum_push(point.x.0[1]);
-    //             babyjubjub_sum_push(point.x.0[2]);
-    //             babyjubjub_sum_push(point.x.0[3]);
-    //             babyjubjub_sum_push(point.y.0[0]);
-    //             babyjubjub_sum_push(point.y.0[1]);
-    //             babyjubjub_sum_push(point.y.0[2]);
-    //             babyjubjub_sum_push(point.y.0[3]);
-    //             babyjubjub_sum_push(scalar[0]);
-    //             babyjubjub_sum_push(scalar[1]);
-    //             babyjubjub_sum_push(scalar[2]);
-    //             babyjubjub_sum_push(scalar[3]);
-    //             len -= 1;
-    //             if len != 0 {
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_finalize();
-    //                 babyjubjub_sum_new(0u64);
-    //             }
-    //         }
-    //     }
-    //     unsafe {
-    //         BabyJubjubPoint {
-    //             x: U256([
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //             ]),
-    //             y: U256([
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //                 babyjubjub_sum_finalize(),
-    //             ]),
-    //         }
-    //     }
-    // }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct JubjubSignature {
     pub sig_r: BabyJubjubPoint,
     pub sig_s: [u64; 4],
 }
 
-// 0 = c . pk + R - S . P_G that requires all points to be in the same group
-// let lhs = vk.mul_scalar(&c).add(&sig_r);
-// let rhs = p_g.mul_scalar(&sig_s);
-
-const NEG_BASE: BabyJubjubPoint = BabyJubjubPoint {
-    x: U256([
-        5098030607081443850,
-        11739138394996609992,
-        7617911478965053006,
-        103675969630295906,
-    ]),
-    y: U256([
-        10973966134842004663,
-        8445032247919564157,
-        8665528646177973254,
-        405343104476405055,
-    ]),
-};
-
-impl JubjubSignature {
-    // pub fn verify(&self, pk: &PublicKey<Bn256>, msghash: &[u8]) -> bool{
-    //
-    //     let sig = Signature{ r: (), s: () }
-    //     pk.verify_for_raw_message()
-    // }
-    // pub fn verify(&self, pk: &BabyJubjubPoint, msghash: &[u64; 4]) -> bool {
-    //     let r = BabyJubjubPoint::msm(vec![
-    //         (pk, msghash),
-    //         (&self.sig_r, &[1, 0, 0, 0]),
-    //         (&NEG_BASE, &self.sig_s),
-    //     ]);
-    //     r.x == U256([0, 0, 0, 0]) && r.y == U256([1, 0, 0, 0])
-    // }
-}
-
+#[allow(dead_code)]
 pub enum ReduceRule<F: FieldExt> {
     Bytes(Vec<u8>, usize),
     Field(F, usize),
@@ -199,6 +113,7 @@ pub enum ReduceRule<F: FieldExt> {
     U64(u64),
 }
 
+#[allow(dead_code)]
 impl<F: FieldExt> ReduceRule<F> {
     fn nb_inputs(&self) -> usize {
         match self {
@@ -259,11 +174,13 @@ impl<F: FieldExt> ReduceRule<F> {
     }
 }
 
+#[allow(dead_code)]
 pub struct Reduce<F: FieldExt> {
     pub cursor: usize,
     pub rules: Vec<ReduceRule<F>>,
 }
 
+#[allow(dead_code)]
 impl<F: FieldExt> Reduce<F> {
     pub fn new(rules: Vec<ReduceRule<F>>) -> Self {
         Reduce { cursor: 0, rules }

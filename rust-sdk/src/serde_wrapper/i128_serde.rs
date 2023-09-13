@@ -1,5 +1,5 @@
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use crate::trim_0x;
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 pub struct I128SerdeAsRadix16Prefix0xString;
 

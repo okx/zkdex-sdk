@@ -1,4 +1,3 @@
-use std::convert::TryInto;
 use std::fmt::{Debug, Formatter};
 
 use franklin_crypto::alt_babyjubjub::{AltJubjubBn256, FixedGenerators};
@@ -11,7 +10,7 @@ use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
-use crate::tx::packed_public_key::{fr_to_u256, u256_to_fr};
+use crate::tx::packed_public_key::u256_to_fr;
 use crate::tx::{le_to_u256, u256_to_le, JUBJUB_PARAMS};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use crate::U256SerdeAsRadix16Prefix0xString;
@@ -151,9 +150,8 @@ impl JubjubSignature {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
-
     use serde::{Deserialize, Serialize};
+    use std::convert::TryInto;
 
     use crate::tx::packed_public_key::fr_to_u256;
 

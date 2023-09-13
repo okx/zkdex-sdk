@@ -6,7 +6,6 @@ use num::{
     BigUint,
 };
 
-
 pub fn trim_0x(s: &str) -> &str {
     s.trim_start_matches("0x")
 }

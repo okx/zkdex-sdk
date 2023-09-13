@@ -1,7 +1,7 @@
 use crate::signature_serde::SignatureOriginal;
+use crate::trim_0x;
 use hex::FromHex;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-use crate::trim_0x;
 
 pub struct U8Array32SerdeAsStringWith0x;
 

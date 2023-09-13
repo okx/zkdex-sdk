@@ -72,7 +72,7 @@ pub fn signed_oracle_price_hash(price: &SignedOraclePrice) -> HashType {
 pub fn sign_signed_oracle_price(price: SignedOraclePrice, prvk: &str) -> Result<JubjubSignature> {
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk)?;
-    let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
+    let (signature, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(signature.into())
 }
 
@@ -99,7 +99,6 @@ fn test_oracle() {
     data.external_price = 100000;
     data.timestamp = 18778987;
     data.signed_asset_id = SignedAssetId::from(100);
-    let pri_key = private_key_from_string(pri).unwrap();
     let sig = sign_signed_oracle_price(data, pri).unwrap();
     let json = serde_json::to_string(&sig).unwrap();
     println!("{:#?}", json);

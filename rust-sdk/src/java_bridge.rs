@@ -14,7 +14,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_verifySignature<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         sig_r: JString<'local>,
         sig_s: JString<'local>,
         pub_key_x: JString<'local>,
@@ -51,7 +51,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_signWithdraw<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
         pri_key: JString<'local>,
     ) -> jstring {
@@ -81,7 +81,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_signTransfer<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
         pri_key: JString<'local>,
     ) -> jstring {
@@ -111,7 +111,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_signLimitOrder<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
         pri_key: JString<'local>,
     ) -> jstring {
@@ -141,7 +141,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_signLiquidate<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
         pri_key: JString<'local>,
     ) -> jstring {
@@ -171,7 +171,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_signSignedOraclePrice<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
         pri_key: JString<'local>,
     ) -> jstring {
@@ -201,7 +201,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_hashWithdraw<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
     ) -> jstring {
         let json = env.get_string(&json);
@@ -225,9 +225,8 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_hashTransfer<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
-        pri_key: JString<'local>,
     ) -> jstring {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
@@ -250,7 +249,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_hashLimitOrder<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
     ) -> jstring {
         let json = env.get_string(&json);
@@ -274,7 +273,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_hashLiquidate<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
     ) -> jstring {
         let json = env.get_string(&json);
@@ -298,7 +297,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_hashSignedOraclePrice<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         json: JString<'local>,
     ) -> jstring {
         let json = env.get_string(&json);
@@ -322,7 +321,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_sign<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         private_key: JString<'local>,
         msg: JString<'local>,
     ) -> jstring {
@@ -351,7 +350,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_ethSign<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         private_key: JString<'local>,
         msg: JString<'local>,
     ) -> jstring {
@@ -380,7 +379,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_privateKeyFromSeed<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         seed: JString<'local>,
     ) -> jstring {
         let seed = env.get_string(&seed);
@@ -405,7 +404,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_isOnCurve<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         x: JString<'local>,
         y: JString<'local>,
     ) -> jboolean {
@@ -429,7 +428,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_privateKeyToPublicKeyXY<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         private_key: JString<'local>,
     ) -> jstring {
         let private_key = env.get_string(&private_key);
@@ -465,7 +464,7 @@ pub mod java_bridge {
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_publicKeyToXY<'local>(
         mut env: JNIEnv<'local>,
-        class: JClass<'local>,
+        _class: JClass<'local>,
         public_key: JString<'local>,
     ) -> jstring {
         let public_key = env.get_string(&public_key);

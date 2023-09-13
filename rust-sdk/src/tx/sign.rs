@@ -5,10 +5,10 @@ use std::time::Duration;
 use ef::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::eddsa::{PrivateKey, PublicKey, Seed, Signature};
-use franklin_crypto::jubjub::{FixedGenerators, JubjubEngine};
+use franklin_crypto::jubjub::FixedGenerators;
 use pairing_ce as ef;
 use pairing_ce::bn256::Bn256;
-use primitive_types::{H256, U256};
+use primitive_types::U256;
 use rand::{Rng, SeedableRng, XorShiftRng};
 use time::OffsetDateTime;
 
@@ -17,12 +17,9 @@ use crate::tx::packed_public_key::{
     fr_to_u256, public_key_from_private, public_key_from_private_with_verify, PackedPublicKey,
 };
 use crate::tx::packed_signature::{point_from_xy, PackedSignature};
-use crate::tx::{h256_to_u256, le_to_u256, u256_to_h256, JUBJUB_PARAMS};
+use crate::tx::{le_to_u256, u256_to_h256, JUBJUB_PARAMS};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
-/// zkSync transaction signature.
-///
-/// Represents a MuSig Rescue signature for the message.
 #[derive(Clone)]
 pub struct TxSignature {
     pub pub_key: PackedPublicKey,
@@ -120,12 +117,7 @@ pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
 
 #[cfg(test)]
 mod tests {
-    use crate::felt::LeBytesConvert;
-    use std::str::FromStr;
-
     use crate::tx;
-    use crate::tx::packed_public_key::private_key_from_string;
-    use crate::tx::HashType;
 
     use super::*;
 

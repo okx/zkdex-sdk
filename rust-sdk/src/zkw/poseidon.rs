@@ -1,35 +1,13 @@
-use crate::zkw::{Reduce, ReduceRule};
-use ff::PrimeField;
-use halo2_proofs::pairing::bn256::Fr;
-use pairing_ce::ff::Field;
-use poseidon::Poseidon;
 use std::convert::TryInto;
 
-/// Foreign functions that supports the following C code library
-///
-/// void poseidon(uint64_t* data, uint32_t size, uint64_t* r)
-/// {
-///     int i;
-///     poseidon_new(size);
-///     for(i=0; i<size; i=++) {
-///         uint64_t* a = data[i];
-///         poseidon_push(data[i]);
-///     }
-///     r[0] = poseidon_finalize();
-///     r[1] = poseidon_finalize();
-///     r[2] = poseidon_finalize();
-///     r[3] = poseidon_finalize();
-///     wasm_dbg(r[0]);
-///     wasm_dbg(r[1]);
-///     wasm_dbg(r[2]);
-///     wasm_dbg(r[3]);
-/// }
+use ff::PrimeField;
+use halo2_proofs::pairing::bn256::Fr;
+use poseidon::Poseidon;
+
+use crate::zkw::{Reduce, ReduceRule};
 
 lazy_static::lazy_static! {
     pub static ref POSEIDON_HASHER: poseidon::Poseidon<Fr, 9, 8> = Poseidon::<Fr, 9, 8>::new(8, 63);
-    // pub static ref MERKLE_HASHER: poseidon::Poseidon<Fr, 3, 2> = Poseidon::<Fr, 3, 2>::new(8, 57);
-    // pub static ref POSEIDON_HASHER_SPEC: poseidon::Spec<Fr, 9, 8> = Spec::new(8, 63);
-    // pub static ref MERKLE_HASHER_SPEC: poseidon::Spec<Fr, 3, 2> = Spec::new(8, 57);
 }
 
 pub struct Generator {

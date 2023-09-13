@@ -1,24 +1,24 @@
-use super::convert::FeConvert;
-use crate::tx::packed_signature::get_xy_from_r;
-use crate::tx::{h256_to_u256, u256_to_le, JUBJUB_PARAMS};
-use anyhow::{anyhow, Error};
+use std::convert::TryFrom;
+use std::fmt::{Debug, Formatter};
+
+use anyhow::anyhow;
 use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
 use franklin_crypto::bellman::bn256::Fr;
 use franklin_crypto::eddsa::{PrivateKey, PublicKey, Signature};
 use franklin_crypto::jubjub::{edwards, FixedGenerators, JubjubEngine};
-use pairing_ce as ef;
 use pairing_ce::bn256::{Bn256, FrRepr};
 use pairing_ce::ff::{PrimeField, PrimeFieldRepr};
-use std::convert::{TryFrom, TryInto};
-use std::fmt::{Debug, Formatter};
-
-use crate::zkw::BabyJubjubPoint;
-use crate::{Engine, trim_0x};
-use primitive_types::{H256, U256};
+use primitive_types::U256;
 use rand::Rng;
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-use sha2::digest::generic_array::typenum::U25;
-use thiserror::{Error as ThisError, Error};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use thiserror::Error as ThisError;
+
+use crate::trim_0x;
+use crate::tx::packed_signature::get_xy_from_r;
+use crate::tx::{u256_to_le, JUBJUB_PARAMS};
+use crate::zkw::BabyJubjubPoint;
+
+use super::convert::FeConvert;
 
 pub type PrivateKeyType = PrivateKey<Bn256>;
 
@@ -108,8 +108,8 @@ pub enum DeserializeError {
 
 impl Serialize for PackedPublicKey {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         serializer.serialize_str(&self.format_hex(true))
     }
@@ -117,8 +117,8 @@ impl Serialize for PackedPublicKey {
 
 impl<'de> Deserialize<'de> for PackedPublicKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         use serde::de::Error;
         let string = String::deserialize(deserializer)?;

@@ -1,7 +1,5 @@
-use std::mem::size_of;
 use std::str::FromStr;
 
-use hex::FromHexError;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::HashType;
