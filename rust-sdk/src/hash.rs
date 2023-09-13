@@ -1,3 +1,4 @@
+use std::thread::{JoinHandle, spawn};
 use crate::tx::public_key_type::PublicKeyType;
 use primitive_types::{H256, U256};
 
@@ -132,4 +133,25 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> U256 {
     hasher.update_single(a);
     hasher.update_single(b);
     hasher.finalize()
+}
+
+#[test]
+fn test_concurrent_hash() {
+    let mut handler:Vec<JoinHandle<()>> = Vec::new();
+    let hash = hash2(&U256::from(1), &U256::from(2));
+    for x in 0..200 {
+
+        let hash = hash.clone();
+        let t = spawn(move || {
+            let hash1 = hash2(&U256::from(1), &U256::from(2));
+            assert!(hash1==hash)
+        });
+
+        handler.push(t);
+
+    }
+
+    for x in handler {
+        x.join();
+    }
 }
