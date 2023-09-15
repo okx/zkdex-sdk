@@ -35,7 +35,10 @@ mod tests {
         let obj = U256Serde { v: U256::from(33) };
         let json_str = serde_json::to_string(&obj).unwrap();
 
-        assert_eq!(json_str, r##"{"v":"0x0000000000000000000000000000000000000000000000000000000000000021"}"##)
+        assert_eq!(
+            json_str,
+            r##"{"v":"0x0000000000000000000000000000000000000000000000000000000000000021"}"##
+        )
     }
 
     #[test]

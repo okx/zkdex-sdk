@@ -1,3 +1,4 @@
+use crate::utils::jubjub_to_json;
 use crate::{
     hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
     is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
@@ -15,7 +16,7 @@ use wasm_bindgen::JsValue;
 #[wasm_bindgen(js_name = sign_transfer, skip_jsdoc)]
 pub fn js_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_transfer(json, private_key) {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }
@@ -39,7 +40,7 @@ pub fn js_hash_transfer(json: &str) -> Result<String, JsValue> {
 pub fn js_sign_withdraw(json: &str, private_key: &str) -> Result<String, JsValue> {
     let withdraw = sign_withdraw(json, private_key);
     match withdraw {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }
@@ -62,7 +63,7 @@ pub fn js_hash_withdraw(json: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = sign_limit_order, skip_jsdoc)]
 pub fn js_sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_limit_order(json, private_key) {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }
@@ -85,7 +86,7 @@ pub fn js_hash_limit_order(json: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = sign_liquidate, skip_jsdoc)]
 pub fn js_sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_liquidate(json, private_key) {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }
@@ -108,7 +109,7 @@ pub fn js_hash_liquidate(json: &str) -> Result<String, JsValue> {
 #[wasm_bindgen(js_name = sign_signed_oracle_price, skip_jsdoc)]
 pub fn js_sign_signed_oracle_price(json: &str, private_key: &str) -> Result<String, JsValue> {
     match sign_signed_oracle_price(json, private_key) {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }
@@ -180,7 +181,7 @@ pub fn js_is_on_curve(pub_key_x: &str, pub_key_y: &str) -> Result<bool, JsValue>
 #[wasm_bindgen(js_name = sign, skip_jsdoc)]
 pub fn js_sign(private_key: &str, msg: &str) -> Result<String, JsValue> {
     match sign(private_key, msg) {
-        Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+        Ok(ret) => Ok(jubjub_to_json(&ret)),
         Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
     }
 }

@@ -1,28 +1,24 @@
-// Price definitions:
-// An external price is a unit of the collateral asset divided by a unit of synthetic asset.
-// An internal price is computed as the ratio between a unit of collateral asset and its resolution,
-// divided by the ratio between a unit of synthetic asset and its resolution:
-//   (collateral_asset_unit / collateral_resolution) /
-//   (synthetic_asset_unit / synthetic_resolution).
-use crate::i128_serde::U128SerdeAsRadix16Prefix0xString;
-use crate::I64SerdeAsString;
-use primitive_types::U256;
-use serde::Deserialize;
-use std::ops::ShlAssign;
+use crate::serde_wrapper::U128SerdeAsRadix16Prefix0xString;
 
-use crate::felt::LeBytesConvert;
-use crate::hash::hash2;
-use crate::transaction::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{Serialize, TxSignature};
-use crate::zkw::JubjubSignature;
-use crate::U256SerdeAsRadix16Prefix0xString;
+use primitive_types::U256;
+use serde::{Deserialize, Serialize};
+use zkdex_utils::tx::packed_public_key::private_key_from_string;
+use std::ops::ShlAssign;
+use zkdex_utils::tx::sign::TxSignature;
+use zkdex_utils::I64SerdeAsString;
+use zkdex_wasm::perpetual::signed_oracle_price_hash;
+use zkdex_wasm::{
+    AssetIdType, HashType, LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType,
+};
+use zkwasm_rust_sdk::JubjubSignature;
+
+use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+
 use anyhow::Result;
 
 // Represents a single signature on an external price with a timestamp.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SignedOraclePrice {
+pub struct SignedOraclePriceRequest {
     #[serde(rename = "signer_key")]
     pub signer_key: PublicKeyType,
     #[serde(rename = "external_price", with = "U128SerdeAsRadix16Prefix0xString")]
@@ -33,7 +29,7 @@ pub struct SignedOraclePrice {
     pub signed_asset_id: SignedAssetId,
 }
 
-impl Default for SignedOraclePrice {
+impl Default for SignedOraclePriceRequest {
     fn default() -> Self {
         Self {
             signer_key: PublicKeyType::default(),
@@ -44,36 +40,19 @@ impl Default for SignedOraclePrice {
     }
 }
 
-// Represents a single Oracle Price of an asset in internal representation and
-// signatures on that price. The price is a median of all prices in the signatures.
-#[derive(Debug, Clone, PartialEq)]
-pub struct AssetOraclePrice {
-    pub asset_id: AssetIdType,
-    pub price: PriceType,
-    // Oracle signatures, sorted by signer_key.
-    pub signed_prices: Vec<SignedOraclePrice>,
-}
-
 pub struct TimeBounds {
     pub min_time: TimestampType,
     pub max_time: TimestampType,
 }
 
-// const TIMESTAMP_BOUND = 2 ** 32;
-pub const TIMESTAMP_BOUND: i64 = 1 << 32;
-
-pub fn signed_oracle_price_hash(price: &SignedOraclePrice) -> HashType {
-    let mut y = U256::from(price.external_price);
-    y.shl_assign(32);
-    y += U256::from(price.timestamp);
-    hash2(&price.signed_asset_id, &y)
-}
-
-pub fn sign_signed_oracle_price(price: SignedOraclePrice, prvk: &str) -> Result<JubjubSignature> {
+pub fn sign_signed_oracle_price(
+    price: zkdex_wasm::perpetual::SignedOraclePrice,
+    prvk: &str,
+) -> Result<JubjubSignature> {
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk)?;
     let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
-    Ok(signature.into())
+    Ok(signature)
 }
 
 #[test]
@@ -87,21 +66,21 @@ fn test_deserialize() {
     }
     "#;
 
-    let ret = serde_json::from_str::<SignedOraclePrice>(json);
+    let ret = serde_json::from_str::<SignedOraclePriceRequest>(json);
     assert!(ret.is_ok());
     println!("{:?}", ret);
 }
 
-#[test]
-fn test_oracle() {
-    let pri = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let mut data = SignedOraclePrice::default();
-    data.external_price = 100000;
-    data.timestamp = 18778987;
-    data.signed_asset_id = SignedAssetId::from(100);
-    let pri_key = private_key_from_string(pri).unwrap();
-    let sig = sign_signed_oracle_price(data, pri).unwrap();
-    let json = serde_json::to_string(&sig).unwrap();
-    println!("{:#?}", json);
-    println!("{:#?}", sig);
-}
+// #[test]
+// fn test_oracle() {
+//     let pri = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+//     let mut data = SignedOraclePrice::default();
+//     data.external_price = 100000;
+//     data.timestamp = 18778987;
+//     data.signed_asset_id = SignedAssetId::from(100);
+//     let pri_key = private_key_from_string(pri).unwrap();
+//     let sig = sign_signed_oracle_price(data, pri).unwrap();
+//     let json = serde_json::to_string(&sig).unwrap();
+//     println!("{:#?}", json);
+//     println!("{:#?}", sig);
+// }

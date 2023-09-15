@@ -3,10 +3,8 @@ use std::str::FromStr;
 use num_bigint::BigInt;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-use crate::tx::public_key_type::PublicKeyType;
-use crate::I64SerdeAsString;
-use crate::U64SerdeAsString;
+use zkdex_utils::{I64SerdeAsString, U64SerdeAsString};
+use zkdex_wasm::PublicKeyType;
 
 pub static NONCE_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(32));
 pub static VAULT_ID_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(64));

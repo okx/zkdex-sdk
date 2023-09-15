@@ -1,4 +1,3 @@
-use crate::tx::public_key_type::PublicKeyType;
 use primitive_types::{H256, U256};
 
 // pub use self::poseidon::poseidon_push;
@@ -110,14 +109,6 @@ impl ToHashable for i64 {
 impl ToHashable for U256 {
     fn to_hashable(&self) -> &[u64] {
         &self.0
-    }
-}
-
-impl ToHashable for PublicKeyType {
-    fn to_hashable(&self) -> &[u64] {
-        self.0.y.to_hashable()
-        // let array = self as *const PublicKeyType as *const u64 as *const [u64; 8];
-        // unsafe { &*array }
     }
 }
 

@@ -1,4 +1,5 @@
 pub mod java_bridge {
+    use crate::utils::jubjub_to_json;
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
         is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
@@ -65,7 +66,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
@@ -95,7 +96,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
@@ -125,7 +126,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
@@ -155,7 +156,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
@@ -185,7 +186,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
@@ -335,7 +336,7 @@ pub mod java_bridge {
         }) {
             Ok(ret) => {
                 let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .new_string(jubjub_to_json(&ret))
                     .expect("Couldn't create java string!");
                 output.into_raw()
             }
