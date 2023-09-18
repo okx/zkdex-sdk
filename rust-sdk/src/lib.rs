@@ -441,9 +441,9 @@ mod test {
     use pairing_ce::ff::PrimeField;
     use zkdex_utils::tx::{
         convert::FeConvert,
-        packed_public_key::{private_key_from_string, public_key_from_private},
+        packed_public_key::{private_key_from_string, public_key_from_private}, baby_jubjub::JubjubSignature,
     };
-    use zkwasm_rust_sdk::JubjubSignature;
+    
 
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
