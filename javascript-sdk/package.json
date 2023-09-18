@@ -1,5 +1,5 @@
 {
-	"name": "@okx/zkdex-sdk",
+	"name": "@ok/zkdex-sdk",
 	"version": "0.0.1",
 	"browser": "dist/zkdex-web.js",
 	"main": "dist/zkdex-node.js",
