@@ -1,9 +1,8 @@
 use std::ops::ShlAssign;
-use std::str::FromStr;
 
 use anyhow::Result;
 use primitive_types::U256;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
@@ -11,7 +10,7 @@ use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
-use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::TxSignature;
 use crate::zkw::JubjubSignature;
@@ -117,33 +116,40 @@ pub fn transfer_hash(transfer: &Transfer, condition: u64) -> HashType {
     return exchange_transfer.hash(condition);
 }
 
-#[test]
-pub fn test_sign_transfer() {
-    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let private_key = private_key_from_string(prv_key).unwrap();
-    let pub_key = public_key_from_private(&private_key);
-    let expire = 1684832800i64;
-    let pub_key = PublicKeyType::from(pub_key.clone());
-    let req = Transfer {
-        base: OrderBase {
-            nonce: 1,
-            public_key: pub_key.clone(),
-            expiration_timestamp: expire,
-        },
-        sender_position_id: 0,
-        receiver_public_key: Default::default(),
-        amount: 1,
-        receiver_position_id: 0,
-        asset_id: Default::default(),
-    };
+#[cfg(test)]
+mod test {
+    use crate::common::OrderBase;
+    use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::transfer::sign_transfer;
+    use crate::tx::{private_key_from_string, public_key_from_private, Transfer};
 
-    let w = sign_transfer(req, prv_key).unwrap();
-    println!("{:?}", w);
-}
+    #[test]
+    pub fn test_sign_transfer() {
+        let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let private_key = private_key_from_string(prv_key).unwrap();
+        let pub_key = public_key_from_private(&private_key);
+        let expire = 1684832800i64;
+        let pub_key = PublicKeyType::from(pub_key.clone());
+        let req = Transfer {
+            base: OrderBase {
+                nonce: 1,
+                public_key: pub_key.clone(),
+                expiration_timestamp: expire,
+            },
+            sender_position_id: 0,
+            receiver_public_key: Default::default(),
+            amount: 1,
+            receiver_position_id: 0,
+            asset_id: Default::default(),
+        };
 
-#[test]
-fn test_deserialize() {
-    let json = r#"{
+        let w = sign_transfer(req, prv_key).unwrap();
+        println!("{:?}", w);
+    }
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"{
         "nonce": "1",
         "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
         "expiration_timestamp": "11111111",
@@ -154,7 +160,8 @@ fn test_deserialize() {
         "asset_id": "0xa8"
     }"#;
 
-    let ret = serde_json::from_str::<Transfer>(json);
-    assert!(ret.is_ok());
-    println!("{:?}", ret.unwrap());
+        let ret = serde_json::from_str::<Transfer>(json);
+        assert!(ret.is_ok());
+        println!("{:?}", ret.unwrap());
+    }
 }

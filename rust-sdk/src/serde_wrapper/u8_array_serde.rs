@@ -1,4 +1,5 @@
 use crate::signature_serde::SignatureOriginal;
+use crate::trim_0x;
 use hex::FromHex;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
@@ -20,7 +21,7 @@ impl U8Array32SerdeAsStringWith0x {
         D: Deserializer<'de>,
     {
         let array_str = String::deserialize(deserializer)?;
-        let array_str = array_str.trim_start_matches("0x").trim_start_matches("0X");
+        let array_str = trim_0x(&array_str);
 
         assert!(array_str.len() <= Self::HEX_STR_MAX_LEN);
         if array_str.len() < Self::HEX_STR_MAX_LEN {

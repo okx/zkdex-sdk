@@ -1,6 +1,5 @@
-use std::mem::size_of;
+use std::str::FromStr;
 
-use hex::FromHexError;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::HashType;
@@ -22,7 +21,7 @@ impl HashTypeSerde {
         D: Deserializer<'de>,
     {
         let data = String::deserialize(deserializer)?;
-        let result = string_to_hash_type(&data)
+        let result = HashType::from_str(&data)
             .map_err(|e| de::Error::custom(format!("decode public key string error: {}", e)))?;
         Ok(result)
     }
@@ -32,24 +31,6 @@ pub fn hash_type_to_string_with_0xprefix(hash: HashType) -> String {
     let mut be = [0u8; 32];
     hash.to_big_endian(&mut be);
     format!("0x{:x}", primitive_types::H256(be))
-}
-
-pub fn string_to_hash_type(s: &str) -> Result<HashType, FromHexError> {
-    let s = s.trim_start_matches("0x").trim_start_matches("0X");
-    let fixed_s = if s.len() < 64 {
-        let chars = vec!['0']
-            .into_iter()
-            .cycle()
-            .take(64 - s.len())
-            .chain(s.chars())
-            .collect::<String>();
-        chars
-    } else {
-        s.to_string()
-    };
-
-    let data = hex::decode(fixed_s)?;
-    Ok(HashType::from_big_endian(data.as_slice()))
 }
 
 #[cfg(test)]
@@ -98,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_hash() {
-        let hash = string_to_hash_type(
+        let hash = HashType::from_str(
             "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8",
         )
         .unwrap();
@@ -106,7 +87,7 @@ mod tests {
             &hash_type_to_string_with_0xprefix(hash)
                 == "0x021fcb6a25c866e3b4168cbdeea385e0481074e18ede1cc9596bfa3a582e0ac8"
         );
-        let hash2 = string_to_hash_type(
+        let hash2 = HashType::from_str(
             "0xe9e95824329ab49e22b0ed11f64a64f45e9736c508fc92341c83dc48defc3525",
         )
         .unwrap();

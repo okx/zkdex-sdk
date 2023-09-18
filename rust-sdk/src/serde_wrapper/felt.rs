@@ -121,7 +121,6 @@ impl LeBytesConvert<32> for PublicKeyType {
 
 #[cfg(test)]
 mod tests {
-    use crate::felt;
     use crate::felt::Felt;
     use crate::felt::LeBytesConvert;
     use primitive_types::U256;

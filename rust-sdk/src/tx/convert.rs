@@ -1,7 +1,6 @@
 use hex::FromHexError;
 
-use pairing_ce as ef;
-
+use pairing_ce::ff::{PrimeField, PrimeFieldDecodingError, PrimeFieldRepr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -13,15 +12,14 @@ pub enum ConversionError {
     #[error("Cannot parse value {0}")]
     ParsingError(std::io::Error),
     #[error("Cannot convert into prime field value: {0}")]
-    PrimeFieldDecodingError(#[from] ef::ff::PrimeFieldDecodingError),
+    PrimeFieldDecodingError(#[from] PrimeFieldDecodingError),
 }
 
 /// Extension trait denoting common conversion method for field elements.
-pub trait FeConvert: ef::ff::PrimeField {
+pub trait FeConvert: PrimeField {
     /// Converts the field element into a byte array.
     fn to_bytes(&self) -> Vec<u8> {
         let mut buf: Vec<u8> = Vec::with_capacity(32);
-        use ef::ff::{PrimeField, PrimeFieldRepr};
         self.into_repr().write_be(&mut buf).unwrap();
 
         buf
@@ -40,7 +38,6 @@ pub trait FeConvert: ef::ff::PrimeField {
                 expected_size: expected_input_size,
             });
         }
-        use ef::ff::{PrimeField, PrimeFieldRepr};
         repr.read_be(value).map_err(ConversionError::ParsingError)?;
         Self::from_repr(repr).map_err(From::from)
     }
@@ -48,7 +45,7 @@ pub trait FeConvert: ef::ff::PrimeField {
     /// Returns hex representation of the field element without `0x` prefix.
     fn to_hex(&self) -> String {
         let mut buf: Vec<u8> = Vec::with_capacity(32);
-        use ef::ff::{PrimeField, PrimeFieldRepr};
+
         self.into_repr().write_be(&mut buf).unwrap();
         hex::encode(&buf)
     }
@@ -70,11 +67,11 @@ pub trait FeConvert: ef::ff::PrimeField {
         // `repr.as_ref()` converts `repr` to a list of `u64`. Each element has 8 bytes,
         // so to obtain size in bytes, we multiply the array size with the size of `u64`.
         buf.resize(repr.as_ref().len() * 8, 0);
-        use ef::ff::{PrimeField, PrimeFieldRepr};
+
         repr.read_le(&buf[..])
             .map_err(ConversionError::ParsingError)?;
         Self::from_repr(repr).map_err(From::from)
     }
 }
 
-impl<T> FeConvert for T where T: ef::ff::PrimeField {}
+impl<T> FeConvert for T where T: PrimeField {}

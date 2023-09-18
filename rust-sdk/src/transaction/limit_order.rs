@@ -1,31 +1,23 @@
-use std::fmt::Display;
 use std::ops::ShlAssign;
-use std::str::FromStr;
 
-use franklin_crypto::eddsa::PublicKey;
-use franklin_crypto::jubjub::FixedGenerators;
+use anyhow::Result;
 use primitive_types::U256;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use wasm_bindgen::JsValue;
+use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
+use crate::serde_wrapper::I128SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
-pub use crate::serde_wrapper::*;
 use crate::transaction::types::{
     AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType,
 };
-use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
-use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{TxSignature, JUBJUB_PARAMS};
+use crate::tx::packed_public_key::private_key_from_string;
+use crate::tx::TxSignature;
 use crate::zkw::JubjubSignature;
-use anyhow::Result;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
-const TRANSFER_ORDER_TYPE: u64 = 4;
-const CONDITIONAL_TRANSFER_ORDER_TYPE: u64 = 5;
 
 #[derive(Clone, Debug, Deserialize, Serialize, Default)]
 pub struct LimitOrderRequest {
@@ -53,7 +45,7 @@ pub struct LimitOrderRequest {
     pub is_buying_synthetic: bool,
 }
 
-pub fn sign_limit_order(mut req: LimitOrderRequest, prvk: &str) -> Result<JubjubSignature> {
+pub fn sign_limit_order(req: LimitOrderRequest, prvk: &str) -> Result<JubjubSignature> {
     let hash = limit_order_hash(&req);
     let private_key = private_key_from_string(prvk)?;
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
@@ -147,59 +139,81 @@ pub fn limit_order_hash(limit_order: &LimitOrderRequest) -> HashType {
     exchange_limit_order.hash()
 }
 
-#[test]
-pub fn test_sign() {
-    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let private_key = private_key_from_string(prv_key).unwrap();
-    let pub_key = public_key_from_private(&private_key);
-    let expire = 2;
-    let pub_key = PublicKeyType::from(pub_key.clone());
-    println!("{}", serde_json::to_string(&pub_key.clone()).unwrap());
+#[cfg(test)]
+mod test {
+    use crate::common::OrderBase;
+    use crate::transaction::types::CollateralAssetId;
+    use crate::tx::limit_order::sign_limit_order;
+    use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::{private_key_from_string, public_key_from_private, LimitOrderRequest};
 
-    let req = LimitOrderRequest {
-        base: OrderBase {
-            nonce: 1,
-            public_key: pub_key,
-            expiration_timestamp: expire,
-        },
-        amount_synthetic: 3,
-        amount_collateral: 4,
-        amount_fee: 5,
-        asset_id_synthetic: 6,
-        asset_id_collateral: CollateralAssetId::from(7),
-        position_id: 8,
-        is_buying_synthetic: false,
-    };
+    #[test]
+    pub fn test_sign() {
+        let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let private_key = private_key_from_string(prv_key).unwrap();
+        let pub_key = public_key_from_private(&private_key);
+        let expire = 2;
+        let pub_key = PublicKeyType::from(pub_key.clone());
+        println!("{}", serde_json::to_string(&pub_key.clone()).unwrap());
 
-    let w = sign_limit_order(req, prv_key).unwrap();
-    println!("{:?}", w);
-}
+        let req = LimitOrderRequest {
+            base: OrderBase {
+                nonce: 1,
+                public_key: pub_key,
+                expiration_timestamp: expire,
+            },
+            amount_synthetic: 3,
+            amount_collateral: 4,
+            amount_fee: 5,
+            asset_id_synthetic: 6,
+            asset_id_collateral: CollateralAssetId::from(7),
+            position_id: 8,
+            is_buying_synthetic: false,
+        };
 
-#[test]
-pub fn test_sign2() {
-    let hash =
-        HashType::from_str("0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3")
+        let w = sign_limit_order(req, prv_key).unwrap();
+        println!("{:?}", w);
+    }
+
+    #[cfg(test)]
+    mod test {
+        use std::str::FromStr;
+
+        use franklin_crypto::alt_babyjubjub::FixedGenerators;
+        use franklin_crypto::eddsa::PublicKey;
+
+        use crate::felt::LeBytesConvert;
+        use crate::tx::{
+            private_key_from_string, HashType, LimitOrderRequest, TxSignature, JUBJUB_PARAMS,
+        };
+
+        #[test]
+        pub fn test_sign2() {
+            let hash = HashType::from_str(
+                "0x1ca9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3",
+            )
             .unwrap();
-    let hash1 =
-        HashType::from_str("0x15a9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3")
+            let hash1 = HashType::from_str(
+                "0x15a9d875223bda3a766a587f3b338fb372b2250e6add5cc3d6067f6ad5fce4f3",
+            )
             .unwrap();
-    println!("{:?}", hash.clone());
-    let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-    let private_key = private_key_from_string(prv_key).unwrap();
-    let (sig, pub_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
+            println!("{:?}", hash.clone());
+            let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+            let private_key = private_key_from_string(prv_key).unwrap();
+            let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
 
-    let pub_key = PublicKey::from_private(
-        &private_key,
-        FixedGenerators::SpendingKeyGenerator,
-        &JUBJUB_PARAMS,
-    );
-    assert!(sig.verify(&pub_key, hash.as_le_bytes()));
-    assert!(!sig.verify(&pub_key, hash1.as_le_bytes()));
-}
+            let pub_key = PublicKey::from_private(
+                &private_key,
+                FixedGenerators::SpendingKeyGenerator,
+                &JUBJUB_PARAMS,
+            );
+            assert!(sig.verify(&pub_key, hash.as_le_bytes()));
+            assert!(!sig.verify(&pub_key, hash1.as_le_bytes()));
+        }
 
-#[test]
-fn test_deserialize() {
-    let json = r#"
+        #[test]
+        fn test_deserialize() {
+            let json = r#"
     {
   "nonce": "1",
   "public_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
@@ -214,7 +228,9 @@ fn test_deserialize() {
     }
    "#;
 
-    let ret = serde_json::from_str::<LimitOrderRequest>(json);
-    assert!(ret.is_ok());
-    println!("{:?}", ret.unwrap())
+            let ret = serde_json::from_str::<LimitOrderRequest>(json);
+            assert!(ret.is_ok());
+            println!("{:?}", ret.unwrap())
+        }
+    }
 }

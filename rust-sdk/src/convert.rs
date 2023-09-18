@@ -6,6 +6,10 @@ use num::{
     BigUint,
 };
 
+pub fn trim_0x(s: &str) -> &str {
+    s.trim_start_matches("0x")
+}
+
 pub fn ratio_to_big_decimal(num: &Ratio<BigUint>, precision: usize) -> BigDecimal {
     let bigint = round_precision_raw_no_div(num, precision)
         .to_bigint()

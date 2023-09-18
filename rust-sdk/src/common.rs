@@ -1,23 +1,11 @@
-use std::str::FromStr;
-
-use num_bigint::BigInt;
-use once_cell::sync::Lazy;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use crate::tx::public_key_type::PublicKeyType;
 use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
-pub static NONCE_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(32));
-pub static VAULT_ID_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(64));
-pub static PADDING_LIMIT_ORDER_HASH: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(17));
-pub static PADDING_TRANSFER_HASH: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(81));
-pub static PADDING_WITHDRAWAL_HASH: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(49));
-pub static AMOUNT_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(64));
-pub static EXPIRATION_TIMESTAMP_UPPER_BOUND: Lazy<BigInt> = Lazy::new(|| BigInt::from(2).pow(32));
 pub const TRANSFER_ORDER_TYPE: u8 = 4;
 pub const CONDITIONAL_TRANSFER_ORDER_TYPE: u8 = 5;
-pub const POSITION_ID_UPPER_BOUND: u128 = 1 << 64;
 
 pub type TimestampType = i64;
 

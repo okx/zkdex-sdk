@@ -1,3 +1,4 @@
+use crate::trim_0x;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 pub struct I128SerdeAsRadix16Prefix0xString;
@@ -15,15 +16,15 @@ impl I128SerdeAsRadix16Prefix0xString {
         D: Deserializer<'de>,
     {
         let hex_str = String::deserialize(deserializer)?;
-        let hex_str = hex_str.trim_start_matches("0x").trim_start_matches("0X");
+        let hex_str = trim_0x(&hex_str);
         i128::from_str_radix(hex_str, 16)
             .map_err(|e| de::Error::custom(format!("decode hex string error: {}", e)))
     }
 }
 
-pub struct U128SerdeAsRadix16Prefix0xString;
+pub struct U128SerdeAsString;
 
-impl U128SerdeAsRadix16Prefix0xString {
+impl U128SerdeAsString {
     pub fn serialize<S>(val: &u128, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
