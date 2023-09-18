@@ -2,6 +2,7 @@ use crate::serde_wrapper::U128SerdeAsRadix16Prefix0xString;
 
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use std::ops::ShlAssign;
 use zkdex_utils::tx::sign::TxSignature;
@@ -10,7 +11,7 @@ use zkdex_wasm::perpetual::signed_oracle_price_hash;
 use zkdex_wasm::{
     AssetIdType, HashType, LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType,
 };
-use zkwasm_rust_sdk::JubjubSignature;
+
 
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 

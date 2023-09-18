@@ -40,7 +40,7 @@ use zkdex_wasm::perpetual::{
 use zkdex_wasm::{HashType, LeBytesConvert};
 
 pub use convert::*;
-use zkwasm_rust_sdk::{BabyJubjubPoint, JubjubSignature};
+
 
 use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
@@ -49,6 +49,7 @@ use crate::transaction::transfer::Transfer;
 use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::utils::set_panic_hook;
+use zkdex_utils::tx::baby_jubjub::*;
 
 mod common;
 mod constant;

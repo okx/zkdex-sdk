@@ -15,7 +15,7 @@ use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
 
 
-use zkwasm_rust_sdk::JubjubSignature;
+use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 
 use zkdex_wasm::perpetual::transfer_hash;
 

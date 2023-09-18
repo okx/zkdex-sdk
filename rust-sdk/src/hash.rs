@@ -1,11 +1,5 @@
 use primitive_types::{H256, U256};
 
-// pub use self::poseidon::poseidon_push;
-
-// pub use self::poseidon::poseidon_new;
-
-// pub use self::poseidon::poseidon_finalize;
-
 pub trait Hasher {
     fn update_single<T: ToHashable>(&mut self, _data: &T);
     fn update<T: ToHashable>(&mut self, data: &[T]) {

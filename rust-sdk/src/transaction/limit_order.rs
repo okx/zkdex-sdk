@@ -17,7 +17,7 @@ pub use crate::serde_wrapper::*;
 
 use anyhow::Result;
 use zkdex_wasm::{AmountType, AssetIdType, CollateralAssetId, LeBytesConvert, PositionIdType};
-use zkwasm_rust_sdk::JubjubSignature;
+use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
 const TRANSFER_ORDER_TYPE: u64 = 4;

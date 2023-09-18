@@ -18,7 +18,7 @@ use anyhow::Result;
 use zkdex_wasm::perpetual::{withdrawal_hash, Withdrawal};
 use zkdex_wasm::PublicKeyType;
 use zkdex_wasm::{CollateralAssetId, LeBytesConvert};
-use zkwasm_rust_sdk::JubjubSignature;
+use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 
 pub type AmountType = u64;
 pub type PositionIdType = u64;

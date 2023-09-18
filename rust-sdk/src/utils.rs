@@ -20,8 +20,9 @@ use primitive_types::U256;
 use zkdex_utils::tx::packed_public_key::u256_to_fr;
 use zkdex_utils::tx::packed_signature::{signature_from_rs, PackedSignature, SignatureOriginal};
 use zkdex_utils::tx::{le_to_u256, JUBJUB_PARAMS};
+use zkdex_utils::tx::baby_jubjub::*;
 use zkdex_wasm::HashType;
-use zkwasm_rust_sdk::JubjubSignature;
+
 
 use crate::tx::u256_to_h256;
 use crate::{Engine, Fr};
