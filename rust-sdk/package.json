@@ -1,6 +1,6 @@
 {
-	"name": "@okbchain/zkdex-sdk",
-	"version": "0.6.2",
+	"name": "@okx/zkdex-sdk",
+	"version": "0.0.1",
 	"browser": "dist/zkdex-web.js",
 	"main": "dist/zkdex-node.js",
 	"files": [
