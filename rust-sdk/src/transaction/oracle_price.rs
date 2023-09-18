@@ -1,15 +1,11 @@
 use crate::serde_wrapper::U128SerdeAsRadix16Prefix0xString;
-
-use primitive_types::U256;
 use serde::{Deserialize, Serialize};
 use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
-use std::ops::ShlAssign;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::I64SerdeAsString;
 use zkdex_wasm::perpetual::signed_oracle_price_hash;
-use zkdex_wasm::{
-    AssetIdType, HashType, LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType,
+use zkdex_wasm::{LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType,
 };
 
 
@@ -52,7 +48,7 @@ pub fn sign_signed_oracle_price(
 ) -> Result<JubjubSignature> {
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk)?;
-    let (signature, public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
+    let (signature, _public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(signature)
 }
 

@@ -1,19 +1,11 @@
-use std::convert::TryFrom;
 
-use primitive_types::{H256, U256};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use serde::{Deserialize, Serialize};
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::U64SerdeAsString;
 
 use crate::common::OrderBase;
-use crate::constant::{
-    AMOUNT_UPPER_BOUND_U256, EXPIRATION_TIMESTAMP_UPPER_BOUND_U256, NONCE_UPPER_BOUND_U256,
-    POSITION_ID_UPPER_BOUND_U256,
-};
-use crate::privkey_to_pubkey_internal;
-
-use crate::types::h256_to_u256;
 use anyhow::Result;
 use zkdex_wasm::perpetual::{withdrawal_hash, Withdrawal};
 use zkdex_wasm::PublicKeyType;

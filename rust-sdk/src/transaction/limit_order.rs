@@ -1,28 +1,10 @@
-use std::fmt::Display;
-use std::ops::ShlAssign;
-use std::str::FromStr;
-
-use franklin_crypto::eddsa::PublicKey;
-use franklin_crypto::jubjub::FixedGenerators;
-use primitive_types::U256;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use wasm_bindgen::JsValue;
+use serde::{Deserialize, Serialize};
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::{I128SerdeAsRadix16Prefix0xString, U64SerdeAsString};
-
-pub use crate::serde_wrapper::*;
-
-
-
 use anyhow::Result;
 use zkdex_wasm::{AmountType, AssetIdType, CollateralAssetId, LeBytesConvert, PositionIdType};
 use zkdex_utils::tx::baby_jubjub::JubjubSignature;
-
-const LIMIT_ORDER_WITH_FEES: u64 = 3;
-const TRANSFER_ORDER_TYPE: u64 = 4;
-const CONDITIONAL_TRANSFER_ORDER_TYPE: u64 = 5;
-
 use crate::common::OrderBase;
 use zkdex_utils::u256_serde::U256SerdeAsRadix16Prefix0xString;
 use zkdex_wasm::perpetual::{limit_order_hash, LimitOrder};
@@ -52,7 +34,7 @@ pub struct LimitOrderRequest {
     pub is_buying_synthetic: bool,
 }
 
-pub fn sign_limit_order(mut req: LimitOrder, prvk: &str) -> Result<JubjubSignature> {
+pub fn sign_limit_order(req: LimitOrder, prvk: &str) -> Result<JubjubSignature> {
     let hash = limit_order_hash(&req);
     let private_key = private_key_from_string(prvk)?;
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());

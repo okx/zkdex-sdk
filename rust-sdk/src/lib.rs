@@ -2,7 +2,7 @@
 extern crate core;
 extern crate test as other_test;
 
-use std::convert::{TryFrom, TryInto};
+use std::convert::{TryFrom};
 use std::str::FromStr;
 
 use anyhow::{Error, Result};
@@ -11,33 +11,26 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PrivateKey, PublicKey, Signature as EddsaSignature},
+    eddsa::{PrivateKey, PublicKey},
     jubjub::JubjubEngine,
 };
-use hex::ToHex;
-use jni::objects::*;
-use num_traits::Num;
-use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tx::oracle_price::SignedOraclePriceRequest;
-use tx::utils::{
-    hash_type_to_string_with_0xprefix, jubjub_signature_from_str,
-    jubjub_signature_to_packed_signature,
-};
+use transaction::oracle_price::SignedOraclePriceRequest;
+use utils::{jubjub_signature_from_str, jubjub_signature_to_packed_signature};
 use wasm_bindgen::prelude::*;
 use zkdex_utils::tx::convert::FeConvert;
 use zkdex_utils::tx::packed_public_key::{
     convert_to_pubkey, private_key_from_string, public_key_from_private, PackedPublicKey,
 };
-use zkdex_utils::tx::packed_signature::{signature_from_rs, PackedSignature};
 use zkdex_utils::tx::sign::TxSignature;
-use zkdex_wasm::exchange::{mock_signature, transfer_hash, OrderBase};
+use zkdex_wasm::exchange::{mock_signature, OrderBase};
 use zkdex_wasm::perpetual::{
     limit_order_hash, signed_oracle_price_hash, withdrawal_hash, LimitOrder, SignedOraclePrice,
     Withdrawal,
 };
 use zkdex_wasm::{HashType, LeBytesConvert};
+use crate::utils::hash_type_to_string_with_0xprefix;
 
 pub use convert::*;
 
@@ -46,33 +39,19 @@ use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::transfer::Transfer;
 
-use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
+use crate::transaction::withdraw::{WithdrawRequest};
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::utils::set_panic_hook;
 use zkdex_utils::tx::baby_jubjub::*;
 
 mod common;
-mod constant;
 mod convert;
-mod fr;
-
-mod models;
-
-mod types;
 mod utils;
 
-pub mod env_tools;
-pub mod format;
-mod hash;
 pub mod java_bridge;
 pub mod javascript_bridge;
 pub mod serde_wrapper;
 pub mod transaction;
-mod tx;
-mod zkw;
-
-const PACKED_POINT_SIZE: usize = 32;
-const PACKED_SIGNATURE_SIZE: usize = 64;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
@@ -185,43 +164,43 @@ pub fn hash_transfer(json: &str) -> Result<String> {
 }
 
 pub fn sign_withdraw(json: &str, private_key: &str) -> Result<JubjubSignature> {
-    let withdrawReq: WithdrawRequest = serde_json::from_str(json)?;
+    let withdraw_req: WithdrawRequest = serde_json::from_str(json)?;
     let withdraw = Withdrawal {
         base: OrderBase {
-            nonce: withdrawReq.base.nonce,
-            public_key: withdrawReq.base.public_key,
-            expiration_timestamp: withdrawReq.base.expiration_timestamp,
+            nonce: withdraw_req.base.nonce,
+            public_key: withdraw_req.base.public_key,
+            expiration_timestamp: withdraw_req.base.expiration_timestamp,
             signature: mock_signature(),
         },
-        position_id: withdrawReq.position_id,
-        amount: withdrawReq.amount,
-        owner_key: withdrawReq.owner_key,
+        position_id: withdraw_req.position_id,
+        amount: withdraw_req.amount,
+        owner_key: withdraw_req.owner_key,
     };
 
     Ok(withdraw::sign_withdraw(
         withdraw,
-        &withdrawReq.asset_id,
+        &withdraw_req.asset_id,
         private_key,
     )?)
 }
 
 pub fn hash_withdraw(json: &str) -> Result<String> {
-    let withdrawReq: WithdrawRequest = serde_json::from_str(json)?;
+    let withdraw_req: WithdrawRequest = serde_json::from_str(json)?;
     let withdraw = Withdrawal {
         base: OrderBase {
-            nonce: withdrawReq.base.nonce,
-            public_key: withdrawReq.base.public_key,
-            expiration_timestamp: withdrawReq.base.expiration_timestamp,
+            nonce: withdraw_req.base.nonce,
+            public_key: withdraw_req.base.public_key,
+            expiration_timestamp: withdraw_req.base.expiration_timestamp,
             signature: mock_signature(),
         },
-        position_id: withdrawReq.position_id,
-        amount: withdrawReq.amount,
-        owner_key: withdrawReq.owner_key,
+        position_id: withdraw_req.position_id,
+        amount: withdraw_req.amount,
+        owner_key: withdraw_req.owner_key,
     };
 
     Ok(hash_type_to_string_with_0xprefix(withdrawal_hash(
         &withdraw,
-        &withdrawReq.asset_id,
+        &withdraw_req.asset_id,
     )))
 }
 
@@ -246,7 +225,6 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature
 }
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
-    let req: LimitOrderRequest = serde_json::from_str(json)?;
     let req: LimitOrderRequest = serde_json::from_str(json)?;
     let order = LimitOrder {
         base: OrderBase {
@@ -365,7 +343,7 @@ pub fn verify_signature(
     sig_r: &str,
     sig_s: &str,
     pub_key_x: &str,
-    pub_key_y: &str,
+    _pub_key_y: &str,
     msg: &str,
 ) -> Result<bool> {
     let sig = jubjub_signature_from_str(sig_r, sig_s);
@@ -410,7 +388,7 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let (sig, packed_pk) = TxSignature::sign_msg_packed(&private_key, msg.as_le_bytes());
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
-    let (pk_x, pk_y) = pk.0.into_xy();
+    let (pk_x, _) = pk.0.into_xy();
     let (x, y) = sig.signature.0.r.into_xy();
 
     Ok(L1Signature {

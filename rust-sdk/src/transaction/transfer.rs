@@ -1,16 +1,12 @@
-use std::ops::ShlAssign;
-use std::str::FromStr;
-
 use anyhow::Result;
-use primitive_types::U256;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use serde::{Deserialize, Serialize};
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::U64SerdeAsString;
 use zkdex_wasm::{CollateralAssetId, LeBytesConvert, PositionIdType, PublicKeyType};
 
 use crate::common::OrderBase;
-use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
 
