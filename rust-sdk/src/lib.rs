@@ -5,19 +5,23 @@ extern crate test as other_test;
 use std::convert::TryFrom;
 use std::str::FromStr;
 
+use crate::utils::hash_type_to_string_with_0xprefix;
 use anyhow::{Error, Result};
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PrivateKey, PublicKey},
+    eddsa::{PublicKey},
     jubjub::JubjubEngine,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use transaction::oracle_price::SignedOraclePriceRequest;
-use utils::{jubjub_signature_from_str, jubjub_signature_to_packed_signature, sign_msg, verify_sig};
+use transaction::transfer::TransferRequest;
+use utils::{
+    jubjub_signature_from_str, jubjub_signature_to_packed_signature, sign_msg, verify_sig,
+};
 use wasm_bindgen::prelude::*;
 use zkdex_utils::trim_0x;
 use zkdex_utils::tx::convert::FeConvert;
@@ -31,13 +35,9 @@ use zkdex_wasm::perpetual::{
     Withdrawal,
 };
 use zkdex_wasm::{HashType, LeBytesConvert};
-use crate::utils::hash_type_to_string_with_0xprefix;
-
-
 
 use crate::transaction::limit_order::LimitOrderRequest;
-use crate::transaction::liquidate::Liquidate;
-use crate::transaction::transfer::Transfer;
+use crate::transaction::liquidate::LiquidateRequest;
 
 use crate::transaction::withdraw::WithdrawRequest;
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
@@ -106,44 +106,15 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     }
 }
 
-fn read_signing_key(private_key: &[u8]) -> Result<PrivateKey<Engine>, JsValue> {
-    let mut fs_repr = FsRepr::default();
-    fs_repr
-        .read_be(private_key)
-        .map_err(|_| JsValue::from_str("couldn't read private key repr"))?;
-    Ok(PrivateKey::<Engine>(
-        Fs::from_repr(fs_repr).expect("couldn't read private key from repr"),
-    ))
-}
 
-pub fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey<Engine>, JsValue> {
-    let p_g = FixedGenerators::SpendingKeyGenerator;
-
-    let sk = read_signing_key(private_key)?;
-
-    Ok(JUBJUB_PARAMS.with(|params| PublicKey::from_private(&sk, p_g, params)))
-}
 
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
-    let req: Transfer = serde_json::from_str(json).unwrap();
-    let transfer = zkdex_wasm::perpetual::transactions::Transfer {
-        base: OrderBase {
-            nonce: req.base.nonce,
-            public_key: req.base.public_key,
-            expiration_timestamp: req.base.expiration_timestamp,
-            signature: mock_signature(),
-        },
-        sender_position_id: req.sender_position_id,
-        receiver_public_key: req.receiver_public_key,
-        receiver_position_id: req.receiver_position_id,
-        amount: req.amount,
-        asset_id: req.asset_id,
-    };
-    Ok(transfer::sign_transfer(transfer, private_key)?)
+    let req: TransferRequest = serde_json::from_str(json)?;
+    Ok(transfer::sign_transfer(req, private_key)?)
 }
 
 pub fn hash_transfer(json: &str) -> Result<String> {
-    let req: Transfer = serde_json::from_str(json).unwrap();
+    let req: TransferRequest = serde_json::from_str(json)?;
     let transfer = zkdex_wasm::perpetual::transactions::Transfer {
         base: OrderBase {
             nonce: req.base.nonce,
@@ -157,6 +128,7 @@ pub fn hash_transfer(json: &str) -> Result<String> {
         amount: req.amount,
         asset_id: req.asset_id,
     };
+
     Ok(hash_type_to_string_with_0xprefix(
         zkdex_wasm::perpetual::transfer_hash(&transfer, 0),
     ))
@@ -164,23 +136,7 @@ pub fn hash_transfer(json: &str) -> Result<String> {
 
 pub fn sign_withdraw(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let withdraw_req: WithdrawRequest = serde_json::from_str(json)?;
-    let withdraw = Withdrawal {
-        base: OrderBase {
-            nonce: withdraw_req.base.nonce,
-            public_key: withdraw_req.base.public_key,
-            expiration_timestamp: withdraw_req.base.expiration_timestamp,
-            signature: mock_signature(),
-        },
-        position_id: withdraw_req.position_id,
-        amount: withdraw_req.amount,
-        owner_key: withdraw_req.owner_key,
-    };
-
-    Ok(withdraw::sign_withdraw(
-        withdraw,
-        &withdraw_req.asset_id,
-        private_key,
-    )?)
+    Ok(withdraw::sign_withdraw(withdraw_req, private_key)?)
 }
 
 pub fn hash_withdraw(json: &str) -> Result<String> {
@@ -205,22 +161,7 @@ pub fn hash_withdraw(json: &str) -> Result<String> {
 
 pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
-    let order = LimitOrder {
-        base: OrderBase {
-            nonce: req.base.nonce,
-            public_key: req.base.public_key,
-            expiration_timestamp: req.base.expiration_timestamp,
-            signature: mock_signature(),
-        },
-        amount_synthetic: req.amount_synthetic,
-        amount_collateral: req.amount_collateral,
-        amount_fee: req.amount_fee,
-        asset_id_synthetic: req.asset_id_synthetic,
-        is_buying_synthetic: req.is_buying_synthetic,
-        asset_id_collateral: req.asset_id_collateral,
-        position_id: req.position_id,
-    };
-    Ok(limit_order::sign_limit_order(order, private_key)?)
+    Ok(limit_order::sign_limit_order(req, private_key)?)
 }
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
@@ -244,28 +185,15 @@ pub fn hash_limit_order(json: &str) -> Result<String> {
 }
 
 pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> {
-    let req: Liquidate = serde_json::from_str(json)?;
-    let order = LimitOrder {
-        base: OrderBase {
-            nonce: req.liquidator_order.base.nonce,
-            public_key: req.liquidator_order.base.public_key,
-            expiration_timestamp: req.liquidator_order.base.expiration_timestamp,
-            signature: mock_signature(),
-        },
-        amount_synthetic: req.liquidator_order.amount_synthetic,
-        amount_collateral: req.liquidator_order.amount_collateral,
-        amount_fee: req.liquidator_order.amount_fee,
-        asset_id_synthetic: req.liquidator_order.asset_id_synthetic,
-        position_id: req.liquidator_order.position_id,
-        is_buying_synthetic: req.liquidator_order.is_buying_synthetic,
-        asset_id_collateral: req.liquidator_order.asset_id_collateral,
-    };
-
-    Ok(limit_order::sign_limit_order(order, private_key)?)
+    let req: LiquidateRequest = serde_json::from_str(json)?;
+    Ok(limit_order::sign_limit_order(
+        req.liquidator_order,
+        private_key,
+    )?)
 }
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
-    let req: Liquidate = serde_json::from_str(json)?;
+    let req: LiquidateRequest = serde_json::from_str(json)?;
     let order = LimitOrder {
         base: OrderBase {
             nonce: req.liquidator_order.base.nonce,
@@ -286,14 +214,7 @@ pub fn hash_liquidate(json: &str) -> Result<String> {
 
 pub fn sign_signed_oracle_price(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let req: SignedOraclePriceRequest = serde_json::from_str(json)?;
-    let tx = SignedOraclePrice {
-        signer_key: req.signer_key,
-        external_price: req.external_price,
-        timestamp: req.timestamp,
-        signed_asset_id: req.signed_asset_id,
-        signature: mock_signature(),
-    };
-    Ok(oracle_price::sign_signed_oracle_price(tx, private_key)?)
+    Ok(oracle_price::sign_signed_oracle_price(req, private_key)?)
 }
 
 pub fn hash_signed_oracle_price(json: &str) -> Result<String> {
@@ -317,8 +238,7 @@ pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
 }
 
 pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
-   
-    let pub_key =  trim_0x(pub_key);
+    let pub_key = trim_0x(pub_key);
     let bytes = hex::decode(pub_key)?;
     let packed_pk = PackedPublicKey::deserialize_packed(bytes.as_slice())?;
 
@@ -347,7 +267,7 @@ pub fn verify_signature(
     msg: &str,
 ) -> Result<bool> {
     let sig = jubjub_signature_from_str(sig_r, sig_s);
-    verify_jubjub_signature(sig,pub_key_x, msg)
+    verify_jubjub_signature(sig, pub_key_x, msg)
 }
 
 pub fn verify_jubjub_signature(sig: JubjubSignature, pub_key: &str, msg: &str) -> Result<bool> {
@@ -356,15 +276,15 @@ pub fn verify_jubjub_signature(sig: JubjubSignature, pub_key: &str, msg: &str) -
     let jubjub_pk: BabyJubjubPoint = packed_pk.into();
     let pk = convert_to_pubkey(&jubjub_pk.x, &jubjub_pk.y)?;
     let msg = HashType::from_str(msg)?;
-    Ok(verify_sig(sig,&pk, msg.as_le_bytes()))
+    Ok(verify_sig(sig, &pk, msg.as_le_bytes()))
 }
 
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
-    let x = x.trim_start_matches("0x").trim_start_matches("0X");
-    let y = y.trim_start_matches("0x").trim_start_matches("0X");
+    let x = trim_0x(x);
+    let y = trim_0x(y);
     let (x1, y1) = pub_key_to_xy(x)?;
-    let x1 = x1.trim_start_matches("0x").trim_start_matches("0X");
-    let y1 = y1.trim_start_matches("0x").trim_start_matches("0X");
+    let x1 = trim_0x(&x1);
+    let y1 = trim_0x(&y1);
     Ok(x1 == x && y1 == y)
 }
 
@@ -413,10 +333,10 @@ mod test {
     use other_test::Bencher;
     use pairing_ce::bn256::Fr;
     use zkdex_utils::tx::{
+        baby_jubjub::JubjubSignature,
         convert::FeConvert,
-        packed_public_key::{private_key_from_string, public_key_from_private}, baby_jubjub::JubjubSignature,
+        packed_public_key::{private_key_from_string, public_key_from_private},
     };
-    
 
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
@@ -928,7 +848,7 @@ mod test {
         }
         "#;
         let pri1 = "01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
-        
+
         let json2 = r#"
         {
         "signer_key": "0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355",
@@ -938,7 +858,7 @@ mod test {
         }
         "#;
         let pri2 = "0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
-       
+
         let json3 = r#"
         {
         "signer_key": "0x15d144b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4",
@@ -948,13 +868,12 @@ mod test {
         }
         "#;
         let pri3 = "060a45bcd72c9e3c82bc1c57f63ad15b25f56bb13ce01d15fd4ab3f8f2de35bb";
-        
-        
+
         let json4 = r#"
         {"external_price":"6462618000000000000","signed_asset_id":"0x534f4c555344434f4b580000000000005374437277","signer_key":"0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355","timestamp":"1694150131"}
         "#;
-        
-        let json_arr = vec![json1, json2, json3,json4];
+
+        let json_arr = vec![json1, json2, json3, json4];
         let pri_arr = vec![pri1, pri2, pri3, pri3];
         for (idx, pri) in pri_arr.iter().enumerate() {
             let pri_key = private_key_from_string(pri).unwrap();

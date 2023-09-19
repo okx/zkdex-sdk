@@ -17,7 +17,6 @@ impl Default for OrderBase {
             nonce: 0,
             public_key: Default::default(),
             expiration_timestamp: 0,
-            // signature: None,
         }
     }
 }

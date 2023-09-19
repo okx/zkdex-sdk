@@ -5,7 +5,7 @@ use zkdex_utils::U64SerdeAsString;
 use zkdex_wasm::{AmountType, PositionIdType};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Liquidate {
+pub struct LiquidateRequest {
     #[serde(rename = "liquidator_order")]
     pub liquidator_order: LimitOrderRequest,
 
@@ -43,6 +43,6 @@ fn test_deserialize() {
 }
     "#;
 
-    let ret = serde_json::from_str::<Liquidate>(json);
+    let ret = serde_json::from_str::<LiquidateRequest>(json);
     assert!(ret.is_ok());
 }

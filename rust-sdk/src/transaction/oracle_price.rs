@@ -4,10 +4,9 @@ use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::I64SerdeAsString;
+use zkdex_wasm::exchange::mock_signature;
 use zkdex_wasm::perpetual::signed_oracle_price_hash;
-use zkdex_wasm::{LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType,
-};
-
+use zkdex_wasm::{LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType};
 
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
@@ -43,18 +42,31 @@ pub struct TimeBounds {
 }
 
 pub fn sign_signed_oracle_price(
-    price: zkdex_wasm::perpetual::SignedOraclePrice,
+    req: SignedOraclePriceRequest,
     prvk: &str,
 ) -> Result<JubjubSignature> {
+    let price = zkdex_wasm::perpetual::SignedOraclePrice {
+        signer_key: req.signer_key,
+        external_price: req.external_price,
+        timestamp: req.timestamp,
+        signed_asset_id: req.signed_asset_id,
+        signature: mock_signature(),
+    };
     let hash = signed_oracle_price_hash(&price);
     let private_key = private_key_from_string(prvk)?;
     let (signature, _public_key) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(signature)
 }
 
-#[test]
-fn test_deserialize() {
-    let json = r#"
+#[cfg(test)]
+mod test {
+    use zkdex_wasm::SignedAssetId;
+    use crate::{transaction::oracle_price::sign_signed_oracle_price};
+    use super::SignedOraclePriceRequest;
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"
     {
     "signer_key": "0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
     "external_price": "100",
@@ -63,21 +75,18 @@ fn test_deserialize() {
     }
     "#;
 
-    let ret = serde_json::from_str::<SignedOraclePriceRequest>(json);
-    assert!(ret.is_ok());
-    println!("{:?}", ret);
-}
+        let ret = serde_json::from_str::<SignedOraclePriceRequest>(json);
+        assert!(ret.is_ok());
+    }
 
-// #[test]
-// fn test_oracle() {
-//     let pri = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
-//     let mut data = SignedOraclePrice::default();
-//     data.external_price = 100000;
-//     data.timestamp = 18778987;
-//     data.signed_asset_id = SignedAssetId::from(100);
-//     let pri_key = private_key_from_string(pri).unwrap();
-//     let sig = sign_signed_oracle_price(data, pri).unwrap();
-//     let json = serde_json::to_string(&sig).unwrap();
-//     println!("{:#?}", json);
-//     println!("{:#?}", sig);
-// }
+    #[test]
+    fn test_oracle() {
+        let pri = "0x05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
+        let mut data = SignedOraclePriceRequest::default();
+        data.external_price = 100000;
+        data.timestamp = 18778987;
+        data.signed_asset_id = SignedAssetId::from(100);
+        let sig = sign_signed_oracle_price(data, pri);
+        assert!(sig.is_ok())
+    }
+}
