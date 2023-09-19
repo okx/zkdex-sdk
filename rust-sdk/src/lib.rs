@@ -2,7 +2,7 @@
 extern crate core;
 extern crate test as other_test;
 
-use std::convert::{TryFrom};
+use std::convert::TryFrom;
 use std::str::FromStr;
 
 use anyhow::{Error, Result};
@@ -412,7 +412,6 @@ struct Signature<'a> {
 mod test {
     use other_test::Bencher;
     use pairing_ce::bn256::Fr;
-    use pairing_ce::ff::PrimeField;
     use zkdex_utils::tx::{
         convert::FeConvert,
         packed_public_key::{private_key_from_string, public_key_from_private}, baby_jubjub::JubjubSignature,
@@ -458,10 +457,10 @@ mod test {
         let sigr = "0x2e39e39381ac5e962650072a893b99716fc0b3fda124f";
         let sigs = "0x37fd915bf958893ed35132a91b98fc4fcd7821c9fe784057bbc85d8fc5e7d4f";
         let msg = "0x08a09b19adaa35815065dffcc4b5e0ee75f54660eb474c5932929b96c0ff15c9";
-        let err_msg = "0x01817ed5bea1d0082c0fbe18edb06c15f52e2bb98c2b92f36d1a5ab082f1a520";
         let pub_x = "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
         let pub_y = "0x09e3c9c66770d2f49401e83b0d07e20f74a311d354505aea32f900b9d533d5f7";
         let ret = verify_signature(sigr, sigs, pub_x, pub_y, msg).unwrap();
+        assert!(ret)
     }
 
     #[test]
@@ -929,8 +928,7 @@ mod test {
         }
         "#;
         let pri1 = "01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
-        let sig1 = sign_signed_oracle_price(json1, pri1).unwrap();
-        let hash1 = hash_signed_oracle_price(json1).unwrap();
+        
         let json2 = r#"
         {
         "signer_key": "0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355",
@@ -940,9 +938,7 @@ mod test {
         }
         "#;
         let pri2 = "0376204fa0b554ee3d8a03c6ccdb73f7b98d1965fbeaa3a9f88723669a23893f";
-        let sig2 = sign_signed_oracle_price(json2, pri2).unwrap();
-        println!("sig2: {}", jubjub_to_json(&sig2));
-
+       
         let json3 = r#"
         {
         "signer_key": "0x15d144b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4",
@@ -952,23 +948,23 @@ mod test {
         }
         "#;
         let pri3 = "060a45bcd72c9e3c82bc1c57f63ad15b25f56bb13ce01d15fd4ab3f8f2de35bb";
-        let sig3 = sign_signed_oracle_price(json3, pri3).unwrap();
-
-        let pri_arr = vec![pri1, pri2, pri3];
-        for x in pri_arr {
-            let pri = private_key_from_string(x).unwrap();
-            let pk = public_key_from_private(&pri);
-            println!("{}", pk.to_string())
-        }
-
+        
+        
         let json4 = r#"
         {"external_price":"6462618000000000000","signed_asset_id":"0x534f4c555344434f4b580000000000005374437277","signer_key":"0x8af4f453400cf97cd47914af9179da6586ea06417ac4dec417f9f2b795719355","timestamp":"1694150131"}
         "#;
-        let sig4 = sign_signed_oracle_price(json4, pri2).unwrap();
-        verify_valid_sig(&sig1);
-        verify_valid_sig(&sig2);
-        verify_valid_sig(&sig3);
-        verify_valid_sig(&sig4);
+        
+        let json_arr = vec![json1, json2, json3,json4];
+        let pri_arr = vec![pri1, pri2, pri3, pri3];
+        for (idx, pri) in pri_arr.iter().enumerate() {
+            let pri_key = private_key_from_string(pri).unwrap();
+            let pk = public_key_from_private(&pri_key);
+            let sig = sign_signed_oracle_price(json_arr[idx], pri).unwrap();
+            verify_valid_sig(&sig);
+            let hash = hash_signed_oracle_price(json_arr[idx]).unwrap();
+            let ret = verify_jubjub_signature(sig, pk.to_string().as_str(), &hash).unwrap();
+            assert!(ret)
+        }
     }
 
     #[test]
@@ -1019,9 +1015,9 @@ mod test {
         "signed_asset_id": "0x425443555344434f4b580000000000005374437277"
         }
         "#;
-        let pri1 = "01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
-        let sig1 = sign_signed_oracle_price(json1, pri1).unwrap();
+        let sig1 = sign_signed_oracle_price(json1, PRI_KEY).unwrap();
         let hash1 = hash_signed_oracle_price(json1).unwrap();
+        assert!(verify_jubjub_signature(sig1, PUB_KEY, &hash1).unwrap());
     }
 
     #[test]
@@ -1034,6 +1030,7 @@ mod test {
         "#;
         let sig = sign_signed_oracle_price(json, PRI_KEY).unwrap();
         let hash = hash_signed_oracle_price(json).unwrap();
+        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash).unwrap());
     }
 
     #[bench]
@@ -1068,8 +1065,8 @@ mod test {
     #[test]
     fn test_private_key_from_seed() {
         let seed = "hello world good life 996 very nice";
-        let priKey = private_key_from_seed(seed.as_bytes()).unwrap();
-        assert!(priKey.len() == 66);
+        let pri_key = private_key_from_seed(seed.as_bytes()).unwrap();
+        assert!(pri_key.len() == 66);
     }
 
     #[test]
