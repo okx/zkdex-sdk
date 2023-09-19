@@ -1,8 +1,8 @@
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::alt_babyjubjub::AltJubjubBn256;
-use franklin_crypto::eddsa::Signature;
+use franklin_crypto::eddsa::{Signature, PublicKey, PrivateKey};
 use franklin_crypto::jubjub::edwards::Point;
-use franklin_crypto::jubjub::Unknown;
+use franklin_crypto::jubjub::{Unknown, FixedGenerators};
 use franklin_crypto::{
     bellman::{pairing::ff::PrimeField},
 };
@@ -10,8 +10,10 @@ use franklin_crypto::{
 use pairing_ce::bn256::Bn256;
 use pairing_ce::ff::PrimeFieldRepr;
 use primitive_types::U256;
-use zkdex_utils::tx::packed_public_key::u256_to_fr;
+use zkdex_utils::trim_0x;
+use zkdex_utils::tx::packed_public_key::{u256_to_fr, PackedPublicKey};
 use zkdex_utils::tx::packed_signature::{signature_from_rs, PackedSignature, SignatureOriginal};
+use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::tx::{le_to_u256, JUBJUB_PARAMS};
 use zkdex_utils::tx::baby_jubjub::*;
 use zkdex_wasm::HashType;
@@ -27,6 +29,17 @@ pub fn set_panic_hook() {
     // https://github.com/rustwasm/console_error_panic_hook#readme
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
+}
+
+pub fn sign_msg(pk: &PrivateKey<Bn256>, msg: &[u8]) -> (TxSignature, PackedPublicKey) {
+    let ret = TxSignature::sign_raw(pk, msg);
+    let pub_key = ret.pub_key.clone();
+    (ret, pub_key)
+}
+
+pub fn verify_sig(sig: PackedSignature,pk: &PublicKey<Bn256>, msg: &[u8]) -> bool{
+    let p_g = FixedGenerators::SpendingKeyGenerator;
+    pk.verify_for_raw_message(msg, &sig.0, p_g, &JUBJUB_PARAMS, msg.len())
 }
 
 pub fn hash_type_to_string_with_0xprefix(hash: HashType) -> String {
@@ -59,10 +72,10 @@ pub fn jubjub_signature_to_packed_signature(value: JubjubSignature) -> PackedSig
 }
 
 pub fn jubjub_signature_from_str(r: &str, s: &str) -> JubjubSignature {
-    let r_str = r.trim_start_matches("0x").trim_start_matches("0X");
+    let r_str = trim_0x(r);
     let r = U256::from_str_radix(r_str, 16).unwrap();
 
-    let s_str = s.trim_start_matches("0x").trim_start_matches("0X");
+    let s_str = trim_0x(s);
     let s = U256::from_str_radix(s_str, 16).unwrap();
     signature_from_rs(&r, &s)
 }
