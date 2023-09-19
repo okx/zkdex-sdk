@@ -1,6 +1,10 @@
 ## Functions
 
 <dl>
+<dt><a href="#zkdex_init">zkdex_init()</a></dt>
+<dd><p>This method initializes params for current thread, otherwise they will be initialized when signing
+first message.</p>
+</dd>
 <dt><a href="#sign_transfer">sign_transfer(json, private_key)</a> ⇒ <code>string</code></dt>
 <dd><p>sign_transfer, sign a transfer transaction.</p>
 </dd>
@@ -52,12 +56,17 @@
 <dt><a href="#public_key_to_xy">public_key_to_xy(pub_key)</a> ⇒ <code>string</code></dt>
 <dd><p>public_key_to_xy, convert public key to xy.</p>
 </dd>
-<dt><a href="#zkdex_init">zkdex_init()</a></dt>
-<dd><p>This method initializes params for current thread, otherwise they will be initialized when signing
-first message.</p>
-</dd>
+<dt><a href="#zkmain">zkmain()</a></dt>
+<dd></dd>
 </dl>
 
+<a name="zkdex_init"></a>
+
+## zkdex\_init()
+This method initializes params for current thread, otherwise they will be initialized when signing
+first message.
+
+**Kind**: global function  
 <a name="sign_transfer"></a>
 
 ## sign\_transfer(json, private_key) ⇒ <code>string</code>
@@ -274,10 +283,7 @@ public_key_to_xy, convert public key to xy.
 | --- | --- | --- |
 | pub_key | <code>string</code> | public key hex with 0x prefix. |
 
-<a name="zkdex_init"></a>
+<a name="zkmain"></a>
 
-## zkdex\_init()
-This method initializes params for current thread, otherwise they will be initialized when signing
-first message.
-
+## zkmain()
 **Kind**: global function  

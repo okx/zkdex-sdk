@@ -49,6 +49,13 @@ function takeObject(idx) {
     dropObject(idx);
     return ret;
 }
+/**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+module.exports.zkdex_init = function() {
+    wasm.zkdex_init();
+};
 
 let WASM_VECTOR_LEN = 0;
 
@@ -676,11 +683,9 @@ module.exports.public_key_to_xy = function(pub_key) {
 };
 
 /**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
 */
-module.exports.zkdex_init = function() {
-    wasm.zkdex_init();
+module.exports.zkmain = function() {
+    wasm.zkmain();
 };
 
 module.exports.__wbindgen_string_new = function(arg0, arg1) {

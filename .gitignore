@@ -1,2 +1,4 @@
 .idea
 target
+js-example/node_modules
+javascript-sdk/node_modules
