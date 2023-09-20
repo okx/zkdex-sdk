@@ -12,7 +12,7 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PublicKey},
+    eddsa::PublicKey,
     jubjub::JubjubEngine,
 };
 use serde::{Deserialize, Serialize};
@@ -105,8 +105,6 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
         }
     }
 }
-
-
 
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
     let req: TransferRequest = serde_json::from_str(json)?;

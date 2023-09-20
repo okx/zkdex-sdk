@@ -12,7 +12,7 @@ use zkdex_wasm::{CollateralAssetId, LeBytesConvert};
 
 pub type AmountType = u64;
 pub type PositionIdType = u64;
-use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+use zkdex_utils::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {

@@ -90,7 +90,6 @@ pub fn u256_to_h256(u: U256) -> H256 {
     H256(h)
 }
 
-
 #[cfg(test)]
 mod test {
     use std::str::FromStr;
@@ -100,7 +99,6 @@ mod test {
 
     use super::hash_type_to_string_with_0xprefix;
 
-    
     #[test]
     fn test_u256_from_str() {
         let u = U256::from_str_radix("0x1", 16);
@@ -111,8 +109,7 @@ mod test {
     fn test_hash_to_str() {
         let hash1 = HashType::from_str("0x1").unwrap();
         let hash_str = hash_type_to_string_with_0xprefix(hash1);
-        assert!(hash_str.len()==66);
+        assert!(hash_str.len() == 66);
         assert!(hash_str == "0x0000000000000000000000000000000000000000000000000000000000000001");
     }
 }
-

@@ -1,13 +1,12 @@
 use anyhow::Result;
 
 use serde::{Deserialize, Serialize};
+use zkdex_utils::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
 use zkdex_utils::tx::sign::TxSignature;
 use zkdex_utils::U64SerdeAsString;
 use zkdex_wasm::exchange::{mock_signature, OrderBase};
 use zkdex_wasm::{CollateralAssetId, LeBytesConvert, PositionIdType, PublicKeyType};
-
-use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
 use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 

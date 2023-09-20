@@ -1,4 +1,4 @@
-use crate::serde_wrapper::U128SerdeAsRadix16Prefix0xString;
+use crate::serde_wrapper::u128_serde::U128SerdeAsRadix16Prefix0xString;
 use serde::{Deserialize, Serialize};
 use zkdex_utils::tx::baby_jubjub::JubjubSignature;
 use zkdex_utils::tx::packed_public_key::private_key_from_string;
@@ -8,7 +8,7 @@ use zkdex_wasm::exchange::mock_signature;
 use zkdex_wasm::perpetual::signed_oracle_price_hash;
 use zkdex_wasm::{LeBytesConvert, PriceType, PublicKeyType, SignedAssetId, TimestampType};
 
-use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+use zkdex_utils::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 
 use anyhow::Result;
 
@@ -60,9 +60,9 @@ pub fn sign_signed_oracle_price(
 
 #[cfg(test)]
 mod test {
-    use zkdex_wasm::SignedAssetId;
-    use crate::{transaction::oracle_price::sign_signed_oracle_price};
     use super::SignedOraclePriceRequest;
+    use crate::transaction::oracle_price::sign_signed_oracle_price;
+    use zkdex_wasm::SignedAssetId;
 
     #[test]
     fn test_deserialize() {
