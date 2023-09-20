@@ -14,12 +14,12 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-zkdex_wasm = {package = "zkdex_wasm",path = "../../zkdex-wasm-poc/core/lib/zkdex", features=["common"]}
-zkdex_utils = {package = "utils",path = "../../zkdex-wasm-poc/core/lib/utils", features=["common"]}
+zkdex_wasm = {package = "zkdex_wasm",path = "../../zkdex-wasm-poc/core/lib/zkdex", features=["sdk"]}
+zkdex_utils = {package = "utils",path = "../../zkdex-wasm-poc/core/lib/utils", features=["sdk"]}
 num = { version = "0.4.0", features = ["serde"] }
 bigdecimal = { version = "=0.3.0", features = ["serde"]}
-hex = "0.4.3"
-num-bigint = "0.4.3"
+hex = "0.4.0"
+# num-bigint = "0.4.0"
 num-traits = "0.2.15"
 serde = { version = "1.0.158", features = ["derive"] }
 time = "0.3.20"

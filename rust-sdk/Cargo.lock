@@ -240,7 +240,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6aaf33151a6429fe9211d1b276eafdf70cdff28b071e76c0b0e1503221ea3744"
 dependencies = [
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-integer",
  "num-traits",
  "serde",
@@ -1480,7 +1480,7 @@ version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dde5a00073374b4d7aa2d3a8359a5709f9c0bfac8393f254655d16b4acdfe823"
 dependencies = [
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-integer",
  "num-traits",
  "proc-macro2",
@@ -1837,7 +1837,7 @@ dependencies = [
  "ff 0.12.1",
  "group 0.12.1",
  "num",
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-derive",
  "num-integer",
  "num-traits",
@@ -2465,7 +2465,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43db66d1170d347f9a065114077f7dccb00c1b9478c89384490a3425279a4606"
 dependencies = [
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-complex 0.4.3",
  "num-integer",
  "num-iter",
@@ -2497,9 +2497,9 @@ dependencies = [
 
 [[package]]
 name = "num-bigint"
-version = "0.4.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f"
+checksum = "4e0d047c1062aa51e256408c560894e5251f08925980e53cf1aa5bd00eec6512"
 dependencies = [
  "autocfg",
  "num-integer",
@@ -2567,7 +2567,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0638a1c9d0a3c0914158145bc76cff373a75a627e6ecbfb71cbe6f453a5a19b0"
 dependencies = [
  "autocfg",
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-integer",
  "num-traits",
  "serde",
@@ -3742,7 +3742,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adc4e5204eb1910f40f9cfa375f6f05b68c3abac4b6fd879c8ff5e7ae8a0a085"
 dependencies = [
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-traits",
  "thiserror",
  "time",
@@ -4289,7 +4289,7 @@ dependencies = [
  "hex",
  "lazy_static",
  "num",
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-traits",
  "once_cell",
  "pairing_ce",
@@ -4740,7 +4740,6 @@ dependencies = [
  "lazy_static",
  "mio 0.7.14",
  "num",
- "num-bigint 0.4.3",
  "num-traits",
  "once_cell",
  "pairing_ce",
@@ -4769,7 +4768,7 @@ dependencies = [
  "ff 0.12.1",
  "halo2_proofs",
  "lazy_static",
- "num-bigint 0.4.3",
+ "num-bigint 0.4.0",
  "num-traits",
  "once_cell",
  "pairing_ce",
