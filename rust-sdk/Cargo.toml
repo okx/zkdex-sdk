@@ -15,7 +15,7 @@ default = ["console_error_panic_hook"]
 
 [dependencies]
 zkdex_wasm = {package = "zkdex_wasm",path = "../../zkdex-wasm-poc/core/lib/zkdex", features=["sdk"]}
-zkdex_utils = {package = "utils",path = "../../zkdex-wasm-poc/core/lib/utils", features=["sdk"]}
+zkdex_utils = {package = "utils",path = "../../zkdex-wasm-poc/core/lib/utils",default-features = false, features=["sdk"]}
 hex = "0.4.0"
 serde = { version = "1.0.158", features = ["derive"] }
 anyhow = "1.0"
