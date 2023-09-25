@@ -1,0 +1,25 @@
+{
+  "name": "zkdex-sdk",
+  "collaborators": [
+    "The Matter Labs Team <hello@matterlabs.dev>"
+  ],
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matter-labs/zksync"
+  },
+  "files": [
+    "zkdex_sdk_bg.wasm",
+    "zkdex_sdk.js",
+    "zkdex_sdk.d.ts"
+  ],
+  "module": "zkdex_sdk.js",
+  "homepage": "https://zksync.io/",
+  "types": "zkdex_sdk.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "blockchain",
+    "zksync"
+  ]
+}
