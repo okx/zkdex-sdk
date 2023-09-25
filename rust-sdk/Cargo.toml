@@ -32,6 +32,7 @@ wasm-bindgen="=0.2.87"
 sha2 = "0.8"
 console_error_panic_hook = { version = "0.1.6", optional = true }
 jni = {version = '0.21.1'}
+getrandom = {version="0.2",features=["js"]}
 
 
 [profile.release]

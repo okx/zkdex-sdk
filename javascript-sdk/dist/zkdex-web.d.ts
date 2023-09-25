@@ -1,11 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
-*/
-export function zkdex_init(): void;
-/**
 * sign_transfer, sign a transfer transaction.
 * @param {string} json  json of transfer transaction.
 * @param {string} private_key private key hex with 0x prefix.
@@ -120,6 +115,11 @@ export function private_key_to_pubkey_xy(pri_key: string): string;
 */
 export function public_key_to_xy(pub_key: string): string;
 /**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+export function zkdex_init(): void;
+/**
 */
 export function zkmain(): void;
 
@@ -144,7 +144,6 @@ export interface InitOutput {
   readonly Java_com_okx_ZKDEX_isOnCurve: (a: number, b: number, c: number, d: number) => number;
   readonly Java_com_okx_ZKDEX_privateKeyToPublicKeyXY: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_publicKeyToXY: (a: number, b: number, c: number) => number;
-  readonly zkdex_init: () => void;
   readonly sign_transfer: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly hash_transfer: (a: number, b: number, c: number) => void;
   readonly sign_withdraw: (a: number, b: number, c: number, d: number, e: number) => void;
@@ -162,6 +161,7 @@ export interface InitOutput {
   readonly private_key_from_seed: (a: number, b: number, c: number) => void;
   readonly private_key_to_pubkey_xy: (a: number, b: number, c: number) => void;
   readonly public_key_to_xy: (a: number, b: number, c: number) => void;
+  readonly zkdex_init: () => void;
   readonly zkmain: () => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
