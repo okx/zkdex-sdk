@@ -149,7 +149,7 @@ export interface InitOutput {
   readonly Java_com_okx_ZKDEX_signLiquidate: (a: number, b: number, c: number, d: number) => number;
   readonly Java_com_okx_ZKDEX_signSignedOraclePrice: (a: number, b: number, c: number, d: number) => number;
   readonly Java_com_okx_ZKDEX_hashWithdraw: (a: number, b: number, c: number) => number;
-  readonly Java_com_okx_ZKDEX_hashTransfer: (a: number, b: number, c: number, d: number) => number;
+  readonly Java_com_okx_ZKDEX_hashTransfer: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_hashLimitOrder: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_hashLiquidate: (a: number, b: number, c: number) => number;
   readonly Java_com_okx_ZKDEX_hashSignedOraclePrice: (a: number, b: number, c: number) => number;

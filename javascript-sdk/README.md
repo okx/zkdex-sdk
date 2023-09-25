@@ -49,7 +49,7 @@
 <dt><a href="#private_key_to_pubkey_xy">private_key_to_pubkey_xy(private_key)</a> ⇒ <code>string</code></dt>
 <dd><p>private_key_to_pubkey_xy, derive a public with xy from private key.</p>
 </dd>
-<dt><a href="#public_key_to_xy">public_key_to_xy(PUB_KEY)</a> ⇒ <code>string</code></dt>
+<dt><a href="#public_key_to_xy">public_key_to_xy(pub_key)</a> ⇒ <code>string</code></dt>
 <dd><p>public_key_to_xy, convert public key to xy.</p>
 </dd>
 <dt><a href="#zkdex_init">zkdex_init()</a></dt>
@@ -264,7 +264,7 @@ private_key_to_pubkey_xy, derive a public with xy from private key.
 
 <a name="public_key_to_xy"></a>
 
-## public\_key\_to\_xy(PUB_KEY) ⇒ <code>string</code>
+## public\_key\_to\_xy(pub_key) ⇒ <code>string</code>
 public_key_to_xy, convert public key to xy.
 
 **Kind**: global function  
@@ -272,7 +272,7 @@ public_key_to_xy, convert public key to xy.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| PUB_KEY | <code>string</code> | public key hex with 0x prefix. |
+| pub_key | <code>string</code> | public key hex with 0x prefix. |
 
 <a name="zkdex_init"></a>
 
