@@ -25,7 +25,13 @@ public class ZKDEX {
             System.exit(-1);
         }
 
-        loadLib("/tmp", fileName);
+        try {
+            loadLib("/tmp", fileName);
+        } catch (Exception e) {
+            log.error("[loadLib] try load lib from /tmp failed: ",e.toString());
+            log.info("[loadLib] try load lib from /home/admin/zk-lib again");
+            loadLib("/home/admin/zk-lib", fileName);
+        }
     }
 
     private static void loadLib(String path, String name) {
