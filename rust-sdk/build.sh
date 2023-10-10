@@ -10,7 +10,7 @@ which wasm-pack || cargo install --version 0.10.1 wasm-pack #Dec 16th update to 
 # pack for bundler (!note this verion is used in the pkg.browser field)
 wasm-pack build --release --target=bundler --out-name=zkdex-bundler --out-dir=dist
 # pack for browser
-wasm-pack build --release --target=web --out-name=zkdex-web --out-dir=web-dist
+wasm-pack build --release --target=no-modules --out-name=zkdex-web --out-dir=web-dist
 # pack for node.js
 wasm-pack build --release --target=nodejs --out-name=zkdex-node --out-dir=node-dist
 

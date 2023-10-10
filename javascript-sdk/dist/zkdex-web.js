@@ -1,37 +1,44 @@
-let wasm;
-
-const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
-
-if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
-
-let cachedUint8Memory0 = null;
-
-function getUint8Memory0() {
-    if (cachedUint8Memory0 === null || cachedUint8Memory0.byteLength === 0) {
-        cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+let wasm_bindgen;
+(function() {
+    const __exports = {};
+    let script_src;
+    if (typeof document !== 'undefined' && document.currentScript !== null) {
+        script_src = new URL(document.currentScript.src, location.href).toString();
     }
-    return cachedUint8Memory0;
-}
+    let wasm = undefined;
 
-function getStringFromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
-}
+    const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
 
-const heap = new Array(128).fill(undefined);
+    if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
 
-heap.push(undefined, null, true, false);
+    let cachedUint8Memory0 = null;
 
-let heap_next = heap.length;
+    function getUint8Memory0() {
+        if (cachedUint8Memory0 === null || cachedUint8Memory0.byteLength === 0) {
+            cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+        }
+        return cachedUint8Memory0;
+    }
 
-function addHeapObject(obj) {
-    if (heap_next === heap.length) heap.push(heap.length + 1);
-    const idx = heap_next;
-    heap_next = heap[idx];
+    function getStringFromWasm0(ptr, len) {
+        ptr = ptr >>> 0;
+        return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
+    }
 
-    heap[idx] = obj;
-    return idx;
-}
+    const heap = new Array(128).fill(undefined);
+
+    heap.push(undefined, null, true, false);
+
+    let heap_next = heap.length;
+
+    function addHeapObject(obj) {
+        if (heap_next === heap.length) heap.push(heap.length + 1);
+        const idx = heap_next;
+        heap_next = heap[idx];
+
+        heap[idx] = obj;
+        return idx;
+    }
 
 function getObject(idx) { return heap[idx]; }
 
@@ -116,7 +123,7 @@ function getInt32Memory0() {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json signature of transfer transaction.
 */
-export function sign_transfer(json, private_key) {
+__exports.sign_transfer = function(json, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -143,14 +150,14 @@ export function sign_transfer(json, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * hash_transfer, hash a transfer transaction.
 * @param {string} json  json of transfer transaction.
 * @returns {string} string hash of transfer transaction with 0x prefix.
 */
-export function hash_transfer(json) {
+__exports.hash_transfer = function(json) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -175,7 +182,7 @@ export function hash_transfer(json) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * sign_withdraw, sign a withdraw transaction.
@@ -183,7 +190,7 @@ export function hash_transfer(json) {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json signature of withdraw transaction.
 */
-export function sign_withdraw(json, private_key) {
+__exports.sign_withdraw = function(json, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -210,14 +217,14 @@ export function sign_withdraw(json, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * hash_withdraw, hash a withdraw transaction.
 * @param {string} json  json of withdraw transaction.
 * @returns {string} string hash of withdraw transaction with 0x prefix.
 */
-export function hash_withdraw(json) {
+__exports.hash_withdraw = function(json) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -242,7 +249,7 @@ export function hash_withdraw(json) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * sign_limit_order, sign a limit order transaction.
@@ -250,7 +257,7 @@ export function hash_withdraw(json) {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json signature of limit order transaction.
 */
-export function sign_limit_order(json, private_key) {
+__exports.sign_limit_order = function(json, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -277,14 +284,14 @@ export function sign_limit_order(json, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * hash_limit_order, sign a limit order transaction.
 * @param {string} json  json of limit order transaction.
 * @returns {string} string hash of limit order transaction with 0x prefix.
 */
-export function hash_limit_order(json) {
+__exports.hash_limit_order = function(json) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -309,7 +316,7 @@ export function hash_limit_order(json) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * sign_liquidate, sign a liquidate transaction.
@@ -317,7 +324,7 @@ export function hash_limit_order(json) {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json signature of liquidate transaction.
 */
-export function sign_liquidate(json, private_key) {
+__exports.sign_liquidate = function(json, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -344,14 +351,14 @@ export function sign_liquidate(json, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * hash_liquidate, hash a liquidate transaction.
 * @param {string} json  json of liquidate transaction.
 * @returns {string} string hash of liquidate transaction with 0x prefix.
 */
-export function hash_liquidate(json) {
+__exports.hash_liquidate = function(json) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -376,7 +383,7 @@ export function hash_liquidate(json) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * sign_signed_oracle_price, sign a signed oracle price transaction.
@@ -384,7 +391,7 @@ export function hash_liquidate(json) {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json signature of liquidate transaction.
 */
-export function sign_signed_oracle_price(json, private_key) {
+__exports.sign_signed_oracle_price = function(json, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -411,14 +418,14 @@ export function sign_signed_oracle_price(json, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * hash_signed_oracle_price, hash a signed oracle price transaction.
 * @param {string} json  json of signed oracle transaction.
 * @returns {string} string hash of signed oracle transaction with 0x prefix.
 */
-export function hash_signed_oracle_price(json) {
+__exports.hash_signed_oracle_price = function(json) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -443,7 +450,7 @@ export function hash_signed_oracle_price(json) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * verify_signature, verify a signature.
@@ -454,7 +461,7 @@ export function hash_signed_oracle_price(json) {
 * @param {string} msg  msg hex with 0x prefix.
 * @returns {bool} whether the signature is valid.
 */
-export function verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg) {
+__exports.verify_signature = function(sig_r, sig_s, pub_key_x, pub_key_y, msg) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(sig_r, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -478,7 +485,7 @@ export function verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
-}
+};
 
 /**
 * l1 sign, sign a msg on l1 when signing a eth address.
@@ -486,7 +493,7 @@ export function verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg) {
 * @param {string} private_key private key hex with 0x prefix.
 * @param {string} string of signature.
 */
-export function l1_sign(msg, private_key) {
+__exports.l1_sign = function(msg, private_key) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -513,7 +520,7 @@ export function l1_sign(msg, private_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * is_on_curve, check the (x,y) is on curve.
@@ -521,7 +528,7 @@ export function l1_sign(msg, private_key) {
 * @param {string} pub_key_y  y of public key with 0x prefix.
 * @returns {bool} whether the (x,y) is on curve.
 */
-export function is_on_curve(pub_key_x, pub_key_y) {
+__exports.is_on_curve = function(pub_key_x, pub_key_y) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(pub_key_x, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -539,7 +546,7 @@ export function is_on_curve(pub_key_x, pub_key_y) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
-}
+};
 
 /**
 * sign, sign a msg on l2, is a generic signature methods.
@@ -547,7 +554,7 @@ export function is_on_curve(pub_key_x, pub_key_y) {
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json string of the signature.
 */
-export function sign(private_key, msg) {
+__exports.sign = function(private_key, msg) {
     let deferred4_0;
     let deferred4_1;
     try {
@@ -574,14 +581,14 @@ export function sign(private_key, msg) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-}
+};
 
 /**
 * private_key_from_seed, derive a private key from a random seed, the seed could be anything.
 * @param {string} seed  anything string.
 * @returns {string} string of private coding in hex with 0x prefix.
 */
-export function private_key_from_seed(seed) {
+__exports.private_key_from_seed = function(seed) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -606,14 +613,14 @@ export function private_key_from_seed(seed) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * private_key_to_pubkey_xy, derive a public with xy from private key.
 * @param {string} private_key private key hex with 0x prefix.
 * @returns {string} json string of public key xy.
 */
-export function private_key_to_pubkey_xy(pri_key) {
+__exports.private_key_to_pubkey_xy = function(pri_key) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -638,14 +645,14 @@ export function private_key_to_pubkey_xy(pri_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * public_key_to_xy, convert public key to xy.
 * @param {string} pub_key public key hex with 0x prefix.
 * @returns {string} json string of public key xy.
 */
-export function public_key_to_xy(pub_key) {
+__exports.public_key_to_xy = function(pub_key) {
     let deferred3_0;
     let deferred3_1;
     try {
@@ -670,15 +677,15 @@ export function public_key_to_xy(pub_key) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
+};
 
 /**
 * This method initializes params for current thread, otherwise they will be initialized when signing
 * first message.
 */
-export function zkdex_init() {
+__exports.zkdex_init = function() {
     wasm.zkdex_init();
-}
+};
 
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
@@ -783,8 +790,8 @@ function initSync(module) {
 async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
-    if (typeof input === 'undefined') {
-        input = new URL('zkdex-web_bg.wasm', import.meta.url);
+    if (typeof input === 'undefined' && script_src !== 'undefined') {
+        input = script_src.replace(/\.js$/, '_bg.wasm');
     }
     const imports = __wbg_get_imports();
 
@@ -799,5 +806,6 @@ async function __wbg_init(input) {
     return __wbg_finalize_init(instance, module);
 }
 
-export { initSync }
-export default __wbg_init;
+wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
+
+})();
