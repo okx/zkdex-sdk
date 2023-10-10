@@ -3,9 +3,8 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
 </head>
 <body>
-<script src="../javascript-sdk/dist/zkdex-web.js"></script>
 <!-- Note the usage of `type=module` here as this is an ES6 module -->
-<script>
+<script type="module">
     // Use ES module import syntax to import functionality from the module
     // that we have compiled.
     //
@@ -13,12 +12,12 @@
     // will "boot" the module and make it ready to use. Currently browsers
     // don't support natively imported WebAssembly as an ES module, but
     // eventually the manual initialization won't be required!
-    // import init,{ private_key_from_seed } from '../javascript-sdk/dist/zkdex-web.js';
-    const {private_key_from_seed} = wasm_bindgen;
-    async function run() {
-        await wasm_bindgen('/Users/finefine/workspace/ok/zkwasm-sdk/javascript-sdk/dist/zkdex-web_bg.wasm');
+    import init,{ private_key_from_seed } from '../javascript-sdk/dist/zkdex-web.js';
 
-        // await init()
+    async function run() {
+
+
+        await init('../javascript-sdk/dist/zkdex-web_bg.wasm');
         // And afterwards we can use all the functionality defined in wasm.
         let seed = "hello world good life 996 very nice";
         console.log("===========================================")
