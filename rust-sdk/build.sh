@@ -8,11 +8,11 @@ ASM=dist/zkdex-bundler_asm.js
 which wasm-pack || cargo install --version 0.10.1 wasm-pack #Dec 16th update to wasm-pack (v0.10.2) breaks zk init
 
 # pack for bundler (!note this verion is used in the pkg.browser field)
-wasm-pack build --features js --target=bundler --out-name=zkdex-bundler --out-dir=dist
+wasm-pack build  --release --target=bundler --out-name=zkdex-bundler --out-dir=dist --features js
 # pack for browser
-wasm-pack build --features js --target=web --out-name=zkdex-web --out-dir=web-dist
+wasm-pack build  --release --target=web --out-name=zkdex-web --out-dir=web-dist --features js
 # pack for node.js
-wasm-pack build --features js --target=nodejs --out-name=zkdex-node --out-dir=node-dist
+wasm-pack build  --release --target=nodejs --out-name=zkdex-node --out-dir=node-dist --features js
 
 # Merge dist folders. wasm-pack removes out-dir before it starts a new build
 mv web-dist/* dist/
