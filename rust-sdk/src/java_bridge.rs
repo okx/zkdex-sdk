@@ -1,3 +1,4 @@
+#[cfg(feature = "java")]
 pub mod java_bridge {
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
