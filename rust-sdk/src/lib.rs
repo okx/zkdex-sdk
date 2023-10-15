@@ -11,7 +11,7 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PrivateKey, PublicKey},
+    eddsa::{PublicKey},
     jubjub::JubjubEngine,
 };
 use serde::{Deserialize, Serialize};
@@ -36,7 +36,6 @@ use crate::tx::packed_public_key::{
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
-use crate::utils::set_panic_hook;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
 mod common;
@@ -50,7 +49,6 @@ mod models;
 pub mod serde_wrapper;
 pub mod transaction;
 pub mod tx;
-mod utils;
 mod zkw;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
