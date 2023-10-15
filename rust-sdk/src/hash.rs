@@ -111,7 +111,7 @@ impl ToHashable for U256 {
 
 impl ToHashable for PublicKeyType {
     fn to_hashable(&self) -> &[u64] {
-        self.0.y.to_hashable()
+        self.0.to_hashable()
         // let array = self as *const PublicKeyType as *const u64 as *const [u64; 8];
         // unsafe { &*array }
     }

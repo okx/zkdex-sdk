@@ -8,96 +8,79 @@ use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq)]
 #[repr(C)]
-pub struct PublicKeyType(pub BabyJubjubPoint);
+pub struct PublicKeyType(pub U256);
 
 impl PublicKeyType {
-    pub fn get_y_u256(&self) -> U256 {
-        self.0.y.clone()
+    pub fn new(packed: U256) -> Self {
+        Self(packed)
     }
 
-    pub fn from_xy(x: U256, y: U256) -> Self {
-        Self(BabyJubjubPoint { x, y })
+    pub fn get_y(&self) -> U256 {
+        let mut y = self.0.clone();
+        y.0[3] &= 0x7FFFFFFFFFFFFFFF;
+
+        y
+    }
+
+    pub fn get_packed(&self) -> &U256 {
+        &self.0
     }
 
     pub fn zero() -> Self {
-        Self::from_xy(U256::zero(), U256::one())
+        Self(U256::zero())
     }
 
     pub fn is_address(&self) -> bool {
-        return if self.0.x == U256::zero() && is_address(&(&self.0.y)) {
-            true
-        } else {
-            false
-        };
+        return if is_address(&(&self.0)) { true } else { false };
+    }
+}
+impl Into<U256> for PublicKeyType {
+    fn into(self) -> U256 {
+        self.0
     }
 }
 
 impl From<PackedPublicKey> for PublicKeyType {
     fn from(value: PackedPublicKey) -> Self {
-        if value.is_address() {
-            PublicKeyType(BabyJubjubPoint {
-                x: Default::default(),
-                y: value.0,
-            })
-        } else {
-            let (x, y) = get_xy_from_r(&value.0);
-            let x = fr_to_u256(&x).unwrap();
-            let y = fr_to_u256(&y).unwrap();
-            PublicKeyType(BabyJubjubPoint { x, y })
-        }
+        Self(value.0)
     }
 }
 
 impl Into<PackedPublicKey> for PublicKeyType {
     fn into(self) -> PackedPublicKey {
-        let r = get_r_from_xy(&self.0.x, &self.0.y);
-        PackedPublicKey(r)
+        PackedPublicKey(self.0)
     }
 }
 
 impl Serialize for PublicKeyType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
+        where
+            S: serde::Serializer,
     {
-        let x = self.0.x.clone();
-        let y = self.0.y.clone();
-        PackedPublicKey::from((x, y)).serialize(serializer)
+        let p: PackedPublicKey = self.clone().into();
+        p.serialize(serializer)
     }
 }
 
+
 impl<'de> Deserialize<'de> for PublicKeyType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
+        where
+            D: serde::Deserializer<'de>,
     {
         let key = PackedPublicKey::deserialize(deserializer)?;
         let ret = PublicKeyType::from(key);
         Ok(ret)
     }
 }
-
 impl Default for PublicKeyType {
     fn default() -> Self {
-        PublicKeyType(BabyJubjubPoint {
-            x: U256([
-                2527087222397613622,
-                6695204439272418284,
-                327476452638867716,
-                3486998266802970665,
-            ]),
-            y: U256([0, 0, 0, 0]),
-        })
+        PublicKeyType(U256::zero())
     }
 }
-
 impl PartialOrd for PublicKeyType {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match self.0.x.partial_cmp(&other.0.x) {
-            Some(Ordering::Equal) => self.0.y.partial_cmp(&other.0.y),
-            Some(ord) => Some(ord),
-            None => None,
-        }
+        self.0.partial_cmp(&other.0)
     }
 }
 
@@ -105,10 +88,6 @@ impl Eq for PublicKeyType {}
 
 impl Ord for PublicKeyType {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.0.x.cmp(&other.0.x) {
-            Ordering::Greater => Ordering::Greater,
-            Ordering::Less => Ordering::Less,
-            Ordering::Equal => self.0.y.cmp(&other.0.y),
-        }
+        self.0.cmp(&other.0)
     }
 }

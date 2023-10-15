@@ -308,7 +308,7 @@ mod test {
 
     use pairing_ce::bn256::Fr;
 
-    use crate::tx::{private_key_from_string, public_key_from_private, FeConvert, JubjubSignature};
+    use crate::tx::{private_key_from_string, public_key_from_private, FeConvert, JubjubSignature, LimitOrderRequest, PackedPublicKey};
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
         is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
@@ -316,6 +316,7 @@ mod test {
         sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
         Signature,
     };
+    use crate::tx::public_key_type::PublicKeyType;
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
@@ -394,7 +395,7 @@ mod test {
         let json = r#"
         {
         "nonce":"1",
-        "public_key":"0x8f79f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaaa",
         "expiration_timestamp":"1684832800",
         "position_id":"2",
         "amount":"3",
@@ -423,7 +424,7 @@ mod test {
         let json = r#"
         {
         "nonce":"1",
-        "public_key":"0x92ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x92ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faacccccccccc",
         "expiration_timestamp":"1684832800",
         "position_id":"2",
         "amount":"3",
@@ -491,7 +492,7 @@ mod test {
         let json = r#"
         {
         "nonce":"0",
-        "public_key":"0x8f792ad4f9ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaaaa",
         "expiration_timestamp":"0",
         "sender_position_id":"0",
         "receiver_public_key":"0x8792ad4f9bad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
@@ -521,7 +522,7 @@ mod test {
         let json = r#"
         {
         "nonce":"0",
-        "public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faabbbbbbbbbb",
         "expiration_timestamp":"0",
         "sender_position_id":"0",
         "receiver_public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
@@ -608,7 +609,7 @@ mod test {
     pub fn test_hash_limit_order_with_err_public_key() {
         let json = r#"{
         "nonce":"1",
-        "public_key":"0x8f7924f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"2",
         "amount_synthetic":"3",
         "amount_collateral":"4",
@@ -618,6 +619,9 @@ mod test {
         "position_id":"8",
         "is_buying_synthetic":false
         }"#;
+        let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
+        let pk:PublicKeyType = req.base.public_key.into();
+
         assert!(hash_limit_order(json).unwrap().len() == 66)
     }
 
@@ -634,7 +638,7 @@ mod test {
     pub fn test_sign_limit_order_with_err_public_key() {
         let json = r#"{
         "nonce":"1",
-        "public_key":"0x82ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"2",
         "amount_synthetic":"3",
         "amount_collateral":"4",
@@ -720,7 +724,7 @@ mod test {
     {
     "liquidator_order":{
         "nonce":"0",
-        "public_key":"0x8f792ad49b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"0",
         "amount_synthetic":"1",
         "amount_collateral":"2",
@@ -756,7 +760,7 @@ mod test {
     {
     "liquidator_order":{
         "nonce":"0",
-        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aaaaaaaaa",
         "expiration_timestamp":"0",
         "amount_synthetic":"1",
         "amount_collateral":"2",
@@ -782,24 +786,6 @@ mod test {
     #[should_panic]
     pub fn test_sign_liquidate_with_empty_json() {
         let json = r#"
-    {
-    "liquidator_order":{
-        "nonce":"0",
-        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aa",
-        "expiration_timestamp":"0",
-        "amount_synthetic":"1",
-        "amount_collateral":"2",
-        "amount_fee":"3",
-        "asset_id_synthetic":"0x4",
-        "asset_id_collateral":"0x5",
-        "position_id":"6",
-        "is_buying_synthetic":false
-    },
-    "liquidated_position_id":"7",
-    "actual_collateral":"8",
-    "actual_synthetic":"9",
-    "actual_liquidator_fee":"10"
-    }
         "#;
 
         let sig = sign_liquidate(json, PRI_KEY).unwrap();
@@ -905,7 +891,7 @@ mod test {
     pub fn test_hash_oracle_price_with_err_signer_key() {
         let json = r#"
         {
-        "signer_key": "0x1544b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4",
+        "signer_key": "0x15d144b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4a",
         "external_price": "1854072360000000000000",
         "timestamp": "1693971569",
         "signed_asset_id": "0x455448555344434f4b580000000000005374437277"
@@ -929,7 +915,7 @@ mod test {
     pub fn test_sign_oracle_price_with_err_signer_key() {
         let json1 = r#"
         {
-        "signer_key": "0xa09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+        "signer_key": "0xa09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2aaaaaaaaaaaa",
         "external_price": "28409392522000000000000",
         "timestamp": "1693907824",
         "signed_asset_id": "0x425443555344434f4b580000000000005374437277"

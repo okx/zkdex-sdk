@@ -80,14 +80,6 @@ impl_felt_into_u64_slice!(u64, i64, i128, u128, U256);
 
 impl_felt_into_u8_array!(u8, u16, u32, u64, i64, i128, u128, U256);
 
-impl<'a> Into<&'a [u8; 32]> for Felt<'a, PublicKeyType> {
-    fn into(self) -> &'a [u8; 32] {
-        Felt {
-            inner: &self.inner.0.y,
-        }
-        .into()
-    }
-}
 
 pub trait LeBytesConvert<const N: usize> {
     fn as_le_array(&self) -> &[u8; N];
@@ -113,11 +105,11 @@ macro_rules! impl_as_le_array_ref {
 
 impl_as_le_array_ref!(u8, u16, u32, u64, i64, i128, u128, U256);
 
-impl LeBytesConvert<32> for PublicKeyType {
-    fn as_le_array(&self) -> &[u8; 32] {
-        self.0.y.as_le_array()
-    }
-}
+// impl LeBytesConvert<32> for PublicKeyType {
+//     fn as_le_array(&self) -> &[u8; 32] {
+//         self.0.y.as_le_array()
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
