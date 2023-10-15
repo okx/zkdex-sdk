@@ -15,9 +15,7 @@
     import init,{ private_key_from_seed } from '../javascript-sdk/dist/zkdex-web.js';
 
     async function run() {
-
-
-        await init()
+        await init('../javascript-sdk/dist/zkdex-web_bg.wasm');
         // And afterwards we can use all the functionality defined in wasm.
         let seed = "hello world good life 996 very nice";
         console.log("===========================================")

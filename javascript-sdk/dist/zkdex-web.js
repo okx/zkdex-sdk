@@ -46,6 +46,13 @@ function takeObject(idx) {
     dropObject(idx);
     return ret;
 }
+/**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+export function zkdex_init() {
+    wasm.zkdex_init();
+}
 
 let WASM_VECTOR_LEN = 0;
 
@@ -672,14 +679,6 @@ export function public_key_to_xy(pub_key) {
     }
 }
 
-/**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
-*/
-export function zkdex_init() {
-    wasm.zkdex_init();
-}
-
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
         if (typeof WebAssembly.instantiateStreaming === 'function') {
@@ -784,7 +783,7 @@ async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
     if (typeof input === 'undefined') {
-        input = new URL('zkdex-web_bg.wasm', import.meta.url);
+        // input = new URL('zkdex-web_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

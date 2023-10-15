@@ -16,7 +16,6 @@ use franklin_crypto::{
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use wasm_bindgen::prelude::*;
 
 pub use convert::*;
 pub use serde_wrapper::*;
@@ -72,14 +71,7 @@ lazy_static::lazy_static! {
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen(start)]
-/// This method initializes params for current thread, otherwise they will be initialized when signing
-/// first message.
-pub fn zkdex_init() {
-    JUBJUB_PARAMS.with(|_| {});
-    RESCUE_PARAMS.with(|_| {});
-    set_panic_hook();
-}
+
 
 pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
@@ -106,24 +98,6 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
             effective_seed = raw_priv_key;
         }
     }
-}
-
-fn read_signing_key(private_key: &[u8]) -> Result<PrivateKey<Engine>, JsValue> {
-    let mut fs_repr = FsRepr::default();
-    fs_repr
-        .read_be(private_key)
-        .map_err(|_| JsValue::from_str("couldn't read private key repr"))?;
-    Ok(PrivateKey::<Engine>(
-        Fs::from_repr(fs_repr).expect("couldn't read private key from repr"),
-    ))
-}
-
-pub fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey<Engine>, JsValue> {
-    let p_g = FixedGenerators::SpendingKeyGenerator;
-
-    let sk = read_signing_key(private_key)?;
-
-    Ok(JUBJUB_PARAMS.with(|params| PublicKey::from_private(&sk, p_g, params)))
 }
 
 pub fn sign_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
