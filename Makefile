@@ -20,10 +20,10 @@ java_script_bench: java_script_sdk
 	cd js-example && npm i && npm run bench
 
 mac_lib:
-	cd rust-sdk && cargo build --release
-	cd rust-sdk && cargo build --target=x86_64-apple-darwin --release
+	cd rust-sdk && cargo build --features java --release
+	cd rust-sdk && cargo build --features java --target=x86_64-apple-darwin --release
 	cp -f rust-sdk/target/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/arm_libzkdex_sdk.dylib
 	cp -f rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_libzkdex_sdk.dylib
 linux_lib:
-	cd rust-sdk && cross build --target x86_64-unknown-linux-gnu --release
+	cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
 	cp -f rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk.so

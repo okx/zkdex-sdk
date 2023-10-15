@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* This method initializes params for current thread, otherwise they will be initialized when signing
+* first message.
+*/
+export function zkdex_init(): void;
+/**
 * sign_transfer, sign a transfer transaction.
 * @param {string} json  json of transfer transaction.
 * @param {string} private_key private key hex with 0x prefix.
@@ -114,8 +119,3 @@ export function private_key_to_pubkey_xy(pri_key: string): string;
 * @returns {string} json string of public key xy.
 */
 export function public_key_to_xy(pub_key: string): string;
-/**
-* This method initializes params for current thread, otherwise they will be initialized when signing
-* first message.
-*/
-export function zkdex_init(): void;
