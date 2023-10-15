@@ -308,7 +308,11 @@ mod test {
 
     use pairing_ce::bn256::Fr;
 
-    use crate::tx::{private_key_from_string, public_key_from_private, FeConvert, JubjubSignature, LimitOrderRequest, PackedPublicKey};
+    use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::{
+        private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
+        LimitOrderRequest, PackedPublicKey,
+    };
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
         is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
@@ -316,7 +320,6 @@ mod test {
         sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
         Signature,
     };
-    use crate::tx::public_key_type::PublicKeyType;
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
@@ -620,7 +623,7 @@ mod test {
         "is_buying_synthetic":false
         }"#;
         let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
-        let pk:PublicKeyType = req.base.public_key.into();
+        let pk: PublicKeyType = req.base.public_key.into();
 
         assert!(hash_limit_order(json).unwrap().len() == 66)
     }

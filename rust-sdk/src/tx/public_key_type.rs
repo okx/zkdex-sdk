@@ -1,10 +1,10 @@
-use crate::tx::packed_public_key::{fr_to_u256, is_address};
-use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
-use crate::tx::PackedPublicKey;
-use crate::zkw::BabyJubjubPoint;
+use std::cmp::Ordering;
+
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
+
+use crate::tx::packed_public_key::is_address;
+use crate::tx::PackedPublicKey;
 
 #[derive(Debug, Clone, PartialEq)]
 #[repr(C)]
@@ -54,19 +54,18 @@ impl Into<PackedPublicKey> for PublicKeyType {
 
 impl Serialize for PublicKeyType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         let p: PackedPublicKey = self.clone().into();
         p.serialize(serializer)
     }
 }
 
-
 impl<'de> Deserialize<'de> for PublicKeyType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
+    where
+        D: serde::Deserializer<'de>,
     {
         let key = PackedPublicKey::deserialize(deserializer)?;
         let ret = PublicKeyType::from(key);
