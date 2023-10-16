@@ -4,7 +4,7 @@ pub mod javascript_bridge {
     use serde::Serialize;
     use wasm_bindgen::prelude::wasm_bindgen;
     use wasm_bindgen::JsValue;
-    use crate::tx::set_panic_hook;
+    use crate::utils::set_panic_hook;
 
     #[wasm_bindgen(start)]
     /// This method initializes params for current thread, otherwise they will be initialized when signing
