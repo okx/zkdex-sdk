@@ -41,10 +41,13 @@ impl PoseidonHasher {
         }
     }
     pub fn finalize(&mut self) -> [u64; 4] {
-        for _ in (self.x & 0x3)..4 {
-            self.context.poseidon_push(0);
-            self.x += 1;
+        if (self.x & 0x3) != 0 {
+            for _ in (self.x & 0x3)..4 {
+                self.context.poseidon_push(0);
+                self.x += 1;
+            }
         }
+
         if self.x == 32 {
             self.context.poseidon_finalize();
             self.context.poseidon_finalize();

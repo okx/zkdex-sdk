@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::felt::LeBytesConvert;
-use crate::hash::hash2;
+use crate::hash;
+use crate::hash::Hasher;
 use crate::serde_wrapper::I128SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
@@ -46,10 +47,35 @@ pub struct LimitOrderRequest {
 }
 
 pub fn sign_limit_order(req: LimitOrderRequest, prvk: &str) -> Result<JubjubSignature> {
-    let hash = limit_order_hash(&req);
+    let hash = hash_limit_order(req);
     let private_key = private_key_from_string(prvk)?;
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
+}
+
+pub fn hash_limit_order(req: LimitOrderRequest) -> HashType {
+    let exchange_limit_order = &mut ExchangeLimitOrder::default();
+    exchange_limit_order.base = &req.base;
+    exchange_limit_order.amount_fee = req.amount_fee;
+    exchange_limit_order.asset_id_fee = req.asset_id_collateral;
+    exchange_limit_order.vault_buy = req.position_id;
+    exchange_limit_order.vault_sell = req.position_id;
+    exchange_limit_order.vault_fee = req.position_id;
+
+    if req.is_buying_synthetic {
+        exchange_limit_order.asset_id_sell = req.asset_id_collateral;
+        exchange_limit_order.asset_id_buy = U256::from(req.asset_id_synthetic);
+        exchange_limit_order.amount_sell = req.amount_collateral;
+        exchange_limit_order.amount_buy = req.amount_synthetic;
+    } else {
+        exchange_limit_order.asset_id_sell = U256::from(req.asset_id_synthetic);
+        exchange_limit_order.asset_id_buy = req.asset_id_collateral;
+        exchange_limit_order.amount_sell = req.amount_synthetic;
+        exchange_limit_order.amount_buy = req.amount_collateral;
+    }
+
+    let hash = exchange_limit_order.hash();
+    hash
 }
 
 #[derive(Default)]
@@ -66,86 +92,111 @@ pub struct LimitOrder {
     pub vault_fee: PositionIdType,
 }
 
-impl LimitOrder {
-    pub fn hash(&self) -> HashType {
-        internal_limit_order_hash(self)
-    }
+pub struct ExchangeLimitOrder {
+    pub base: *const OrderBase,
+    pub amount_buy: AmountType,
+    pub amount_sell: AmountType,
+    pub amount_fee: AmountType,
+    pub asset_id_buy: CollateralAssetId,
+    pub asset_id_sell: CollateralAssetId,
+    pub asset_id_fee: CollateralAssetId,
+    pub vault_buy: PositionIdType,
+    pub vault_sell: PositionIdType,
+    pub vault_fee: PositionIdType,
 }
 
-fn internal_limit_order_hash(limit_order: &LimitOrder) -> HashType {
-    let msg = hash2(&limit_order.asset_id_sell, &limit_order.asset_id_buy);
+pub fn limit_order_hash_internal(limit_order: &ExchangeLimitOrder) -> HashType {
+    let mut hasher = hash::new_hasher();
+    hasher.update_single(&limit_order.asset_id_sell);
+    hasher.update_single(&limit_order.asset_id_buy);
+    hasher.update_single(&limit_order.asset_id_fee);
 
-    let msg = hash2(&msg, &limit_order.asset_id_fee);
-
-    let mut packed_message0 = U256::from(limit_order.amount_sell);
+    // let packed_message0 = limit_order.amount_sell;
     // let packed_message0 = packed_message0 * AMOUNT_UPPER_BOUND + limit_order.amount_buy;
-    packed_message0.shl_assign(64);
-    packed_message0 += U256::from(limit_order.amount_buy);
-
     // let packed_message0 = packed_message0 * AMOUNT_UPPER_BOUND + limit_order.amount_fee;
-    packed_message0.shl_assign(64);
-    packed_message0 += U256::from(limit_order.amount_fee);
+
+    let mut packed_message0 = U256([
+        limit_order.amount_fee,
+        limit_order.amount_buy,
+        limit_order.amount_sell,
+        0,
+    ]);
+
+    let limit_order_base = unsafe { &*limit_order.base };
 
     // let packed_message0 = packed_message0 * NONCE_UPPER_BOUND + limit_order.base.nonce;
     packed_message0.shl_assign(32);
-    packed_message0 += U256::from(limit_order.base.nonce);
+    packed_message0.0[0] += limit_order_base.nonce as u64;
 
-    let msg = hash2(&msg, &packed_message0);
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=packed_message0);
+    hasher.update_single(&packed_message0);
 
-    let mut packed_message1 = U256::from(LIMIT_ORDER_WITH_FEES);
+    // let packed_message1 = LIMIT_ORDER_WITH_FEES;
     // let packed_message1 = packed_message1 * VAULT_ID_UPPER_BOUND + limit_order.vault_fee;
-    packed_message1.shl_assign(64);
-    packed_message1 += U256::from(limit_order.vault_fee);
-
     // let packed_message1 = packed_message1 * VAULT_ID_UPPER_BOUND + limit_order.vault_sell;
-    packed_message1.shl_assign(64);
-    packed_message1 += U256::from(limit_order.vault_sell);
-
     // let packed_message1 = packed_message1 * VAULT_ID_UPPER_BOUND + limit_order.vault_buy;
-    packed_message1.shl_assign(64);
-    packed_message1 += U256::from(limit_order.vault_buy);
+
+    let mut packed_message1 = U256([
+        limit_order.vault_buy,
+        limit_order.vault_sell,
+        limit_order.vault_fee,
+        LIMIT_ORDER_WITH_FEES,
+    ]);
 
     // let packed_message1 = packed_message1 * EXPIRATION_TIMESTAMP_UPPER_BOUND + limit_order.base.expiration_timestamp;
     packed_message1.shl_assign(32);
-    packed_message1 += U256::from(limit_order.base.expiration_timestamp);
+    // TODO: SHOULD CHANGE TIMESTAMP TYPE: i64 -> u32
+    if limit_order_base.expiration_timestamp >= 0
+        && limit_order_base.expiration_timestamp <= u32::MAX as i64
+    {
+        packed_message1.0[0] += limit_order_base.expiration_timestamp as u64;
+    } else {
+        packed_message1 += U256::from(limit_order_base.expiration_timestamp);
+    }
 
     // let packed_message1 = packed_message1 * (2 ** 17);  // Padding.
     let packed_message1 = packed_message1 << 17; // Padding.
 
-    hash2(&msg, &packed_message1)
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=packed_message1);
+    hasher.update_single(&packed_message1);
+
+    hasher.finalize()
 }
 
-pub fn limit_order_hash(limit_order: &LimitOrderRequest) -> HashType {
-    let mut exchange_limit_order: LimitOrder = Default::default();
-    exchange_limit_order.base = limit_order.base.clone();
-    exchange_limit_order.amount_fee = limit_order.amount_fee;
-    exchange_limit_order.asset_id_fee = limit_order.asset_id_collateral;
-    exchange_limit_order.vault_buy = limit_order.position_id;
-    exchange_limit_order.vault_sell = limit_order.position_id;
-    exchange_limit_order.vault_fee = limit_order.position_id;
-
-    if limit_order.is_buying_synthetic {
-        exchange_limit_order.asset_id_sell = limit_order.asset_id_collateral;
-        exchange_limit_order.asset_id_buy = U256::from(limit_order.asset_id_synthetic);
-        exchange_limit_order.amount_sell = limit_order.amount_collateral;
-        exchange_limit_order.amount_buy = limit_order.amount_synthetic;
-    } else {
-        exchange_limit_order.asset_id_sell = U256::from(limit_order.asset_id_synthetic);
-        exchange_limit_order.asset_id_buy = limit_order.asset_id_collateral;
-        exchange_limit_order.amount_sell = limit_order.amount_synthetic;
-        exchange_limit_order.amount_buy = limit_order.amount_collateral;
+impl ExchangeLimitOrder {
+    pub fn hash(&self) -> HashType {
+        limit_order_hash_internal(self)
     }
 
-    exchange_limit_order.hash()
+    pub const fn const_default() -> Self {
+        ExchangeLimitOrder {
+            base: std::ptr::null(),
+            amount_buy: 0,
+            amount_sell: 0,
+            amount_fee: 0,
+            asset_id_buy: U256([0; 4]),
+            asset_id_sell: U256([0; 4]),
+            asset_id_fee: U256([0; 4]),
+            vault_buy: 0,
+            vault_sell: 0,
+            vault_fee: 0,
+        }
+    }
+}
+
+impl Default for ExchangeLimitOrder {
+    fn default() -> Self {
+        Self::const_default()
+    }
 }
 
 #[cfg(test)]
 mod test {
     use crate::common::OrderBase;
     use crate::transaction::types::CollateralAssetId;
+    use crate::tx::{LimitOrderRequest, private_key_from_string, public_key_from_private};
     use crate::tx::limit_order::sign_limit_order;
     use crate::tx::public_key_type::PublicKeyType;
-    use crate::tx::{private_key_from_string, public_key_from_private, LimitOrderRequest};
 
     #[test]
     pub fn test_sign() {
@@ -184,7 +235,7 @@ mod test {
 
         use crate::felt::LeBytesConvert;
         use crate::tx::{
-            private_key_from_string, HashType, LimitOrderRequest, TxSignature, JUBJUB_PARAMS,
+            HashType, JUBJUB_PARAMS, LimitOrderRequest, private_key_from_string, TxSignature,
         };
 
         #[test]

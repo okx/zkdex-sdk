@@ -1,4 +1,4 @@
-use primitive_types::{H256, U256};
+use primitive_types::U256;
 
 use crate::tx::public_key_type::PublicKeyType;
 
@@ -18,53 +18,38 @@ pub fn new_hasher() -> impl Hasher {
 }
 
 mod zkw {
+    use crate::hash::Hasher;
     use crate::zkw::PoseidonHasher;
 
     use super::*;
 
     pub struct Poseidon {
         poseidon: PoseidonHasher,
-        index: u8,
     }
 
     impl Poseidon {
         pub fn new() -> Self {
             Self {
                 poseidon: PoseidonHasher::new(),
-                index: 0,
             }
         }
     }
 
     impl Hasher for Poseidon {
         fn update_single<T: ToHashable>(&mut self, data: &T) {
-            let mut d = data.to_hashable();
-
-            let first_take = (3 - self.index) as usize;
-
-            if self.index != 0 {
-                d.iter()
-                    .take(first_take)
-                    .for_each(|i| self.poseidon.update(*i));
-
-                if d.len() <= first_take {
-                    self.index += d.len() as u8;
-                    return;
+            let d = data.to_hashable();
+            assert!(d.len() <= 4);
+            if d.len() == 4 {
+                self.poseidon.update(d[0]);
+                self.poseidon.update(d[1]);
+                self.poseidon.update(d[2]);
+                self.poseidon.update(d[3] & (u64::MAX << 1 >> 1)); // for packed public key
+            } else {
+                for u in d {
+                    self.poseidon.update(*u);
                 }
-
-                self.index = 0;
-                d = &d[first_take..];
-            }
-
-            for c in d.chunks(3) {
-                self.poseidon.update(0);
-                for i in c {
-                    self.poseidon.update(*i);
-                }
-
-                // latest chunk
-                if c.len() != 3 {
-                    self.index = c.len() as u8;
+                for _ in 0..4 - d.len() {
+                    self.poseidon.update(0);
                 }
             }
         }
@@ -112,14 +97,6 @@ impl ToHashable for U256 {
 impl ToHashable for PublicKeyType {
     fn to_hashable(&self) -> &[u64] {
         self.0.to_hashable()
-        // let array = self as *const PublicKeyType as *const u64 as *const [u64; 8];
-        // unsafe { &*array }
-    }
-}
-
-impl ToHashable for H256 {
-    fn to_hashable(&self) -> &[u64] {
-        unsafe { std::slice::from_raw_parts(self.0.as_ptr() as *const u64, 4) }
     }
 }
 
@@ -132,11 +109,13 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> U256 {
 
 #[cfg(test)]
 mod test {
-    use std::thread::{spawn, JoinHandle};
+    use std::thread::{JoinHandle, spawn};
 
     use primitive_types::U256;
 
-    use crate::hash::hash2;
+    use crate::hash::{hash2, new_hasher};
+
+    use super::Hasher;
 
     #[test]
     fn test_concurrent_hash() {
@@ -155,5 +134,16 @@ mod test {
         for x in handler {
             _ = x.join();
         }
+    }
+
+    #[test]
+    fn test_hash_1() {
+        let mut hasher = new_hasher();
+        let a = hasher.finalize();
+        println!("{}",a.to_string());
+        let hash = hash2(&U256::from(1), &U256::from(2));
+        let str =  hash.to_string();
+        println!("{}", str.clone());
+        assert!("12161893061466977591326716549227327416251121218164330599584971528678000121369" == str);
     }
 }

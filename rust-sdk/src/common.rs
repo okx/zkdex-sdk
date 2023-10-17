@@ -4,8 +4,8 @@ use crate::tx::public_key_type::PublicKeyType;
 use crate::I64SerdeAsString;
 use crate::U64SerdeAsString;
 
-pub const TRANSFER_ORDER_TYPE: u8 = 4;
-pub const CONDITIONAL_TRANSFER_ORDER_TYPE: u8 = 5;
+pub const TRANSFER_ORDER_TYPE: u64 = 4;
+pub const CONDITIONAL_TRANSFER_ORDER_TYPE: u64 = 5;
 
 pub type TimestampType = i64;
 

@@ -1,20 +1,19 @@
-use std::ops::ShlAssign;
-
+use crate::hash::Hasher;
 use anyhow::Result;
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+use std::ops::ShlAssign;
 
 use crate::common::OrderBase;
 use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::felt::LeBytesConvert;
-use crate::hash::hash2;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::TxSignature;
 use crate::zkw::JubjubSignature;
-use crate::U64SerdeAsString;
+use crate::{hash, U64SerdeAsString};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Transfer {
@@ -53,54 +52,6 @@ pub struct ExchangeTransfer {
     pub max_amount_fee: AmountType,
 }
 
-impl ExchangeTransfer {
-    pub fn hash(&self, condition: u64) -> HashType {
-        internal_transfer_hash(self, condition)
-    }
-}
-
-fn internal_transfer_hash(transfer: &ExchangeTransfer, condition: u64) -> HashType {
-    let msg = hash2(&transfer.asset_id, &transfer.asset_id_fee);
-    let mut msg = hash2(&msg, &transfer.receiver_public_key);
-
-    // Add condition to the signature hash if exists.
-    if condition != 0 {
-        msg = hash2(&msg, &condition);
-    }
-
-    let mut packed_message0 = U256::from(transfer.sender_vault_id);
-    packed_message0.shl_assign(64);
-    packed_message0 += U256::from(transfer.receiver_vault_id);
-
-    packed_message0.shl_assign(64);
-    packed_message0 += U256::from(transfer.src_fee_vault_id);
-
-    packed_message0.shl_assign(32);
-    packed_message0 += U256::from(transfer.base.nonce);
-
-    let msg = hash2(&msg, &packed_message0);
-
-    let mut packed_message1 = U256::from(if condition == 0 {
-        // Normal Transfer.
-        TRANSFER_ORDER_TYPE
-    } else {
-        // Conditional transfer.
-        CONDITIONAL_TRANSFER_ORDER_TYPE
-    });
-    packed_message1.shl_assign(64);
-    packed_message1 += U256::from(transfer.amount);
-
-    packed_message1.shl_assign(64);
-    packed_message1 += U256::from(transfer.max_amount_fee);
-
-    packed_message1.shl_assign(32);
-    packed_message1 += U256::from(transfer.base.expiration_timestamp);
-
-    packed_message1.shl_assign(81); // Padding.
-
-    hash2(&msg, &packed_message1)
-}
-
 pub fn transfer_hash(transfer: &Transfer, condition: u64) -> HashType {
     let mut exchange_transfer = ExchangeTransfer::default();
     exchange_transfer.base = transfer.base.clone();
@@ -114,6 +65,78 @@ pub fn transfer_hash(transfer: &Transfer, condition: u64) -> HashType {
     exchange_transfer.max_amount_fee = 0;
 
     return exchange_transfer.hash(condition);
+}
+
+pub fn transfer_hash_internal(transfer: &ExchangeTransfer, condition: u64) -> HashType {
+    let mut hasher = hash::new_hasher();
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=transfer.asset_id, y=transfer.asset_id_fee);
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=transfer.receiver_public_key);
+
+    hasher.update_single(&transfer.asset_id);
+    hasher.update_single(&transfer.asset_id_fee);
+
+    // Add condition to the signature hash if exists.
+    if condition != 0 {
+        // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=condition);
+        hasher.update_single(&condition);
+    }
+
+    // let packed_message0 = transfer.sender_vault_id;
+    // let packed_message0 = packed_message0 * VAULT_ID_UPPER_BOUND + transfer.receiver_vault_id;
+    // let packed_message0 = packed_message0 * VAULT_ID_UPPER_BOUND + transfer.src_fee_vault_id;
+    let mut packed_message0 = U256([
+        transfer.src_fee_vault_id,
+        transfer.receiver_vault_id,
+        transfer.sender_vault_id,
+        0,
+    ]);
+    // let packed_message0 = packed_message0 * NONCE_UPPER_BOUND + transfer.base.nonce;
+    packed_message0.shl_assign(32);
+    packed_message0 += U256::from(transfer.base.nonce);
+
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=packed_message0);
+    hasher.update_single(&packed_message0);
+
+    // if (condition == 0) {
+    //     // Normal Transfer.
+    //     tempvar packed_message1 = TRANSFER_ORDER_TYPE;
+    // } else {
+    //     // Conditional transfer.
+    //     tempvar packed_message1 = CONDITIONAL_TRANSFER_ORDER_TYPE;
+    // }
+    // let packed_message1 = packed_message1 * AMOUNT_UPPER_BOUND + transfer.amount;
+    // let packed_message1 = packed_message1 * AMOUNT_UPPER_BOUND + transfer.max_amount_fee;
+    let mut packed_message1 = U256([
+        transfer.max_amount_fee,
+        transfer.amount,
+        if condition == 0 {
+            // Normal Transfer.
+            TRANSFER_ORDER_TYPE
+        } else {
+            // Conditional transfer.
+            CONDITIONAL_TRANSFER_ORDER_TYPE
+        },
+        0,
+    ]);
+
+    // let packed_message1 = (
+    //     packed_message1 * EXPIRATION_TIMESTAMP_UPPER_BOUND + transfer.base.expiration_timestamp
+    // );
+    packed_message1.shl_assign(32);
+    packed_message1 += U256::from(transfer.base.expiration_timestamp);
+    // let packed_message1 = packed_message1 * (2 ** 81);  // Padding.
+    packed_message1.shl_assign(81); // Padding.
+
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=packed_message1);
+    hasher.update_single(&packed_message1);
+
+    hasher.finalize()
+}
+
+impl ExchangeTransfer {
+    pub fn hash(&self, condition: u64) -> HashType {
+        transfer_hash_internal(self, condition)
+    }
 }
 
 #[cfg(test)]

@@ -11,7 +11,7 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PublicKey},
+    eddsa::PublicKey,
     jubjub::JubjubEngine,
 };
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ pub use serde_wrapper::*;
 
 use crate::felt::LeBytesConvert;
 use crate::hash_type::hash_type_to_string_with_0xprefix;
-use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
+use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
 use crate::transaction::transfer::{transfer_hash, Transfer};
@@ -69,8 +69,6 @@ lazy_static::lazy_static! {
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-
 
 pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
@@ -145,7 +143,9 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
-    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(&req)))
+    Ok(hash_type_to_string_with_0xprefix(
+        crate::transaction::limit_order::hash_limit_order(req),
+    ))
 }
 
 pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> {
@@ -158,9 +158,9 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> 
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
-    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(
-        &req.liquidator_order,
-    )))
+    Ok(hash_type_to_string_with_0xprefix(
+        limit_order::hash_limit_order(req.liquidator_order),
+    ))
 }
 
 pub fn sign_signed_oracle_price(json: &str, private_key: &str) -> Result<JubjubSignature> {
