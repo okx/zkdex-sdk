@@ -13,7 +13,7 @@ publish = false # This library is not published stand-alone, it is bundled with 
 resolver = "2"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}

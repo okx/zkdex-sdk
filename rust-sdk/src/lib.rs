@@ -38,7 +38,7 @@ use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
-mod common;
+pub mod common;
 mod constant;
 mod convert;
 
