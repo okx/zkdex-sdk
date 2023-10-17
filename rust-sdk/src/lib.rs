@@ -38,7 +38,7 @@ use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
-mod common;
+pub mod common;
 mod constant;
 mod convert;
 
@@ -50,7 +50,7 @@ pub mod serde_wrapper;
 pub mod transaction;
 pub mod tx;
 mod utils;
-mod zkw;
+pub mod zkw;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
