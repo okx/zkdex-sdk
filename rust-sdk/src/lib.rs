@@ -918,14 +918,13 @@ mod test {
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
-        let sig_r = "0x094a47cb182c7eb24e3c34a473def9d356bb30161179e4bbaeaa48c6d18844f8";
-        let sig_s = "0x05534d29f2f1d3ba474f7cec4f9f545924924e5f4261577d09ed9a85df252d5d";
-        let pub_key_x = "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
-        let pub_key_y = "0x09e3c9c66770d2f49401e83b0d07e20f74a311d354505aea32f900b9d533d5f7";
+        let sig_r = "0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732";
+        let sig_s = "0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476";
+        let (pk_x,pk_y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
 
         b.iter(|| {
             let hash = hash_transfer(json).unwrap();
-            assert!(verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, &hash).unwrap());
+            assert!(verify_signature(sig_r, sig_s, &pk_x, &pk_y, &hash).unwrap());
         })
     }
 
@@ -933,6 +932,7 @@ mod test {
     fn bench_sign_transfer(b: &mut Bencher) {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         b.iter(|| {
+
             assert!(sign_transfer(json, PRI_KEY).is_ok());
         })
     }
@@ -942,6 +942,7 @@ mod test {
         let (x, y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
         assert!(x.len() == 66);
         assert!(y.len() == 66);
+        println!("x: {}, y: {}", x, y);
     }
 
     #[test]
