@@ -50,7 +50,7 @@ pub mod serde_wrapper;
 pub mod transaction;
 pub mod tx;
 mod utils;
-mod zkw;
+pub mod zkw;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
