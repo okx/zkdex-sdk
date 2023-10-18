@@ -24,9 +24,9 @@ brokenStrings.forEach((str) => {
     jsCode = jsCode.replace(new RegExp(str, 'g'), '// ' + str);
 });
 
-// jsCode += `
-// const base64WasmCode = \`${wasmData.toString('base64')}\`;
-//
+jsCode += `
+const base64WasmCode = \`${wasmData.toString('base64')}\`;
+
 // function base64ToArrayBuffer(base64) {
 //   const binaryString = window.atob(base64);
 //   const length = binaryString.length;
@@ -71,6 +71,6 @@ brokenStrings.forEach((str) => {
 //     await init(DefaultZksyncCryptoWasmURL);
 //   }
 // }
-// `;
+`;
 
 fs.writeFileSync(jsFile, jsCode);
