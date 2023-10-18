@@ -14,7 +14,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error as ThisError;
 
 use crate::trim_0x;
-use crate::tx::packed_signature::get_xy_from_r;
+use crate::tx::packed_signature::{get_r_from_xy, get_xy_from_r};
 use crate::tx::{u256_to_le, JUBJUB_PARAMS};
 use crate::zkw::BabyJubjubPoint;
 
@@ -67,6 +67,20 @@ impl Into<BabyJubjubPoint> for PackedPublicKey {
             let y = fr_to_u256(&y).unwrap();
             BabyJubjubPoint { x, y }
         }
+    }
+}
+
+impl From<BabyJubjubPoint> for PackedPublicKey {
+    fn from(value: BabyJubjubPoint) -> Self {
+        let r = get_r_from_xy(&value.x, &value.y);
+
+        PackedPublicKey(r)
+    }
+}
+
+impl Into<U256> for PackedPublicKey {
+    fn into(self) -> U256 {
+        self.0
     }
 }
 

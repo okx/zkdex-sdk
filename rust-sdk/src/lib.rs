@@ -11,7 +11,7 @@ use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
-    eddsa::{PrivateKey, PublicKey},
+    eddsa::PublicKey,
     jubjub::JubjubEngine,
 };
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ pub use serde_wrapper::*;
 
 use crate::felt::LeBytesConvert;
 use crate::hash_type::hash_type_to_string_with_0xprefix;
-use crate::transaction::limit_order::{limit_order_hash, LimitOrderRequest};
+use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
 use crate::transaction::transfer::{transfer_hash, Transfer};
@@ -36,10 +36,9 @@ use crate::tx::packed_public_key::{
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
-use crate::utils::set_panic_hook;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 
-mod common;
+pub mod common;
 mod constant;
 mod convert;
 
@@ -51,7 +50,7 @@ pub mod serde_wrapper;
 pub mod transaction;
 pub mod tx;
 mod utils;
-mod zkw;
+pub mod zkw;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
@@ -70,8 +69,6 @@ lazy_static::lazy_static! {
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-
 
 pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
@@ -146,7 +143,9 @@ pub fn sign_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature
 
 pub fn hash_limit_order(json: &str) -> Result<String> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
-    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(&req)))
+    Ok(hash_type_to_string_with_0xprefix(
+        crate::transaction::limit_order::hash_limit_order(req),
+    ))
 }
 
 pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> {
@@ -159,9 +158,9 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> Result<JubjubSignature> 
 
 pub fn hash_liquidate(json: &str) -> Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
-    Ok(hash_type_to_string_with_0xprefix(limit_order_hash(
-        &req.liquidator_order,
-    )))
+    Ok(hash_type_to_string_with_0xprefix(
+        limit_order::hash_limit_order(req.liquidator_order),
+    ))
 }
 
 pub fn sign_signed_oracle_price(json: &str, private_key: &str) -> Result<JubjubSignature> {
@@ -282,7 +281,11 @@ mod test {
 
     use pairing_ce::bn256::Fr;
 
-    use crate::tx::{private_key_from_string, public_key_from_private, FeConvert, JubjubSignature};
+    use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::{
+        private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
+        LimitOrderRequest, PackedPublicKey,
+    };
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
         is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
@@ -368,7 +371,7 @@ mod test {
         let json = r#"
         {
         "nonce":"1",
-        "public_key":"0x8f79f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaaa",
         "expiration_timestamp":"1684832800",
         "position_id":"2",
         "amount":"3",
@@ -397,7 +400,7 @@ mod test {
         let json = r#"
         {
         "nonce":"1",
-        "public_key":"0x92ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x92ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faacccccccccc",
         "expiration_timestamp":"1684832800",
         "position_id":"2",
         "amount":"3",
@@ -465,7 +468,7 @@ mod test {
         let json = r#"
         {
         "nonce":"0",
-        "public_key":"0x8f792ad4f9ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaaaa",
         "expiration_timestamp":"0",
         "sender_position_id":"0",
         "receiver_public_key":"0x8792ad4f9bad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
@@ -495,7 +498,7 @@ mod test {
         let json = r#"
         {
         "nonce":"0",
-        "public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faabbbbbbbbbb",
         "expiration_timestamp":"0",
         "sender_position_id":"0",
         "receiver_public_key":"0x7092ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
@@ -582,7 +585,7 @@ mod test {
     pub fn test_hash_limit_order_with_err_public_key() {
         let json = r#"{
         "nonce":"1",
-        "public_key":"0x8f7924f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"2",
         "amount_synthetic":"3",
         "amount_collateral":"4",
@@ -592,6 +595,9 @@ mod test {
         "position_id":"8",
         "is_buying_synthetic":false
         }"#;
+        let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
+        let pk: PublicKeyType = req.base.public_key.into();
+
         assert!(hash_limit_order(json).unwrap().len() == 66)
     }
 
@@ -608,7 +614,7 @@ mod test {
     pub fn test_sign_limit_order_with_err_public_key() {
         let json = r#"{
         "nonce":"1",
-        "public_key":"0x82ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"2",
         "amount_synthetic":"3",
         "amount_collateral":"4",
@@ -694,7 +700,7 @@ mod test {
     {
     "liquidator_order":{
         "nonce":"0",
-        "public_key":"0x8f792ad49b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaa",
         "expiration_timestamp":"0",
         "amount_synthetic":"1",
         "amount_collateral":"2",
@@ -730,7 +736,7 @@ mod test {
     {
     "liquidator_order":{
         "nonce":"0",
-        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aa",
+        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aaaaaaaaa",
         "expiration_timestamp":"0",
         "amount_synthetic":"1",
         "amount_collateral":"2",
@@ -756,24 +762,6 @@ mod test {
     #[should_panic]
     pub fn test_sign_liquidate_with_empty_json() {
         let json = r#"
-    {
-    "liquidator_order":{
-        "nonce":"0",
-        "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e586aa",
-        "expiration_timestamp":"0",
-        "amount_synthetic":"1",
-        "amount_collateral":"2",
-        "amount_fee":"3",
-        "asset_id_synthetic":"0x4",
-        "asset_id_collateral":"0x5",
-        "position_id":"6",
-        "is_buying_synthetic":false
-    },
-    "liquidated_position_id":"7",
-    "actual_collateral":"8",
-    "actual_synthetic":"9",
-    "actual_liquidator_fee":"10"
-    }
         "#;
 
         let sig = sign_liquidate(json, PRI_KEY).unwrap();
@@ -879,7 +867,7 @@ mod test {
     pub fn test_hash_oracle_price_with_err_signer_key() {
         let json = r#"
         {
-        "signer_key": "0x1544b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4",
+        "signer_key": "0x15d144b7facdffd112bc06640c3bd4e5f36ad077ca9f9b97ad3f8f85906236a4a",
         "external_price": "1854072360000000000000",
         "timestamp": "1693971569",
         "signed_asset_id": "0x455448555344434f4b580000000000005374437277"
@@ -903,7 +891,7 @@ mod test {
     pub fn test_sign_oracle_price_with_err_signer_key() {
         let json1 = r#"
         {
-        "signer_key": "0xa09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+        "signer_key": "0xa09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2aaaaaaaaaaaa",
         "external_price": "28409392522000000000000",
         "timestamp": "1693907824",
         "signed_asset_id": "0x425443555344434f4b580000000000005374437277"
@@ -930,14 +918,13 @@ mod test {
     #[bench]
     fn bench_verify_transfer(b: &mut Bencher) {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
-        let sig_r = "0x094a47cb182c7eb24e3c34a473def9d356bb30161179e4bbaeaa48c6d18844f8";
-        let sig_s = "0x05534d29f2f1d3ba474f7cec4f9f545924924e5f4261577d09ed9a85df252d5d";
-        let pub_key_x = "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
-        let pub_key_y = "0x09e3c9c66770d2f49401e83b0d07e20f74a311d354505aea32f900b9d533d5f7";
+        let sig_r = "0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732";
+        let sig_s = "0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476";
+        let (pk_x,pk_y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
 
         b.iter(|| {
             let hash = hash_transfer(json).unwrap();
-            assert!(verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, &hash).unwrap());
+            assert!(verify_signature(sig_r, sig_s, &pk_x, &pk_y, &hash).unwrap());
         })
     }
 
@@ -945,6 +932,7 @@ mod test {
     fn bench_sign_transfer(b: &mut Bencher) {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         b.iter(|| {
+
             assert!(sign_transfer(json, PRI_KEY).is_ok());
         })
     }
@@ -954,6 +942,7 @@ mod test {
         let (x, y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
         assert!(x.len() == 66);
         assert!(y.len() == 66);
+        println!("x: {}, y: {}", x, y);
     }
 
     #[test]

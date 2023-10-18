@@ -1,71 +1,83 @@
 use halo2_proofs::arithmetic::FieldExt;
 use primitive_types::U256;
 
-use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
+use crate::zkw::poseidon::{PoseidonContext};
 
 mod poseidon;
 
-// use serde::{Serialize, Serializer};
-// use serde_json::value::Serializer;
-// use crate::tx::jubjub::{babyjubjub_sum_finalize, babyjubjub_sum_new, babyjubjub_sum_push};
-
-pub struct PoseidonHasher {
-    x: u64,
-    context: PoseidonContext,
-}
+pub struct PoseidonHasher(u64, PoseidonContext);
 
 impl PoseidonHasher {
     pub fn new() -> Self {
-        let mut context = PoseidonContext::default();
-        context.buf = vec![];
-        let new = 1u64;
-        if new != 0 {
-            context.hasher = Some(POSEIDON_HASHER.clone());
-        }
-        PoseidonHasher {
-            x: 0u64,
-            context: context,
-        }
+        let mut ctx = PoseidonContext::default();
+        ctx.poseidon_new(1u64 as usize);
+        PoseidonHasher(0u64, ctx)
     }
+
+    pub fn hash(data: &[u64], padding: bool) -> [u64; 4] {
+        let mut hasher = Self::new();
+        if padding {
+            let group = data.len() / 3;
+            let mut j = 0;
+            for i in 0..group {
+                j = i * 3;
+                hasher.update(data[j]);
+                hasher.update(data[j + 1]);
+                hasher.update(data[j + 2]);
+                hasher.update(0u64);
+            }
+            j += 3;
+            for i in j..data.len() {
+                hasher.update(data[i]);
+            }
+        } else {
+            for d in data {
+                hasher.update(*d);
+            }
+        }
+        hasher.finalize()
+    }
+}
+
+impl PoseidonHasher {
     pub fn update(&mut self, v: u64) {
-        self.context.poseidon_push(v);
-        self.x += 1;
-        if self.x == 32 {
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_new(0u64 as usize);
-
-            self.x = 0;
+        self.1.poseidon_push(v);
+        self.0 += 1;
+        if self.0 == 32 {
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_new(0u64 as usize);
+            self.0 = 0;
         }
     }
+
     pub fn finalize(&mut self) -> [u64; 4] {
-        for _ in (self.x & 0x3)..4 {
-            self.context.poseidon_push(0);
-            self.x += 1;
+        if (self.0 & 0x3) != 0 {
+            for _ in (self.0 & 0x3)..4 {
+                self.1.poseidon_push(0);
+                self.0 += 1;
+            }
         }
-        if self.x == 32 {
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_finalize();
-            self.context.poseidon_new(0u64 as usize);
-            self.x = 0;
+        if self.0 == 32 {
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_finalize();
+            self.1.poseidon_new(0u64 as usize);
+            self.0 = 0;
         }
-
-        self.context.poseidon_push(1);
-
-        self.x += 1;
-        for _ in self.x..32 {
-            self.context.poseidon_push(0);
+        self.1.poseidon_push(1);
+        self.0 += 1;
+        for _ in self.0..32 {
+            self.1.poseidon_push(0);
         }
-
         [
-            self.context.poseidon_finalize(),
-            self.context.poseidon_finalize(),
-            self.context.poseidon_finalize(),
-            self.context.poseidon_finalize(),
+            self.1.poseidon_finalize(),
+            self.1.poseidon_finalize(),
+            self.1.poseidon_finalize(),
+            self.1.poseidon_finalize(),
         ]
     }
 }

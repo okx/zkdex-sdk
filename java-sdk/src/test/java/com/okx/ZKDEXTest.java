@@ -43,7 +43,7 @@ public class ZKDEXTest {
         String json = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"1684832800\",\"position_id\":\"2\",\"amount\":\"3\",\"eth_address\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"asset_id\":\"0x1\"}";
         String sigStr = ZKDEX.signWithdraw(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0x2e39e39381ac5e962650072a8936b99716fc0b3fda124f59ef62066301fd0749", "0x037fd915bf958893ed35132a91b98fc4fcd7821c9fe784057bbc85d8fc5e7d4f");
+        Signature expectSig = new Signature("0xa5d62dbb0566a1b69162df475097fbfca6a317535ea59ea3275580dce2d7043e", "0x03c61d342a339d329341494ee136ccadf10675b9f8f90894e6a9e86ac6a19dec");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashWithdraw(json);
@@ -83,7 +83,7 @@ public class ZKDEXTest {
         String json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         String sigStr = ZKDEX.signTransfer(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0x094a47cb182c7eb24e3c34a473def9d356bb30161179e4bbaeaa48c6d18844f8", "0x05534d29f2f1d3ba474f7cec4f9f545924924e5f4261577d09ed9a85df252d5d");
+        Signature expectSig = new Signature("0xa5920612d2b265813f31ee169b9e96e89548bdd53e9f4541e53fcdb1205c9c9a", "0x0028bdb4cc8f9f70c6ad081c03d662599fe732c118f268e537da019e3b473a09");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashTransfer(json);
@@ -119,7 +119,7 @@ public class ZKDEXTest {
         String json = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"2\",\"amount_synthetic\":\"3\",\"amount_collateral\":\"4\",\"amount_fee\":\"5\",\"asset_id_synthetic\":\"0x6\",\"asset_id_collateral\":\"0x7\",\"position_id\":\"8\",\"is_buying_synthetic\":false}";
         String sigStr = ZKDEX.signLimitOrder(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0x003f3ab7c200c727633be0544f1bebe49ebb6ceebb6d76a026eef036d12ef2d1", "0x03a2ffcb3a5dfb21f0d58724f0451b18203f697095a61485fde4aa4601e2a8a3");
+        Signature expectSig = new Signature("0xb009ccc02daa847671c14bbe2ae576076d0ed8e4ed9af3b8553b1090a122f2b7", "0x0319dcc4dde119be949f194aeaa727d4ac0a1666f4e260436b1a9fd5b9d4e739");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLimitOrder(json);
@@ -155,7 +155,7 @@ public class ZKDEXTest {
         String json = "{\"liquidator_order\":{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"amount_synthetic\":\"1\",\"amount_collateral\":\"2\",\"amount_fee\":\"3\",\"asset_id_synthetic\":\"4\",\"asset_id_collateral\":\"0x5\",\"position_id\":\"6\",\"is_buying_synthetic\":false},\"liquidated_position_id\":\"7\",\"actual_collateral\":\"8\",\"actual_synthetic\":\"9\",\"actual_liquidator_fee\":\"10\"}";
         String sigStr = ZKDEX.signLiquidate(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0x083facdecdd8609358af1614474074134649141567ffc6367e134b7dee33b367", "0x04e1852d5be741ad5c367622c5f4e3e86d5a78fa07dd93775105eba8c65ee40d");
+        Signature expectSig = new Signature("0xa2b928904a4015f324244432ac4cc28286446f93cc6e0e8fcd0f6a9278a152f5", "0x01b612dd6801d8044f3ad6e345cabc3c7f41a02ecfdfe3c48fd81eb4ac01fd36");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashLiquidate(json);
@@ -164,7 +164,7 @@ public class ZKDEXTest {
 
     @Test(expected = java.lang.Exception.class)
     public void signLiquidateWithErrJSON() throws Exception {
-        String json = "{\"liquidator_order\":{\"nonce\":\"0\",\"public_key\":\"0x42cb7f9ac9c5c4b15f0b5ca78d57ff1e5948008799b9c0d330b1e217a9\",\"expiration_timestamp\":\"0\",\"amount_synthetic\":\"1\",\"amount_collateral\":\"2\",\"amount_fee\":\"3\",\"asset_id_synthetic\":\"4\",\"asset_id_collateral\":\"0x5\",\"position_id\":\"6\",\"is_buying_synthetic\":false},\"liquidated_position_id\":\"7\",\"actual_collateral\":\"8\",\"actual_synthetic\":\"9\",\"actual_liquidator_fee\":\"10\"}";
+        String json = "{\"liquidator_order\":{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faaaaaa\",\"expiration_timestamp\":\"0\",\"amount_synthetic\":\"1\",\"amount_collateral\":\"2\",\"amount_fee\":\"3\",\"asset_id_synthetic\":\"4\",\"asset_id_collateral\":\"0x5\",\"position_id\":\"6\",\"is_buying_synthetic\":false},\"liquidated_position_id\":\"7\",\"actual_collateral\":\"8\",\"actual_synthetic\":\"9\",\"actual_liquidator_fee\":\"10\"}";
         String sigStr = ZKDEX.signLiquidate(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
         Signature expectSig = new Signature("0x19f6e2a51958df5649b6301e83dfc6b8fc34c140c929adf6896d5860d8f56b1b", "0x4c1b8c06fb73cdd4484ebd8199f0f2b0b5696fc3510a08a84681342ad4a48a05");
@@ -191,7 +191,7 @@ public class ZKDEXTest {
         String json = "{\"signer_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"external_price\":\"1\",\"timestamp\":\"2\",\"signed_asset_id\":\"0x3\"}";
         String sigStr = ZKDEX.signSignedOraclePrice(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0x22d1741361d9e4c2870a18d73daa0c4a7925aeb8ddfd04a2ea4886de7fb784f4", "0x0416c1bab51ba9906dfb4f7cb72468f0452cc7061030a85af272bd3ef84e24bc");
+        Signature expectSig = new Signature("0x8510a3eab6ac786e2c97c59db9fc5ea60eb39057b61e746fe2120e02c163fd4b", "0x035ac9dd0980f0625b5d540ce43b62171cb80ed07cc63df88a8990ce2f4ea293");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashSignedOraclePrice(json);
@@ -226,7 +226,7 @@ public class ZKDEXTest {
     public void hashWithdraw() throws Exception {
         String withdraw_req = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"1684832800\",\"position_id\":\"2\",\"amount\":\"3\",\"eth_address\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"asset_id\":\"0x1\"}";
         String hash = ZKDEX.hashWithdraw(withdraw_req);
-        assertEquals("0x08a09b19adaa35815065dffcc4b5e0ee75f54660eb474c5932929b96c0ff15c9", hash);
+        assertEquals("0x22e58e85163d975aba853ef13742320fc8f7b5e1fed5667e37a275916e96a561", hash);
     }
 
     @Test(expected = java.lang.Exception.class)
@@ -248,7 +248,7 @@ public class ZKDEXTest {
     public void hashTransfer() throws Exception {
         String json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         String hash = ZKDEX.hashTransfer(json);
-        assertEquals("0x10bd764b4f188b534ca0cc13db4882d9bfa06654d4d3b609387d9bdfb54e1b4a", hash);
+        assertEquals("0x023408af1feaf9432599c6562003b4f105a83aa7fa5bf9dbfb17e37d2f876601", hash);
     }
 
     @Test(expected = java.lang.Exception.class)
@@ -269,7 +269,7 @@ public class ZKDEXTest {
     public void hashLimitOrder() throws Exception {
         String json = "{\"nonce\":\"1\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"2\",\"amount_synthetic\":\"3\",\"amount_collateral\":\"4\",\"amount_fee\":\"5\",\"asset_id_synthetic\":\"6\",\"asset_id_collateral\":\"0x7\",\"position_id\":\"8\",\"is_buying_synthetic\":false}";
         String hash = ZKDEX.hashLimitOrder(json);
-        assertEquals("0x25a7adfed526885fab2b34cf0ab1e382a38fa3f6f42f3ce15fa90f2acf01cf0a", hash);
+        assertEquals("0x151301a401fab9fdf8d88f5d28261740a9fb7ecbfc1110312e67480a40deb51c", hash);
     }
 
 
@@ -293,7 +293,7 @@ public class ZKDEXTest {
     public void hashLiquidate() throws Exception {
         String json = "{\"liquidator_order\":{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"amount_synthetic\":\"1\",\"amount_collateral\":\"2\",\"amount_fee\":\"3\",\"asset_id_synthetic\":\"4\",\"asset_id_collateral\":\"0x5\",\"position_id\":\"6\",\"is_buying_synthetic\":false},\"liquidated_position_id\":\"7\",\"actual_collateral\":\"8\",\"actual_synthetic\":\"9\",\"actual_liquidator_fee\":\"10\"}";
         String hash = ZKDEX.hashLiquidate(json);
-        assertEquals("0x00fe1979a24a2e94a59facd5084432a2a403ec0132549859289b2d49e4ec9750", hash);
+        assertEquals("0x11fbfdb033ed2a370a6213e172d48aa152254597ec9d16b7d851ffacfa9ae29e", hash);
     }
 
     @Test(expected = java.lang.Exception.class)
@@ -316,7 +316,7 @@ public class ZKDEXTest {
     public void hashSignedOraclePrice() throws Exception {
         String json = "{\"signer_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"external_price\":\"1\",\"timestamp\":\"2\",\"signed_asset_id\":\"0x3\"}";
         String hash = ZKDEX.hashSignedOraclePrice(json);
-        assertEquals("0x20a5f182b00a166df3922b8cb92b2ef5156cb0ed18be0f2c08d0a1bed57e8101", hash);
+        assertEquals("0x2aff026c07ab995e4874dd866d81ed332ed5580d938a4a4ef0b7f54ed500c9e2", hash);
     }
 
     @Test(expected = java.lang.Exception.class)

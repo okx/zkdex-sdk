@@ -2030,7 +2030,7 @@ dependencies = [
 
 [[package]]
 name = "zkdex-sdk"
-version = "1.0.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "bigdecimal",

@@ -11,6 +11,7 @@ pub mod u256_serde;
 pub mod u64_serde;
 pub mod u8_array_serde;
 pub mod vec_signed_asset_id;
+pub mod u32_serde;
 
 pub use bigint_serde::{
     BigIntSerdeAsRadix10String, BigIntSerdeAsRadix16Prefix0xString,
@@ -26,3 +27,4 @@ pub use u256_serde::U256SerdeAsRadix16Prefix0xString;
 pub use u64_serde::U64SerdeAsRadix16Prefix0xString;
 pub use u64_serde::U64SerdeAsString;
 pub use u8_array_serde::{U8Array32SerdeAsStringWith0x, U8Array64SignatureSerde};
+pub use u32_serde::U32SerdeAsString;
