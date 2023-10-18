@@ -25,7 +25,7 @@ brokenStrings.forEach((str) => {
 });
 
 jsCode += `
-const base64WasmCode = \`${wasmData.toString('base64')}\`;
+export let base64WasmCode = \`${wasmData.toString('base64')}\`;
 
 // function base64ToArrayBuffer(base64) {
 //   const binaryString = window.atob(base64);
