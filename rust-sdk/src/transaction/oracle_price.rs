@@ -5,7 +5,7 @@
 //   (collateral_asset_unit / collateral_resolution) /
 //   (synthetic_asset_unit / synthetic_resolution).
 use crate::i128_serde::U128SerdeAsString;
-use crate::I64SerdeAsString;
+use crate::U32SerdeAsString;
 use primitive_types::U256;
 use serde::Deserialize;
 use std::ops::ShlAssign;
@@ -27,7 +27,7 @@ pub struct SignedOraclePrice {
     pub signer_key: PublicKeyType,
     #[serde(rename = "external_price", with = "U128SerdeAsString")]
     pub external_price: PriceType,
-    #[serde(rename = "timestamp", with = "I64SerdeAsString")]
+    #[serde(rename = "timestamp", with = "U32SerdeAsString")]
     pub timestamp: TimestampType,
     #[serde(rename = "signed_asset_id", with = "U256SerdeAsRadix16Prefix0xString")]
     pub signed_asset_id: SignedAssetId,

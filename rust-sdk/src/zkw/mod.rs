@@ -1,7 +1,7 @@
 use halo2_proofs::arithmetic::FieldExt;
 use primitive_types::U256;
 
-use crate::zkw::poseidon::{PoseidonContext, POSEIDON_HASHER};
+use crate::zkw::poseidon::{PoseidonContext};
 
 mod poseidon;
 

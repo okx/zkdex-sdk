@@ -102,7 +102,7 @@ mod test {
         let prv_key = "05510911e24cade90e206aabb9f7a03ecdea26be4a63c231fabff27ace91471e";
         let private_key = private_key_from_string(prv_key).unwrap();
         let pub_key = public_key_from_private(&private_key);
-        let expire = 1684832800i64;
+        let expire = 1684832800u32;
         let pub_key = PublicKeyType::from(pub_key.clone());
         let req = Withdraw {
             base: OrderBase {

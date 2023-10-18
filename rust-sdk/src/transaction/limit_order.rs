@@ -106,6 +106,10 @@ pub struct ExchangeLimitOrder {
 }
 
 pub fn limit_order_hash_internal(limit_order: &ExchangeLimitOrder) -> HashType {
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(
+    //     x=limit_order.asset_id_sell, y=limit_order.asset_id_buy
+    // );
+    // let (msg) = hash2{hash_ptr=pedersen_ptr}(x=msg, y=limit_order.asset_id_fee);
     let mut hasher = hash::new_hasher();
     hasher.update_single(&limit_order.asset_id_sell);
     hasher.update_single(&limit_order.asset_id_buy);
@@ -145,14 +149,7 @@ pub fn limit_order_hash_internal(limit_order: &ExchangeLimitOrder) -> HashType {
 
     // let packed_message1 = packed_message1 * EXPIRATION_TIMESTAMP_UPPER_BOUND + limit_order.base.expiration_timestamp;
     packed_message1.shl_assign(32);
-    // TODO: SHOULD CHANGE TIMESTAMP TYPE: i64 -> u32
-    if limit_order_base.expiration_timestamp >= 0
-        && limit_order_base.expiration_timestamp <= u32::MAX as i64
-    {
-        packed_message1.0[0] += limit_order_base.expiration_timestamp as u64;
-    } else {
-        packed_message1 += U256::from(limit_order_base.expiration_timestamp);
-    }
+    packed_message1.0[0] += limit_order_base.expiration_timestamp as u64;
 
     // let packed_message1 = packed_message1 * (2 ** 17);  // Padding.
     let packed_message1 = packed_message1 << 17; // Padding.
