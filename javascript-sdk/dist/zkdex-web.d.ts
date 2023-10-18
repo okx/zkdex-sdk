@@ -124,7 +124,6 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly zkdex_init: () => void;
   readonly sign_transfer: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly hash_transfer: (a: number, b: number, c: number) => void;
   readonly sign_withdraw: (a: number, b: number, c: number, d: number, e: number) => void;
@@ -142,6 +141,7 @@ export interface InitOutput {
   readonly private_key_from_seed: (a: number, b: number, c: number) => void;
   readonly private_key_to_pubkey_xy: (a: number, b: number, c: number) => void;
   readonly public_key_to_xy: (a: number, b: number, c: number) => void;
+  readonly zkdex_init: () => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
