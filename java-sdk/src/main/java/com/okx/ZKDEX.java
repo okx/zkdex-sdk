@@ -3,9 +3,18 @@ package com.okx;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.file.Files;
 
 @Slf4j
 public class ZKDEX {
+
+    private static final String VERSION = "0.1.1";
+    private static final String LIB_NAME = "libzkdex_sdk";
+
+    private static final String ARM_MAC_LIB_NAME = "arm_" + LIB_NAME + "_" + VERSION + ".dylib";
+    private static final String X86_MAC_LIB_NAME = "x86_64_" + LIB_NAME + "_" + VERSION + ".dylib";
+
+    private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_" + VERSION + ".so";
 
     static {
 
@@ -14,12 +23,12 @@ public class ZKDEX {
         String fileName = "";
         if (osName.contains("mac")) {
             if ((arch.contains("amd64") || arch.contains("x86_64"))) {
-                fileName = "x86_64_libzkdex_sdk.dylib";
+                fileName = X86_MAC_LIB_NAME;
             } else {
-                fileName = "arm_libzkdex_sdk.dylib";
+                fileName = ARM_MAC_LIB_NAME;
             }
         } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
-            fileName = "libzkdex_sdk.so";
+            fileName = X86_LINUX_LIB_NAME;
         } else {
             log.error("{}", "Unsupported operating system");
             System.exit(-1);
@@ -36,10 +45,9 @@ public class ZKDEX {
 
     private static void loadLib(String path, String name) {
 
-        BufferedInputStream bufferedInputStream = null;
-        BufferedOutputStream bufferedOutputStream = null;
+        InputStream in = null;
         try {
-            InputStream in = ZKDEX.class.getResourceAsStream(name);
+            in = ZKDEX.class.getResourceAsStream(name);
             String tmpPath = path;
 
             // check path whether created
@@ -50,18 +58,13 @@ public class ZKDEX {
 
             // create target file
             File fileOut = new File(tmpPath + "/" + name);
-            if (!fileOut.exists()) {
-                fileOut.createNewFile();
+            if (fileOut.exists()) {
+                fileOut.delete();
+                log.info("[loadLib] delete old lib file: {}", fileOut.getAbsolutePath());
             }
 
-            // copy from source file
-            bufferedInputStream = new BufferedInputStream(in);
-            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileOut));
-            byte[] buf = new byte[4096];
-            while ((bufferedInputStream.read(buf)) != -1) {
-                bufferedOutputStream.write(buf);
-                bufferedOutputStream.flush();
-            }
+            // auto create file and copy from source to it
+            Files.copy(in,fileOut.toPath());
 
             // load library file
             System.load(fileOut.getAbsolutePath());
@@ -69,17 +72,9 @@ public class ZKDEX {
             log.error("[loadLib] e: ",e.toString());
             throw new RuntimeException("loading dynamic library failed", e);
         } finally {
-           if  (bufferedInputStream != null) {
+           if  (in != null) {
                try {
-                   bufferedInputStream.close();
-               } catch (IOException e) {
-                   log.error("[loadLib] e: ",e.toString());
-               }
-           }
-
-           if (bufferedOutputStream != null) {
-               try {
-                   bufferedOutputStream.close();
+                   in.close();
                } catch (IOException e) {
                    log.error("[loadLib] e: ",e.toString());
                }
