@@ -8,7 +8,9 @@ import java.nio.file.Files;
 @Slf4j
 public class ZKDEX {
 
+
     private static final String VERSION = "0.1.2";
+
     private static final String LIB_NAME = "libzkdex_sdk";
 
     private static final String ARM_MAC_LIB_NAME = "arm_" + LIB_NAME + "_" + VERSION + ".dylib";
