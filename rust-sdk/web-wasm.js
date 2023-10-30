@@ -27,50 +27,50 @@ brokenStrings.forEach((str) => {
 jsCode += `
 export let base64WasmCode = \`${wasmData.toString('base64')}\`;
 
-// function base64ToArrayBuffer(base64) {
-//   const binaryString = window.atob(base64);
-//   const length = binaryString.length;
-//   const bytes = new Uint8Array(length);
-//
-//   for (let i = 0; i < length; i++) {
-//       bytes[i] = binaryString.charCodeAt(i);
-//   }
-//   return bytes.buffer;
-// }
-//
-// const wasmBytes = base64ToArrayBuffer(base64WasmCode);
-//
-// const wasmResponseInit = {
-//   "status" : 200 ,
-//   "statusText" : "ok.",
-//   headers: {
-//     'Content-Type': 'application/wasm',
-//     'Content-Length': wasmBytes.length
-//   }
-// };
-//
-// export function wasmSupported() {
-//   try {
-//     if (typeof WebAssembly === 'object') {
-//       return true;
-//     }
-//   } catch (e) {
-//   }
-//   return false;
-// }
-//
-// export async function loadZkSyncCrypto(wasmFileUrl) {
-//   if (!wasmSupported()) {
-//     // Use the bundler build.
-//     return require(\'${asmJsFile}\');
-//   }
-//   if (!wasmFileUrl) {
-//     const wasmResponse = new Response(wasmBytes, wasmResponseInit);
-//     await init(wasmResponse);
-//   } else {
-//     await init(DefaultZksyncCryptoWasmURL);
-//   }
-// }
+function base64ToArrayBuffer(base64) {
+  const binaryString = window.atob(base64);
+  const length = binaryString.length;
+  const bytes = new Uint8Array(length);
+
+  for (let i = 0; i < length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+const wasmBytes = base64ToArrayBuffer(base64WasmCode);
+
+const wasmResponseInit = {
+  "status" : 200 ,
+  "statusText" : "ok.",
+  headers: {
+    'Content-Type': 'application/wasm',
+    'Content-Length': wasmBytes.length
+  }
+};
+
+export function wasmSupported() {
+  try {
+    if (typeof WebAssembly === 'object') {
+      return true;
+    }
+  } catch (e) {
+  }
+  return false;
+}
+
+export async function loadZKDEXCrypto(wasmFileUrl) {
+  if (!wasmSupported()) {
+    // Use the bundler build.
+    return require(\'${asmJsFile}\');
+  }
+  if (!wasmFileUrl) {
+    const wasmResponse = new Response(wasmBytes, wasmResponseInit);
+    await init(wasmResponse);
+  } else {
+    await init(DefaultZksyncCryptoWasmURL);
+  }
+}
 `;
 
 fs.writeFileSync(jsFile, jsCode);
