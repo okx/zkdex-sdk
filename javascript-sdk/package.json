@@ -1,6 +1,6 @@
 {
 	"name": "@ok/zkdex-sdk",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"browser": "dist/zkdex-web.js",
 	"main": "dist/zkdex-node.js",
 	"files": [
