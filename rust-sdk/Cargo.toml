@@ -63,8 +63,8 @@ jni = {version = '0.21.1', optional = true}
 opt-level = "s"
 
 [features]
-default = ["console_error_panic_hook"]
-js = ["wasm-bindgen"]
+default = []
+js = ["wasm-bindgen","console_error_panic_hook"]
 java = ["jni"]
 
 [package.metadata.cross.target.x86_64-unknown-linux-gnu]
