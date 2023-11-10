@@ -5,6 +5,11 @@
 #
 name: CI
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./python-sdk
+
 on:
   push:
     branches:
@@ -15,10 +20,6 @@ on:
       - '*'
   pull_request:
   workflow_dispatch:
-defaults:
-  run:
-    shell: bash
-    working-directory: ./python-sdk
 
 permissions:
   contents: read
