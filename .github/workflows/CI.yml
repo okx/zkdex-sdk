@@ -24,6 +24,9 @@ permissions:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./python-sdk
     strategy:
       matrix:
         target: [x86_64, x86, aarch64, armv7, s390x, ppc64le]
@@ -39,7 +42,6 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
-        working-directory: ./python-sdk
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
