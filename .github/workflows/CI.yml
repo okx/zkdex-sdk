@@ -10,10 +10,15 @@ on:
     branches:
       - main
       - master
+      - python
     tags:
       - '*'
   pull_request:
   workflow_dispatch:
+defaults:
+  run:
+    shell: bash
+    working-directory: ./python-sdk
 
 permissions:
   contents: read
