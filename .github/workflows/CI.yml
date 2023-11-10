@@ -5,11 +5,6 @@
 #
 name: CI
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ./python-sdk
-
 on:
   push:
     branches:
@@ -23,6 +18,11 @@ on:
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ${{ github.workspace }}/python-sdk
 
 jobs:
   linux:
