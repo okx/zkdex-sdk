@@ -39,6 +39,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
+        working-directory: ./python-sdk
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
