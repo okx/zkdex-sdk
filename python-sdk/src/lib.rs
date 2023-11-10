@@ -37,7 +37,7 @@ fn verify_signature(
     msg: String,
 ) -> PyResult<bool> {
     match panic::catch_unwind(|| {
-      verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg)
+        zkdex_sdk::verify_signature(&sig_r, &sig_s, &pub_key_x, &pub_key_y, &msg)
             .expect("Couldn't get verify_signature result")
     }) {
         Ok(ret) => Ok(ret),
@@ -173,7 +173,7 @@ fn hash_signed_oracle_price(
 }
 
 #[pyfunction]
-fn sign(private_key: String,msg: String) -> PyResult<String> {
+fn sign(private_key: String, msg: String) -> PyResult<String> {
      match panic::catch_unwind(|| {
         let sig = zkdex_sdk::sign(&private_key, &msg).expect("Couldn't sign msg");
         let json = serde_json::to_string(&sig).expect("Couldn't serialize signature");
