@@ -18,7 +18,6 @@ crate-type = ["rlib", "cdylib"]
 [dependencies]
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
 rand = "0.4"
-mio = "0.7.12"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = { version = "1.0.93" }
 ff = {version = "0.12.1", default-features = false}
