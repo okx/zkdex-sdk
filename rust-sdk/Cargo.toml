@@ -18,7 +18,6 @@ crate-type = ["rlib", "cdylib"]
 [dependencies]
 franklin_crypto = {package = "franklin-crypto",git="https://github.com/okx/franklin-crypto.git",branch="beta" , features = ["multicore", "plonk"]}
 rand = "0.4"
-mio = "0.7.12"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = { version = "1.0.93" }
 ff = {version = "0.12.1", default-features = false}
@@ -63,8 +62,8 @@ jni = {version = '0.21.1', optional = true}
 opt-level = "s"
 
 [features]
-default = ["console_error_panic_hook"]
-js = ["wasm-bindgen"]
+default = []
+js = ["wasm-bindgen","console_error_panic_hook"]
 java = ["jni"]
 
 [package.metadata.cross.target.x86_64-unknown-linux-gnu]
