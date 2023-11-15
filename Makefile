@@ -30,4 +30,4 @@ linux_lib:
 win_lib:
 
 	cd rust-sdk && cargo build --features java --release
-	cp -f rust-sdk/target/x86_64-pc-windows-gnu/release/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk.dll
+	cp -f rust-sdk\target\release\zkdex_sdk.dll java-sdk\src\main\resources\com\okx\zkdex_sdk.dll
