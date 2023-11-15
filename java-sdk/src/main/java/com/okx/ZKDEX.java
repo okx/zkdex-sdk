@@ -43,7 +43,6 @@ public class ZKDEX {
         if (osName.contains("win")) {
             try {
                 loadLib(System.getProperty("java.io.tmpdir"), fileName);
-
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("[loadLib] try load lib from {} failed: {}", System.getProperty("java.io.tmpdir"), e.toString());
@@ -59,6 +58,8 @@ public class ZKDEX {
             }
         }
     }
+
+
 
     private static void loadLib(String path, String name) {
 
