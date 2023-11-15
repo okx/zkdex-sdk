@@ -27,3 +27,7 @@ mac_lib:
 linux_lib:
 	cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
 	cp -f rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk.so
+win_lib:
+    tag = $(shell git describe --tags)
+	cd rust-sdk --features java --target x86_64-pc-msvc --release
+	cp -f rust-sdk/target/x86_64-pc-windows-gnu/release/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk.dll
