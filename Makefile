@@ -28,6 +28,6 @@ linux_lib:
 	cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
 	cp -f rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk.so
 win_lib:
-
 	cd rust-sdk && cargo build --features java --release
-	cp -f rust-sdk\target\release\zkdex_sdk.dll java-sdk\src\main\resources\com\okx\zkdex_sdk.dll
+	# windows 下复制文件
+	cp .\rust-sdk\target\release\zkdex_sdk.dll .\java-sdk\src\main\resources\com\okx\zkdex_sdk.dll
