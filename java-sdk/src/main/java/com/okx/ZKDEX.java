@@ -17,6 +17,7 @@ public class ZKDEX {
     private static final String X86_MAC_LIB_NAME = "x86_64_" + LIB_NAME + "_" + VERSION + ".dylib";
 
     private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_" + VERSION + ".so";
+    private static final String X86_WIN_LIB_NAME = LIB_NAME + "_" + VERSION + ".dll";
 
     static {
 
@@ -31,19 +32,34 @@ public class ZKDEX {
             }
         } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
             fileName = X86_LINUX_LIB_NAME;
+        } else if (osName.contains("win")) {
+            fileName = X86_WIN_LIB_NAME;
         } else {
             log.error("{}", "Unsupported operating system");
             System.exit(-1);
         }
 
-        try {
-            loadLib("/tmp", fileName);
-        } catch (Exception e) {
-            log.error("[loadLib] try load lib from /tmp failed: ",e.toString());
-            log.info("[loadLib] try load lib from /home/admin/zk-lib again");
-            loadLib("/home/admin/zk-lib", fileName);
+
+        if (osName.contains("win")) {
+            try {
+                loadLib(System.getProperty("java.io.tmpdir"), fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("[loadLib] try load lib from {} failed: {}", System.getProperty("java.io.tmpdir"), e.toString());
+                System.exit(-1);
+            }
+        } else {
+            try {
+                loadLib("/tmp", fileName);
+            } catch (Exception e) {
+                log.error("[loadLib] try load lib from /tmp failed: {}", e.toString());
+                log.info("[loadLib] try load lib from /home/admin/zk-lib again");
+                loadLib("/home/admin/zk-lib", fileName);
+            }
         }
     }
+
+
 
     private static void loadLib(String path, String name) {
 
@@ -59,28 +75,28 @@ public class ZKDEX {
             }
 
             // create target file
-            File fileOut = new File(tmpPath + "/" + name);
+            File fileOut = new File(tmpPath + File.separator + name);
             if (fileOut.exists()) {
                 fileOut.delete();
                 log.info("[loadLib] delete old lib file: {}", fileOut.getAbsolutePath());
             }
 
             // auto create file and copy from source to it
-            Files.copy(in,fileOut.toPath());
+            Files.copy(in, fileOut.toPath());
 
             // load library file
             System.load(fileOut.getAbsolutePath());
         } catch (Exception e) {
-            log.error("[loadLib] e: ",e.toString());
+            log.error("[loadLib] e: ", e.toString());
             throw new RuntimeException("loading dynamic library failed", e);
         } finally {
-           if  (in != null) {
-               try {
-                   in.close();
-               } catch (IOException e) {
-                   log.error("[loadLib] e: ",e.toString());
-               }
-           }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.error("[loadLib] e: ", e.toString());
+                }
+            }
         }
     }
 
