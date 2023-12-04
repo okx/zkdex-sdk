@@ -11,11 +11,9 @@ use crate::hash::Hasher;
 use crate::serde_wrapper::I128SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
-use crate::transaction::types::{
-    AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType,
-};
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::TxSignature;
+use crate::types::{AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::JubjubSignature;
 
 const LIMIT_ORDER_WITH_FEES: u64 = 3;
@@ -190,10 +188,10 @@ impl Default for ExchangeLimitOrder {
 #[cfg(test)]
 mod test {
     use crate::common::OrderBase;
-    use crate::transaction::types::CollateralAssetId;
-    use crate::tx::{LimitOrderRequest, private_key_from_string, public_key_from_private};
     use crate::tx::limit_order::sign_limit_order;
     use crate::tx::public_key_type::PublicKeyType;
+    use crate::tx::{private_key_from_string, public_key_from_private, LimitOrderRequest};
+    use crate::types::CollateralAssetId;
 
     #[test]
     pub fn test_sign() {
@@ -232,7 +230,7 @@ mod test {
 
         use crate::felt::LeBytesConvert;
         use crate::tx::{
-            HashType, JUBJUB_PARAMS, LimitOrderRequest, private_key_from_string, TxSignature,
+            private_key_from_string, HashType, LimitOrderRequest, TxSignature, JUBJUB_PARAMS,
         };
 
         #[test]

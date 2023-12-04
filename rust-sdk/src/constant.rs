@@ -118,6 +118,12 @@ pub const PRIME_BYTES_LE: [u8; 32] = [
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 8,
 ];
 
+// SPOT
+pub const SPOT_TRANSFER_ORDER_TYPE: u64 = 1;
+pub const SPOT_WITHDRAWAL: u64 = 8;
+pub const SPOT_WITHDRAWAL_TO_OWNER_KEY: u64 = 9;
+pub const SPOT_SETTLEMENT_ORDER_TYPE: u64 = 0;
+
 #[allow(dead_code)]
 pub fn get_prime_as_bigint() -> BigInt {
     BigInt::from_bytes_le(num_bigint::Sign::Plus, &PRIME_BYTES_LE)

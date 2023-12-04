@@ -1,0 +1,72 @@
+use crate::common::OrderBase;
+use crate::constant::SPOT_SETTLEMENT_ORDER_TYPE;
+use crate::felt::LeBytesConvert;
+use crate::hash::Hasher;
+use crate::tx::{private_key_from_string, TxSignature};
+use crate::types::{SpotAmountType, SpotAssetIdType, SpotPositionIdType};
+use crate::zkw::JubjubSignature;
+use crate::{hash, HashType};
+use primitive_types::U256;
+use {
+    crate::serde_wrapper::{
+        SpotAmountTypeSerdeAsRadix10String, SpotAssetIdTypeSerdeAsRadix16String,
+        SpotPositionIdTypeSerdeAsRadix10String,
+    },
+    serde::{Deserialize, Serialize},
+};
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
+#[repr(C)]
+pub struct LimitOrder {
+    #[serde(flatten)]
+    pub base: OrderBase,
+    #[serde(rename = "amount_buy", with = "SpotAmountTypeSerdeAsRadix10String")]
+    pub amount_buy: SpotAmountType,
+    #[serde(rename = "amount_sell", with = "SpotAmountTypeSerdeAsRadix10String")]
+    pub amount_sell: SpotAmountType,
+    #[serde(rename = "amount_fee", with = "SpotAmountTypeSerdeAsRadix10String")]
+    pub amount_fee: SpotAmountType,
+    #[serde(rename = "asset_buy", with = "SpotAssetIdTypeSerdeAsRadix16String")]
+    pub asset_buy: SpotAssetIdType,
+    #[serde(rename = "asset_sell", with = "SpotAssetIdTypeSerdeAsRadix16String")]
+    pub asset_sell: SpotAssetIdType,
+    #[serde(
+        rename = "position_id",
+        with = "SpotPositionIdTypeSerdeAsRadix10String"
+    )]
+    pub position_id: SpotPositionIdType,
+}
+
+impl LimitOrder {
+    pub fn hash(&self) -> HashType {
+        let mut hasher = hash::new_hasher();
+
+        hasher.update_single(&(self.asset_sell as u64));
+        hasher.update_single(&(self.asset_buy as u64));
+
+        hasher.update_single(&self.amount_sell);
+        hasher.update_single(&self.amount_buy);
+        hasher.update_single(&self.amount_fee);
+
+        let packed_message1 = U256([
+            (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
+            self.position_id as u64,
+            0,
+            SPOT_SETTLEMENT_ORDER_TYPE,
+        ]);
+
+        hasher.update_single(&packed_message1);
+
+        hasher.finalize()
+    }
+}
+
+pub fn sign_limit_order(
+    withdrawal: &LimitOrder,
+    private_key: &str,
+) -> anyhow::Result<JubjubSignature> {
+    let hash = withdrawal.hash();
+    let private_key = private_key_from_string(private_key).unwrap();
+    let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
+    Ok(sig.into())
+}
