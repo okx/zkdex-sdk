@@ -288,12 +288,12 @@ pub fn hash_spot_transfer(json: &str) -> Result<String> {
 }
 
 pub fn sign_spot_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature> {
-    let req: spot::LimitOrder = serde_json::from_str(json).unwrap();
-    Ok(spot::sign_limit_order(&req, private_key)?)
+    let req: spot::limit_order::LimitOrder = serde_json::from_str(json).unwrap();
+    Ok(spot::limit_order::sign_limit_order(&req, private_key)?)
 }
 
 pub fn hash_spot_limit_order(json: &str) -> Result<String> {
-    let req: spot::LimitOrder = serde_json::from_str(json).unwrap();
+    let req: spot::limit_order::LimitOrder = serde_json::from_str(json).unwrap();
     Ok(hash_type_to_string_with_0xprefix(req.hash()))
 }
 

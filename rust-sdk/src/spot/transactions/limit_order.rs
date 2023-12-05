@@ -68,11 +68,11 @@ pub fn sign_limit_order(
 
 #[cfg(test)]
 mod test {
-    use crate::spot::LimitOrder;
-
+    use crate::spot::limit_order::LimitOrder;
     #[test]
     pub fn test_deserialize() {
-        let json = r#"{
+        let json = r#"
+        {
             "nonce": "0",
             "expiration_timestamp": "0",
             "public_key": "0x00000000",
@@ -81,10 +81,12 @@ mod test {
             "amount_fee": "0",
             "asset_buy":"0x01",
             "asset_sell":"0x02",
-            "position_id":"1"
-
-                }"#;
+            "position_id":"1",
+            "signature": {"r":"0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732","s":"0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476"}
+        }
+        "#;
         let limit_order = serde_json::from_str::<LimitOrder>(json);
-        assert!(limit_order.is_ok())
+        assert!(limit_order.is_ok());
+        assert!(limit_order.unwrap().hash().to_string() == "11862331312157360900677001705316294883250002101778892306581558769101577195139")
     }
 }

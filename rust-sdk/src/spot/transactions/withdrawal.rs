@@ -72,21 +72,26 @@ pub fn sign_withdrawal(
 
 #[cfg(test)]
 mod test {
+    use std::hash::Hash;
     use crate::spot::Withdrawal;
 
     #[test]
     pub fn test_deserialize() {
-        let json_str = r##"{
+        let json_str = r##"
+        {
         "nonce": "1",
         "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
         "expiration_timestamp": "3608164305",
         "amount": "1000000",
         "asset_id": "0x00001",
         "position_id": "1",
-        "eth_address": "0x0"
-        }"##;
+        "eth_address": "0x0",
+        "signature": {"r":"0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732","s":"0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476"}
+        }
+        "##;
 
         let req = serde_json::from_str::<Withdrawal>(json_str);
-        assert!(req.is_ok())
+        assert!(req.is_ok());
+        assert!(req.unwrap().hash().to_string() == "19613946648663752148867793359722465674053875641453207421148597071264686066238")
     }
 }

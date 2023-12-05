@@ -79,7 +79,7 @@ pub fn sign_transfer(transfer: Transfer, private_key: &str) -> anyhow::Result<Ju
 
 #[cfg(test)]
 mod test {
-    use crate::spot::Transfer;
+    use crate::spot::{Transfer, transfer_hash};
 
     #[test]
     pub fn test_deserialize() {
@@ -98,5 +98,6 @@ mod test {
 
         let transfer = serde_json::from_str::<Transfer>(json);
         assert!(transfer.is_ok());
+        assert!(transfer_hash(&transfer.unwrap()).to_string() == "8868821431893765158267276750476252224391306572586061693346985054677660276548");
     }
 }
