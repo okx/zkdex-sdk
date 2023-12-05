@@ -56,6 +56,24 @@ first message.</p>
 <dt><a href="#public_key_to_xy">public_key_to_xy(pub_key)</a> ⇒ <code>string</code></dt>
 <dd><p>public_key_to_xy, convert public key to xy.</p>
 </dd>
+<dt><a href="#sign_spot_transfer">sign_spot_transfer(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>sign_spot_transfer, sign a spot transfer transaction.</p>
+</dd>
+<dt><a href="#hash_spot_transfer">hash_spot_transfer(json)</a> ⇒ <code>string</code></dt>
+<dd><p>hash_spot_transfer, hash a spot transfer transaction.</p>
+</dd>
+<dt><a href="#sign_spot_withdrawal">sign_spot_withdrawal(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>sign_spot_withdrawal, sign a spot withdrawal transaction.</p>
+</dd>
+<dt><a href="#hash_spot_withdrawal">hash_spot_withdrawal(json)</a> ⇒ <code>string</code></dt>
+<dd><p>hash_spot_withdrawal, hash a spot withdrawal transaction.</p>
+</dd>
+<dt><a href="#sign_spot_limit_order">sign_spot_limit_order(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>sign_spot_limit_order, sign a spot LimitOrder transaction.</p>
+</dd>
+<dt><a href="#hash_spot_limit_order">hash_spot_limit_order(json)</a> ⇒ <code>string</code></dt>
+<dd><p>hash_spot_limit_order, hash a spot LimitOrder transaction.</p>
+</dd>
 </dl>
 
 <a name="zkdex_init"></a>
@@ -280,4 +298,79 @@ public_key_to_xy, convert public key to xy.
 | Param | Type | Description |
 | --- | --- | --- |
 | pub_key | <code>string</code> | public key hex with 0x prefix. |
+
+<a name="sign_spot_transfer"></a>
+
+## sign\_spot\_transfer(json, private_key) ⇒ <code>string</code>
+sign_spot_transfer, sign a spot transfer transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of spot transfer transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot transfer transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="hash_spot_transfer"></a>
+
+## hash\_spot\_transfer(json) ⇒ <code>string</code>
+hash_spot_transfer, hash a spot transfer transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - string hash of spot transfer transaction with 0x prefix.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot transfer transaction. |
+
+<a name="sign_spot_withdrawal"></a>
+
+## sign\_spot\_withdrawal(json, private_key) ⇒ <code>string</code>
+sign_spot_withdrawal, sign a spot withdrawal transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of spot withdrawal transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot withdrawal transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="hash_spot_withdrawal"></a>
+
+## hash\_spot\_withdrawal(json) ⇒ <code>string</code>
+hash_spot_withdrawal, hash a spot withdrawal transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - string hash of spot withdrawal transaction with 0x prefix.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot withdrawal transaction. |
+
+<a name="sign_spot_limit_order"></a>
+
+## sign\_spot\_limit\_order(json, private_key) ⇒ <code>string</code>
+sign_spot_limit_order, sign a spot LimitOrder transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of spot LimitOrder transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot LimitOrder transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="hash_spot_limit_order"></a>
+
+## hash\_spot\_limit\_order(json) ⇒ <code>string</code>
+hash_spot_limit_order, hash a spot LimitOrder transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - string hash of spot LimitOrder transaction with 0x prefix.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | json of spot LimitOrder transaction. |
 
