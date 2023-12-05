@@ -102,6 +102,33 @@ describe('test zkdex js function', function () {
         }
         assert.deepEqual(xy, expected_xy)
     })
+
+    it('test sign spot transfer', () => {
+        let json = '{"nonce":"1","sender_public_key":"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","expiration_timestamp":"3608164305","amount":"10","asset_id":"0x00001","receiver_position_id":"1","receiver_public_key":"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","sender_position_id":"1"}';
+        let sig_str = zkdex.sign_spot_transfer(json, pri_key);
+        let hash = zkdex.hash_spot_transfer(json);
+        let sig = JSON.parse(sig_str);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, err_hash), false);
+    })
+
+    it('test sign spot limit order', () => {
+        let json = '{"nonce":"0","expiration_timestamp":"0","public_key":"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","amount_buy":"0","amount_sell":"0","amount_fee":"0","asset_buy":"0x01","asset_sell":"0x02","position_id":"1"}';
+        let sig_str = zkdex.sign_spot_limit_order(json, pri_key);
+        let hash = zkdex.hash_spot_limit_order(json);
+        let sig = JSON.parse(sig_str);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, err_hash), false);
+    })
+
+    it('test sign spot withdrawal', () => {
+        let json = '{"nonce":"1","public_key":"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","expiration_timestamp":"3608164305","amount":"1000000","asset_id":"0x00001","position_id":"1","eth_address":"0x0"}';
+        let sig_str = zkdex.sign_spot_withdrawal(json, pri_key);
+        let hash = zkdex.hash_spot_withdrawal(json);
+        let sig = JSON.parse(sig_str);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, err_hash), false);
+    })
 })
 
 
