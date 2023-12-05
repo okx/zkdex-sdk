@@ -9,7 +9,7 @@ import java.nio.file.Files;
 public class ZKDEX {
 
 
-    private static final String VERSION = "0.1.2";
+    private static final String VERSION = "0.1.3";
 
     private static final String LIB_NAME = "libzkdex_sdk";
 
@@ -263,5 +263,62 @@ public class ZKDEX {
      * @throws Exception
      */
     public static native String publicKeyToXY(String publicKey) throws Exception;
+
+    /**
+     * sign a spot Transfer
+     *
+     * @param json   json of spot Transfer
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotTransfer(String json, String priKey) throws Exception;
+
+    /**
+     * sign a spot withdrawal
+     *
+     * @param json   json of spot withdrawal
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotWithdrawal(String json, String priKey) throws Exception;
+
+    /**
+     * sign a spot limit order
+     *
+     * @param json   json of spot limit order
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotLimitOrder(String json, String priKey) throws Exception;
+
+    /**
+     * hash a spot Transfer
+     *
+     * @param json   json of spot Transfer
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotTransfer(String json) throws Exception;
+
+    /**
+     * hash a spot withdrawal
+     *
+     * @param json   json of spot withdrawal
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotWithdrawal(String json) throws Exception;
+
+    /**
+     * hash a spot limit order
+     *
+     * @param json   json of spot limit order
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotLimitOrder(String json) throws Exception;
 
 }
