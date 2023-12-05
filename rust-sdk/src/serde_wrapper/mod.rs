@@ -22,15 +22,7 @@ pub use bigint_serde::{
 pub use hash_type::HashTypeSerde;
 pub use i128_serde::I128SerdeAsRadix16Prefix0xString;
 pub use i64_serde::I64SerdeAsString;
-pub use integer::{
-    AmountTypeSerdeAsRadix10String, AssetIdTypeSerdeAsRadix16String,
-    FundingRateTypeSerdeAsRadix10String, NonceTypeSerdeAsRadix10String,
-    OraclePriceQuorumTypeSerdeAsRadix16String, PositionIdTypeSerdeAsRadix10String,
-    PriceTypeSerdeAsRadix10String, ResolutionTypeSerdeAsRadix16String,
-    RiskFactorTypeSerdeAsRadix10String, SpotAmountTypeSerdeAsRadix10String,
-    SpotAssetIdTypeSerdeAsRadix16String, SpotPositionIdTypeSerdeAsRadix10String,
-    TimestampTypeSerdeAsRadix10String,
-};
+pub use integer::*;
 pub use offset_date_time_serde::OffsetDateTimeSerdeAsTimeStampStr;
 pub use other_serde::*;
 pub use std_duration_serde::{StdDurationSerdeAsSecondsStr, StdDurationSerdeAsSecondsU64};

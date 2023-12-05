@@ -9,11 +9,14 @@ use crate::zkw::JubjubSignature;
 use primitive_types::U256;
 use {
     crate::serde_wrapper::{
-        SpotAmountTypeSerdeAsRadix10String, SpotAssetIdTypeSerdeAsRadix16String,
-        SpotPositionIdTypeSerdeAsRadix10String,
+
     },
     serde::{Deserialize, Serialize},
 };
+use crate::hash;
+use crate::types::amount::AmountType;
+use crate::types::asset_id::AssetIdType;
+use crate::types::position_id::PositionIdType;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -23,45 +26,46 @@ pub struct Withdrawal {
     #[serde(flatten)]
     pub base: OrderBase,
     #[serde(rename = "amount", with = "SpotAmountTypeSerdeAsRadix10String")]
-    pub amount: SpotAmountType,
+    pub amount: AmountType,
     #[serde(rename = "eth_address")]
     pub owner_key: PublicKeyType,
     #[serde(rename = "asset_id", with = "SpotAssetIdTypeSerdeAsRadix16String")]
-    pub asset_id: SpotAssetIdType,
+    pub asset_id: AssetIdType,
     #[serde(
         rename = "position_id",
         with = "SpotPositionIdTypeSerdeAsRadix10String"
     )]
-    pub position_id: SpotPositionIdType,
+    pub position_id: PositionIdType,
 }
 
 impl Withdrawal {
     pub fn hash(&self) -> HashType {
-        let packed_message0;
-
+        let mut hasher = hash::new_hasher();
         // If owner_key is equal to public key, this is a withdrawal of the old API and therefore the
         // transaction type id is different and the owner_key is not part of the message.
-        // local has_address = withdrawal.owner_key - withdrawal.base.public_key;
-        let has_address = &self.owner_key != &self.base.public_key;
-
         let prefix;
-
+        let has_address = &self.owner_key != &self.base.public_key;
         if !has_address {
-            packed_message0 = U256::from(self.asset_id);
             prefix = SPOT_WITHDRAWAL;
+            hasher.update_single(&prefix);
+            hasher.update_single(&(self.asset_id.0 as u64));
         } else {
-            packed_message0 = hash2(&(self.asset_id as u64), &self.owner_key);
             prefix = SPOT_WITHDRAWAL_TO_OWNER_KEY;
+            hasher.update_single(&prefix);
+            hasher.update_single(&(self.asset_id.0 as u64));
+            hasher.update_single(&self.owner_key);
         }
 
         let packed_message1 = U256([
             (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
-            self.amount as u64,
-            (self.amount >> 64) as u64,
-            (prefix << 32) | self.position_id as u64,
+            self.amount.0 as u64,
+            (self.amount.0 >> 64) as u64,
+            (prefix << 32) | self.position_id.0 as u64,
         ]) << 17;
 
-        hash2(&packed_message0, &packed_message1)
+        hasher.update_single(&packed_message1);
+
+        hasher.finalize()
     }
 }
 
@@ -73,4 +77,26 @@ pub fn sign_withdrawal(
     let private_key = private_key_from_string(private_key).unwrap();
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
+}
+
+
+#[cfg(test)]
+mod test {
+    use crate::spot::Withdrawal;
+
+    #[test]
+    pub fn test_deserialize() {
+        let json_str = r##"{
+        "nonce": "1",
+        "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "1000000",
+        "asset_id": "0x00001",
+        "position_id": "1",
+        "eth_address": "0x0"
+        }"##;
+
+        let req = serde_json::from_str::<Withdrawal>(json_str);
+        assert!(req.is_ok())
+    }
 }

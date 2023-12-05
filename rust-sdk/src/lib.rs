@@ -318,13 +318,7 @@ mod test {
         private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
         LimitOrderRequest,
     };
-    use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
-        is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
-        reverse_hex, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
-        sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
-        Signature,
-    };
+    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_transfer, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_transfer, sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature, Signature, sign_spot_limit_order, hash_spot_limit_order, sign_spot_withdrawal, hash_spot_withdrawal};
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
@@ -1126,5 +1120,58 @@ mod test {
             pk_y: "0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55".to_string(),
         };
         assert!(s == expected)
+    }
+
+    #[test]
+    pub fn test_sign_spot_transfer() {
+        let json = r#"
+        {
+
+        "nonce": "1",
+        "sender_public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "10",
+        "asset_id": "0x00001",
+        "receiver_position_id": "1",
+        "receiver_public_key": "0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "sender_position_id": "1"
+
+        }"#;
+
+        let sig = sign_spot_transfer(json, PRI_KEY).unwrap();
+        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_transfer(json).unwrap()).unwrap());
+    }
+
+    #[test]
+    pub fn  test_sign_spot_limit_order() {
+        let json = r#"{
+            "nonce": "0",
+            "expiration_timestamp": "0",
+            "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+            "amount_buy": "0",
+            "amount_sell": "0",
+            "amount_fee": "0",
+            "asset_buy":"0x01",
+            "asset_sell":"0x02",
+            "position_id":"1"
+
+            }"#;
+        let sig = sign_spot_limit_order(json, PRI_KEY).unwrap();
+        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_limit_order(json).unwrap()).unwrap());
+    }
+
+    #[test]
+    pub fn test_sign_spot_withdrawal() {
+        let json_str = r##"{
+        "nonce": "1",
+        "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "1000000",
+        "asset_id": "0x00001",
+        "position_id": "1",
+        "eth_address": "0x0"
+        }"##;
+        let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();
+        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap()).unwrap());
     }
 }
