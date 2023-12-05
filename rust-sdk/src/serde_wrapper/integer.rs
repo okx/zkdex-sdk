@@ -1,7 +1,10 @@
 use super::*;
+use crate::types::{
+    AmountType, AssetIdType, FundingRateType, NonceType, OraclePriceQuorumType, PositionIdType,
+    PriceType, ResolutionType, RiskFactorType, TimestampType,
+};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::{marker::PhantomData, num::ParseIntError};
-use crate::types::{AmountType, AssetIdType, FundingRateType, NonceType, OraclePriceQuorumType, PositionIdType, PriceType, ResolutionType, RiskFactorType, TimestampType};
 
 pub type FundingRateTypeSerdeAsRadix10String = SerdeAsString<10, FundingRateType>;
 pub type ResolutionTypeSerdeAsRadix16String = SerdeAsString<16, ResolutionType>;
@@ -23,15 +26,15 @@ pub trait SerdeRadix: Sized {
 
 impl<const R: u32, T: SerdeRadix> SerdeAsString<R, T> {
     pub fn serialize<S>(val: &T, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         String::serialize(&val.to_string(R), serializer)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         T::from_str(&String::deserialize(deserializer)?, R)
             .map_err(|e| de::Error::custom(format!("FundingRateType from string error: {}", e)))

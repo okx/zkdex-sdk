@@ -7,15 +7,13 @@ use crate::hash;
 use crate::hash::Hasher;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::{private_key_from_string, HashType, TxSignature};
-use crate::types::{SpotAmountType, SpotAssetIdType, SpotPositionIdType};
 
 use crate::felt::LeBytesConvert;
+use crate::types::amount::AmountType;
+use crate::types::asset_id::AssetIdType;
+use crate::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
 use {
-    crate::serde_wrapper::{
-        SpotAmountTypeSerdeAsRadix10String, SpotAssetIdTypeSerdeAsRadix16String,
-        SpotPositionIdTypeSerdeAsRadix10String,
-    },
     crate::TransferBaseSerde,
     serde::{Deserialize, Serialize},
 };
@@ -25,16 +23,16 @@ use {
 pub struct Transfer {
     #[serde(flatten, with = "TransferBaseSerde")]
     pub base: OrderBase,
-    #[serde(rename = "amount", with = "SpotAmountTypeSerdeAsRadix10String")]
-    pub amount: SpotAmountType,
-    #[serde(rename = "asset_id", with = "SpotAssetIdTypeSerdeAsRadix16String")]
-    pub asset_id: SpotAssetIdType,
-    #[serde(rename = "receiver_position_id", with = "SpotPositionIdTypeSerdeAsRadix10String")]
-    pub receiver_position_id: SpotPositionIdType,
+    #[serde(rename = "amount")]
+    pub amount: AmountType,
+    #[serde(rename = "asset_id")]
+    pub asset_id: AssetIdType,
+    #[serde(rename = "receiver_position_id")]
+    pub receiver_position_id: PositionIdType,
     #[serde(rename = "receiver_public_key")]
     pub receiver_public_key: PublicKeyType,
-    #[serde(rename = "sender_position_id", with = "SpotPositionIdTypeSerdeAsRadix10String")]
-    pub sender_position_id: SpotPositionIdType,
+    #[serde(rename = "sender_position_id")]
+    pub sender_position_id: PositionIdType,
 }
 
 pub fn transfer_hash(transfer: &Transfer) -> HashType {

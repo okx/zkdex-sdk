@@ -3,35 +3,31 @@ use crate::constant::SPOT_SETTLEMENT_ORDER_TYPE;
 use crate::felt::LeBytesConvert;
 use crate::hash::Hasher;
 use crate::tx::{private_key_from_string, TxSignature};
-use crate::types::{SpotAmountType, SpotAssetIdType, SpotPositionIdType};
+use crate::types::amount::AmountType;
+use crate::types::asset_id::AssetIdType;
+use crate::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
 use crate::{hash, HashType};
 use primitive_types::U256;
-use {
-    crate::serde_wrapper::{
-        SpotAmountTypeSerdeAsRadix10String, SpotAssetIdTypeSerdeAsRadix16String,
-        SpotPositionIdTypeSerdeAsRadix10String,
-    },
-    serde::{Deserialize, Serialize},
-};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 #[repr(C)]
 pub struct LimitOrder {
     #[serde(flatten)]
     pub base: OrderBase,
-    #[serde(rename = "amount_buy", with = "SpotAmountTypeSerdeAsRadix10String")]
-    pub amount_buy: SpotAmountType,
-    #[serde(rename = "amount_sell", with = "SpotAmountTypeSerdeAsRadix10String")]
-    pub amount_sell: SpotAmountType,
-    #[serde(rename = "amount_fee", with = "SpotAmountTypeSerdeAsRadix10String")]
-    pub amount_fee: SpotAmountType,
-    #[serde(rename = "asset_buy", with = "SpotAssetIdTypeSerdeAsRadix16String")]
-    pub asset_buy: SpotAssetIdType,
-    #[serde(rename = "asset_sell", with = "SpotAssetIdTypeSerdeAsRadix16String")]
-    pub asset_sell: SpotAssetIdType,
-    #[serde(rename = "position_id", with = "SpotPositionIdTypeSerdeAsRadix10String")]
-    pub position_id: SpotPositionIdType,
+    #[serde(rename = "amount_buy")]
+    pub amount_buy: AmountType,
+    #[serde(rename = "amount_sell")]
+    pub amount_sell: AmountType,
+    #[serde(rename = "amount_fee")]
+    pub amount_fee: AmountType,
+    #[serde(rename = "asset_buy")]
+    pub asset_buy: AssetIdType,
+    #[serde(rename = "asset_sell")]
+    pub asset_sell: AssetIdType,
+    #[serde(rename = "position_id")]
+    pub position_id: PositionIdType,
 }
 
 impl LimitOrder {
@@ -70,7 +66,6 @@ pub fn sign_limit_order(
     Ok(sig.into())
 }
 
-
 #[cfg(test)]
 mod test {
     use crate::spot::LimitOrder;
@@ -89,8 +84,7 @@ mod test {
             "position_id":"1"
 
                 }"#;
-        let limit_order= serde_json::from_str::<LimitOrder>(json);
+        let limit_order = serde_json::from_str::<LimitOrder>(json);
         assert!(limit_order.is_ok())
-
     }
 }

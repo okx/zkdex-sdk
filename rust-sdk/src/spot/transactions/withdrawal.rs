@@ -1,22 +1,16 @@
 use crate::common::OrderBase;
 use crate::constant::{SPOT_WITHDRAWAL, SPOT_WITHDRAWAL_TO_OWNER_KEY};
 use crate::felt::LeBytesConvert;
-use crate::hash::hash2;
+use crate::hash;
+use crate::hash::Hasher;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::{private_key_from_string, HashType, TxSignature};
-use crate::types::{SpotAmountType, SpotAssetIdType, SpotPositionIdType};
-use crate::zkw::JubjubSignature;
-use primitive_types::U256;
-use {
-    crate::serde_wrapper::{
-
-    },
-    serde::{Deserialize, Serialize},
-};
-use crate::hash;
 use crate::types::amount::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
+use crate::zkw::JubjubSignature;
+use primitive_types::U256;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,16 +19,13 @@ use crate::types::position_id::PositionIdType;
 pub struct Withdrawal {
     #[serde(flatten)]
     pub base: OrderBase,
-    #[serde(rename = "amount", with = "SpotAmountTypeSerdeAsRadix10String")]
+    #[serde(rename = "amount")]
     pub amount: AmountType,
     #[serde(rename = "eth_address")]
     pub owner_key: PublicKeyType,
-    #[serde(rename = "asset_id", with = "SpotAssetIdTypeSerdeAsRadix16String")]
+    #[serde(rename = "asset_id")]
     pub asset_id: AssetIdType,
-    #[serde(
-        rename = "position_id",
-        with = "SpotPositionIdTypeSerdeAsRadix10String"
-    )]
+    #[serde(rename = "position_id")]
     pub position_id: PositionIdType,
 }
 
@@ -78,7 +69,6 @@ pub fn sign_withdrawal(
     let (sig, _) = TxSignature::sign_msg(&private_key, hash.as_le_bytes());
     Ok(sig.into())
 }
-
 
 #[cfg(test)]
 mod test {

@@ -318,7 +318,14 @@ mod test {
         private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
         LimitOrderRequest,
     };
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_transfer, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_transfer, sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature, Signature, sign_spot_limit_order, hash_spot_limit_order, sign_spot_withdrawal, hash_spot_withdrawal};
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign,
+        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
+        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw,
+        verify_jubjub_signature, verify_signature, L1Signature, Signature,
+    };
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
@@ -1143,7 +1150,7 @@ mod test {
     }
 
     #[test]
-    pub fn  test_sign_spot_limit_order() {
+    pub fn test_sign_spot_limit_order() {
         let json = r#"{
             "nonce": "0",
             "expiration_timestamp": "0",
@@ -1157,7 +1164,9 @@ mod test {
 
             }"#;
         let sig = sign_spot_limit_order(json, PRI_KEY).unwrap();
-        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_limit_order(json).unwrap()).unwrap());
+        assert!(
+            verify_jubjub_signature(sig, PUB_KEY, &hash_spot_limit_order(json).unwrap()).unwrap()
+        );
     }
 
     #[test]
@@ -1172,6 +1181,9 @@ mod test {
         "eth_address": "0x0"
         }"##;
         let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();
-        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap()).unwrap());
+        assert!(
+            verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap())
+                .unwrap()
+        );
     }
 }
