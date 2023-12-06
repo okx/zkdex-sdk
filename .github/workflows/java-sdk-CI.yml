@@ -16,27 +16,27 @@ permissions:
 
 
 jobs:
-#  linux:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        target: [x86_64]
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
-#      - name: Set up Rust
-#        uses: actions-rust-lang/setup-rust-toolchain@v1
-#        with:
-#          rust-version: '1.70.0'
-#      - name: Install cross
-#        run: cargo install cross
-#      - name: Build
-#        run: cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
-#      - name: Upload wheels
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: linux_so
-#          path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rust-version: '1.70.0'
+      - name: Install cross
+        run: cargo install cross
+      - name: Build
+        run: cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux_so
+          path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so
   windows:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -71,5 +71,55 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dll
-          path: .\rust-sdk\target\release
+          path: .\rust-sdk\target\release\zkdex_sdk.dll
 
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ x86_64, aarch64 ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rust-version: '1.70.0'
+      - name: Build
+        run: cd rust-sdk && cross build --features java --release
+      - name: Upload dylib
+        uses: actions/upload-artifact@v3
+        with:
+          name: dylib
+          path: ./rust-sdk/target/release/libzkdex_sdk.dylib
+
+  collect_artifacts:
+    runs-on: ubuntu-latest
+    needs: [ linux, windows, macos ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: linux_so
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dll
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dylib
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-generated build artifacts"
+          git push
