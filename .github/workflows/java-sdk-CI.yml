@@ -101,7 +101,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Extract version from Cargo.toml
-        run: echo "CARGO_PKG_VERSION = \"$(awk -F ' = ' '$1 == "version" { gsub("\"", "", $2); print $2 }' ./rust-sdk/Cargo.toml)\"" >> $GITHUB_ENV
+        run: echo "$(awk -F ' = ' '$1 == "version" { gsub("\"", "", $2); print $2 }' ./rust-sdk/Cargo.toml)" >> "$CARGO_PKG_VERSION"
       - name: Remove old artifacts
         run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/x86_64_windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/aarch64_mac
 
