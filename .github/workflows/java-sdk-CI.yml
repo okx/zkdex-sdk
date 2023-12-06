@@ -90,7 +90,7 @@ jobs:
       - name: Upload dylib
         uses: actions/upload-artifact@v3
         with:
-          name: dylib
+          name: dylib-{{matrix.target}}
           path: ./rust-sdk/target/release/libzkdex_sdk.dylib
 
   collect_artifacts:
@@ -111,10 +111,14 @@ jobs:
         with:
           name: dll
 
-      - name: Download macOS artifacts
+      - name: Download macOS x86_64 artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dylib
+          name: dylib-x86_64
+      - name: Download macOS aarch64 artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dylib-aarch64
 
       - name: Commit and push changes
         run: |
