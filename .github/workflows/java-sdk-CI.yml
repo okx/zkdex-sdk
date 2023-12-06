@@ -32,11 +32,13 @@ jobs:
         run: cargo install cross
       - name: Build
         run: cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
+      - name: Rename so
+        run: mv ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
           name: linux_so
-          path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so
+          path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
   windows:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -67,11 +69,13 @@ jobs:
           ls $env:CUDA_PATH\include
       - name: Build
         run: cd .\rust-sdk && cargo build --features java --release
+      - name: Rename DLL
+        run: mv .\rust-sdk\target\release\zkdex_sdk.dll .\rust-sdk\target\release\zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
       - name: Upload DLL
         uses: actions/upload-artifact@v3
         with:
           name: dll
-          path: .\rust-sdk\target\release\zkdex_sdk.dll
+          path: .\rust-sdk\target\release\zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
 
   macos:
     runs-on: macos-latest
@@ -87,11 +91,13 @@ jobs:
           rust-version: '1.70.0'
       - name: Build
         run: cd rust-sdk && cargo build --features java --release
+      - name: Rename dylib
+        run: mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}_${{ env.CARGO_PKG_VERSION }}.dylib
       - name: Upload dylib
         uses: actions/upload-artifact@v3
         with:
           name: dylib-${{matrix.target}}
-          path: ./rust-sdk/target/release/libzkdex_sdk.dylib
+          path: ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}_${{ env.CARGO_PKG_VERSION }}.dylib
 
   collect_artifacts:
     runs-on: ubuntu-latest
@@ -101,7 +107,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Remove old artifacts
-        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/arm_mac
+        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/x86_64_windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/arm_mac
 
       - name: Download Linux artifacts
         uses: actions/download-artifact@v2
@@ -113,7 +119,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dll
-          path: java-sdk/src/main/resources/com/okx/windows
+          path: java-sdk/src/main/resources/com/okx/x86_64_windows
 
       - name: Download macOS x86_64 artifacts
         uses: actions/download-artifact@v2
@@ -125,12 +131,6 @@ jobs:
         with:
           name: dylib-aarch64
           path: java-sdk/src/main/resources/com/okx/arm_mac
-      - name: Rename artifacts
-        run: |
-          mv java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
-          mv java-sdk/src/main/resources/com/okx/windows/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/windows/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
-          mv java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
-          mv java-sdk/src/main/resources/com/okx/arm_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/arm_mac/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
 
       - name: Commit and push changes
         run: |
