@@ -23,7 +23,7 @@ jobs:
         target: [x86_64]
     steps:
       - name: Checkout repository
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: Set up Rust
         uses: actions/setup-rust@v1
         with:
@@ -35,5 +35,5 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
-          name: wheels
+          name: linux_so
           path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so
