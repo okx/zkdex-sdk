@@ -1,4 +1,3 @@
-use super::*;
 use crate::types::{
     AmountType, AssetIdType, FundingRateType, NonceType, OraclePriceQuorumType, PositionIdType,
     PriceType, ResolutionType, RiskFactorType, TimestampType,
