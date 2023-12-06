@@ -1,0 +1,39 @@
+name: java-sdk-CI
+
+on:
+  push:
+    branches:
+      - main
+      - spot
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64]
+    steps:
+      - name: Checkout repository
+      - uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: '1.70.0'
+      - name: Install cross
+        run: cargo install cross
+      - name: Build
+        run: cd rust-sdk && cross build --features java --target x86_64-unknown-linux-gnu --release
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so

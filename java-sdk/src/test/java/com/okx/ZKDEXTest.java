@@ -473,7 +473,7 @@ public class ZKDEXTest {
 
     @Test
     public void test_sign_spot_transfer() throws Exception {
-        String json = "{\"nonce\":\"1\",\"sender_public_key\":\"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"10\",\"asset_id\":\"0x00001\",\"receiver_position_id\":\"1\",\"receiver_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"sender_position_id\":\"1\"}";
+        String json = "{\"nonce\":\"1\",\"sender_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"10\",\"asset_id\":\"0x00001\",\"receiver_position_id\":\"1\",\"receiver_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"sender_position_id\":\"1\"}";
         String sigStr = ZKDEX.signSpotTransfer(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
         Signature expectSig = new Signature("0x2e3aaadfec701f1b18b0fc95798d93c6a5a4ac24117c18200b2010aadb67248c", "0x04b67a05dda815d69c1334e772c73f662c0df65a8c0e4a74a672e6823c133ddf");
@@ -485,7 +485,7 @@ public class ZKDEXTest {
 
     @Test
     public void test_sign_spot_withdrawal() throws Exception {
-        String json = "{\"nonce\":\"1\",\"public_key\":\"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"eth_address\":\"0x0\"}";
+        String json = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"eth_address\":\"0x0\"}";
         String sigStr = ZKDEX.signSpotWithdrawal(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
         Signature expectSig = new Signature("0xa03db1396852977320874eb328a5abd0887105db5a6906fd0a58d5e92c47e063", "0x001d1142fb55ee7ace2f9ca18e9148b3e122753ce972f462878e6ce4d96edd40");
@@ -497,7 +497,7 @@ public class ZKDEXTest {
 
     @Test
     public void test_sign_spot_limit_order() throws Exception {
-        String json = "{\"nonce\":\"0\",\"expiration_timestamp\":\"0\",\"public_key\":\"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"amount_buy\":\"0\",\"amount_sell\":\"0\",\"amount_fee\":\"0\",\"asset_buy\":\"0x01\",\"asset_sell\":\"0x02\",\"position_id\":\"1\"}";
+        String json = "{\"nonce\":\"0\",\"expiration_timestamp\":\"0\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"amount_buy\":\"0\",\"amount_sell\":\"0\",\"amount_fee\":\"0\",\"asset_buy\":\"0x01\",\"asset_sell\":\"0x02\",\"position_id\":\"1\"}";
         String sigStr = ZKDEX.signSpotLimitOrder(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
         Signature expectSig = new Signature("0x01aabe43b11787a211f9960a2abd2de3667965c52b5ff23ac853a91ebfc9b6c2", "0x01ffebd7ab388ae453baa839f123116bdfac8b57931bbbc463cf8dfcfab6fc02");
