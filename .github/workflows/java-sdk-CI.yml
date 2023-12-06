@@ -100,6 +100,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Remove old artifacts
+        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/arm_mac
 
       - name: Download Linux artifacts
         uses: actions/download-artifact@v2
@@ -123,6 +125,12 @@ jobs:
         with:
           name: dylib-aarch64
           path: java-sdk/src/main/resources/com/okx/arm_mac
+      - name: Rename artifacts
+        run: |
+          mv java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
+          mv java-sdk/src/main/resources/com/okx/windows/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/windows/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
+          mv java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
+          mv java-sdk/src/main/resources/com/okx/arm_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/arm_mac/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
 
       - name: Commit and push changes
         run: |
