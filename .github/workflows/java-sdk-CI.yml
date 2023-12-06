@@ -109,7 +109,7 @@ jobs:
       - name: Extract version from Cargo.toml
         run: echo "CARGO_PKG_VERSION = \"$(awk -F ' = ' '$1 == "version" { gsub("\"", "", $2); print $2 }' Cargo.toml)\"" >> $GITHUB_ENV
       - name: Remove old artifacts
-        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/x86_64_windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/arm_mac
+        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/x86_64_windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/aarch64_mac
 
       - name: Download Linux artifacts
         uses: actions/download-artifact@v2
@@ -132,7 +132,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dylib-aarch64
-          path: java-sdk/src/main/resources/com/okx/arm_mac
+          path: java-sdk/src/main/resources/com/okx/aarch64_mac
       - name: Rename artifacts
         run: |
           mv java-sdk/src/main/resources/com/okx/x86_64_windows/zkdex_sdk_x86_64.dll java-sdk/src/main/resources/com/okx/x86_64_windows/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
