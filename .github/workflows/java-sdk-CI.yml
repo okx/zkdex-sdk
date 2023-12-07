@@ -73,11 +73,8 @@ jobs:
           name: dll
           path: .\rust-sdk\target\release\zkdex_sdk.dll
 
-  macos:
+  macos_x86_64:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        architecture: [arm64,x86_64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -91,17 +88,39 @@ jobs:
           cargo build --features java --release
       - name: Rename
         run : |
-          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{ matrix.architecture }}.dylib
-      - name: Upload ${{ matrix.architecture }} dylib
+          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_x86_64.dylib
+      - name: Upload x86_64 dylib
         uses: actions/upload-artifact@v3
         with:
-          name: dylib-${{ matrix.architecture }}
-          path: ./rust-sdk/target/release/libzkdex_sdk_${{ matrix.architecture }}.dylib
+          name: dylib-x86_64
+          path: ./rust-sdk/target/release/libzkdex_sdk_x86_64.dylib
+  macos_aarch64:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rust-version: '1.70.0'
+      - name: Build
+        run: |
+          rustup target add aarch64-apple-darwin
+          cd ./rust-sdk
+          cargo build --features java --target aarch64-apple-darwin --release
+      - name: Rename
+        run: |
+          mv ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
+      - name: Upload aarch64 dylib
+        uses: actions/upload-artifact@v3
+        with:
+          name: dylib-aarch64
+          path: ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
 
 
   collect_artifacts:
     runs-on: ubuntu-latest
-    needs: [ linux, windows, macos ]
+    needs: [ linux, windows, macos_aarch64, macos_x86_64 ]
 
     steps:
       - name: Checkout repository
