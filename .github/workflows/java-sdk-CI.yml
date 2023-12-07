@@ -105,9 +105,8 @@ jobs:
           rust-version: '1.70.0'
       - name: Build
         run: |
-          rustup target add aarch64-apple-darwin
           cd ./rust-sdk
-          cargo build --features java --target aarch64-apple-darwin --release
+          rustup target add aarch64-apple-darwin && cargo build --features java --target aarch64-apple-darwin --release
       - name: Rename
         run: |
           mv ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
