@@ -11,7 +11,23 @@ public class ZKDEX {
 
     private static String VERSION = "0.1.0";
 
+    static {
+        InputStream in = ZKDEX.class.getResourceAsStream("version.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        try {
+            VERSION = reader.readLine();
+            if (VERSION.startsWith("\"") && VERSION.endsWith("\"")){
+                VERSION = VERSION.substring(1, VERSION.length() - 1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("{}", "read version.txt failed");
+            System.exit(-1);
+        }
+    }
+
     private static final String LIB_NAME = "libzkdex_sdk";
+
 
     private static final String ARM_MAC_LIB_NAME = LIB_NAME + "_aarch64_"  + VERSION + ".dylib";
     private static final String X86_MAC_LIB_NAME =  LIB_NAME + "_x86_64_" + VERSION + ".dylib";
@@ -19,17 +35,7 @@ public class ZKDEX {
     private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_x86_64_" + VERSION + ".so";
     private static final String X86_WIN_LIB_NAME = "zkdex_sdk" + "_x86_64_" + VERSION + ".dll";
 
-    static {
-        InputStream in = ZKDEX.class.getResourceAsStream("version.txt");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        try {
-            VERSION = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error("{}", "read version.txt failed");
-            System.exit(-1);
-        }
-    }
+
 
     static {
 
