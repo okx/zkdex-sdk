@@ -87,6 +87,7 @@ jobs:
           rust-version: '1.70.0'
       - name: Build
         run: |
+          cd ./rust-sdk
           cargo build --features java --release
       - name: Rename
         run : |
