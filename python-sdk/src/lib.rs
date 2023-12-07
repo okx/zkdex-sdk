@@ -25,6 +25,12 @@ fn zkdex_python_sdk(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(is_on_curve, m)?)?;
     m.add_function(wrap_pyfunction!(public_key_to_xy, m)?)?;
     m.add_function(wrap_pyfunction!(private_key_to_public_key_xy, m)?)?;
+    m.add_function(wrap_pyfunction!(sign_spot_withdrawal, m)?)?;
+    m.add_function(wrap_pyfunction!(sign_spot_transfer, m)?)?;
+    m.add_function(wrap_pyfunction!(sign_spot_limit_order, m)?)?;
+    m.add_function(wrap_pyfunction!(hash_spot_withdrawal, m)?)?;
+    m.add_function(wrap_pyfunction!(hash_spot_limit_order, m)?)?;
+    m.add_function(wrap_pyfunction!(hash_spot_transfer, m)?)?;
     Ok(())
 }
 
@@ -256,5 +262,86 @@ fn private_key_to_public_key_xy(private_key: String) -> PyResult<String> {
         Err(e) => {
             Err(PyValueError::new_err(format!("{:?}",e)))
         }
+    }
+}
+
+#[pyfunction]
+fn sign_spot_transfer(
+    json: String,
+    pri_key: String,
+) -> PyResult<String>{
+    match panic::catch_unwind(|| {
+        let sig = zkdex_sdk::sign_spot_transfer(&json, &pri_key).expect("Couldn get jubjubSignature");
+        let json = serde_json::to_string(&sig).expect("Couldn't serialize signature");
+        json
+    }){
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
+    }
+}
+
+#[pyfunction]
+fn hash_spot_transfer(
+    json: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        zkdex_sdk::hash_spot_transfer(&json).expect("Couldn't get hash")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
+    }
+}
+
+#[pyfunction]
+fn sign_spot_limit_order(
+    json: String,
+    pri_key: String,
+) -> PyResult<String>{
+    match panic::catch_unwind(|| {
+        let sig = zkdex_sdk::sign_spot_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature");
+        let json = serde_json::to_string(&sig).expect("Couldn't serialize signature");
+        json
+    }){
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
+    }
+}
+
+#[pyfunction]
+fn hash_spot_limit_order(
+    json: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        zkdex_sdk::hash_spot_limit_order(&json).expect("Couldn't get hash")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
+    }
+}
+
+#[pyfunction]
+fn sign_spot_withdrawal(
+    json: String,
+    pri_key: String,
+) -> PyResult<String>{
+    match panic::catch_unwind(|| {
+        let sig = zkdex_sdk::sign_spot_withdrawal(&json, &pri_key).expect("Couldn get jubjubSignature");
+        let json = serde_json::to_string(&sig).expect("Couldn't serialize signature");
+        json
+    }){
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
+    }
+}
+
+#[pyfunction]
+fn hash_spot_withdrawal(
+    json: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        zkdex_sdk::hash_spot_withdrawal(&json).expect("Couldn't get hash")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}",e)))
     }
 }

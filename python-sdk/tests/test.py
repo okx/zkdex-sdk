@@ -118,7 +118,31 @@ class TestZKDEX(unittest.TestCase):
         self.assertEqual(sig['s'], "0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4")
         self.assertEqual(sig['pk_x'], "0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86")
         self.assertEqual(sig['pk_y'], "0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55")
+    def test_sign_spot_transfer(self):
+        json_str = "{\"nonce\":\"1\",\"sender_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"10\",\"asset_id\":\"0x00001\",\"receiver_position_id\":\"1\",\"receiver_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"sender_position_id\":\"1\"}"
+        r = zkdex_python_sdk.sign_spot_transfer(json_str, pri_key)
+        sig = json.loads(r)
+        self.assertEqual('0x2e3aaadfec701f1b18b0fc95798d93c6a5a4ac24117c18200b2010aadb67248c', sig['r'])
+        self.assertEqual('0x04b67a05dda815d69c1334e772c73f662c0df65a8c0e4a74a672e6823c133ddf', sig['s'])
+        hash = zkdex_python_sdk.hash_spot_transfer(json_str)
+        self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
+    def test_sign_spot_limit_order(self):
+        json_str = "{\"nonce\":\"0\",\"expiration_timestamp\":\"0\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"amount_buy\":\"0\",\"amount_sell\":\"0\",\"amount_fee\":\"0\",\"asset_buy\":\"0x01\",\"asset_sell\":\"0x02\",\"position_id\":\"1\"}"
+        r = zkdex_python_sdk.sign_spot_limit_order(json_str, pri_key)
+        sig = json.loads(r)
+        self.assertEqual('0x01aabe43b11787a211f9960a2abd2de3667965c52b5ff23ac853a91ebfc9b6c2', sig['r'])
+        self.assertEqual('0x01ffebd7ab388ae453baa839f123116bdfac8b57931bbbc463cf8dfcfab6fc02', sig['s'])
+        hash = zkdex_python_sdk.hash_spot_limit_order(json_str)
+        self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
+    def test_sign_spot_withdrawal(self):
+        json_str = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"eth_address\":\"0x0\"}"
+        r = zkdex_python_sdk.sign_spot_withdrawal(json_str, pri_key)
+        sig = json.loads(r)
+        self.assertEqual('0xa03db1396852977320874eb328a5abd0887105db5a6906fd0a58d5e92c47e063', sig['r'])
+        self.assertEqual('0x001d1142fb55ee7ace2f9ca18e9148b3e122753ce972f462878e6ce4d96edd40', sig['s'])
+        hash = zkdex_python_sdk.hash_spot_withdrawal(json_str)
+        self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
 if __name__ == '__main__':
     unittest.main()
