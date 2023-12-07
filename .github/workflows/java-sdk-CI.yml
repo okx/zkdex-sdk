@@ -159,7 +159,7 @@ jobs:
           mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
           mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
       - name: Record Version
-        run: echo "$CARGO_PKG_VERSION" > java-sdk/src/main/resources/com/okx/version.txt
+        run: echo $CARGO_PKG_VERSION > java-sdk/src/main/resources/com/okx/version.txt
 
 
       - name: Commit and push changes

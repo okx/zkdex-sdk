@@ -9,7 +9,7 @@ import java.nio.file.Files;
 public class ZKDEX {
 
 
-    private static final String VERSION = "0.1.3";
+    private static String VERSION = "0.1.0";
 
     private static final String LIB_NAME = "libzkdex_sdk";
 
@@ -18,6 +18,18 @@ public class ZKDEX {
 
     private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_x86_64_" + VERSION + ".so";
     private static final String X86_WIN_LIB_NAME = "zkdex_sdk" + "_x86_64_" + VERSION + ".dll";
+
+    static {
+        InputStream in = ZKDEX.class.getResourceAsStream("version.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        try {
+            VERSION = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("{}", "read version.txt failed");
+            System.exit(-1);
+        }
+    }
 
     static {
 
