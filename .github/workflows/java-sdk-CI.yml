@@ -77,7 +77,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        architecture: [arm64]
+        architecture: [arm64,x86_64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -87,26 +87,15 @@ jobs:
           rust-version: '1.70.0'
       - name: Build
         run: |
-          rustup target add x86_64-apple-darwin
-          rustup target add aarch64-apple-darwin
-          cd rust-sdk
-          cargo build --features java --release --target x86_64-apple-darwin
-          cargo build --features java --release --target aarch64-apple-darwin
+          cargo build --features java --release
       - name: Rename
         run : |
-          mv ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk_x86_64.dylib
-          mv ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
-          file ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
-      - name: Upload x86 dylib
+          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{ matrix.architecture }}.dylib
+      - name: Upload ${{ matrix.architecture }} dylib
         uses: actions/upload-artifact@v3
         with:
-          name: dylib-x86_84
-          path: ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk_x86_64.dylib
-      - name: Upload aarch dylib
-        uses: actions/upload-artifact@v3
-        with:
-          name: dylib-aarch64
-          path: ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
+          name: dylib-${{ matrix.architecture }}
+          path: ./rust-sdk/target/release/libzkdex_sdk_${{ matrix.architecture }}.dylib
 
 
   collect_artifacts:
