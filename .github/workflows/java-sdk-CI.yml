@@ -90,6 +90,7 @@ jobs:
       - name: Rename
         run : |
           mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
+          file ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
       - name: Upload dylib
         uses: actions/upload-artifact@v3
         with:
@@ -130,7 +131,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dylib-aarch64
-          path: java-sdk/src/main/resources/com/okx/
+          path: java-sdk/src/main/resources/com/okx
       - name: Rename artifacts
         run: |
           mv java-sdk/src/main/resources/com/okx/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
