@@ -145,7 +145,7 @@ jobs:
       - name: Download macOS x86_64 artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dylib-x86_84
+          name: dylib-x86_64
           path: java-sdk/src/main/resources/com/okx
       - name: Download macOS aarch64 artifacts
         uses: actions/download-artifact@v2
