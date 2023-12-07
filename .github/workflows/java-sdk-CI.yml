@@ -77,7 +77,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ x86_64, aarch64 ]
+        target: [ x86_64 ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -86,16 +86,25 @@ jobs:
         with:
           rust-version: '1.70.0'
       - name: Build
-        run: cd rust-sdk && cargo build --features java --release
+        run: |
+          cd rust-sdk && cargo build --features java --release --target x86_64-apple-darwin
+          cargo build --features java --release --target aarch64-apple-darwin
       - name: Rename
         run : |
-          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
-          file ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
-      - name: Upload dylib
+          mv ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk_x86_64.dylib
+          mv ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
+          file ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
+      - name: Upload x86 dylib
         uses: actions/upload-artifact@v3
         with:
-          name: dylib-${{matrix.target}}
-          path: ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
+          name: dylib-x86_84
+          path: ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk_x86_64.dylib
+      - name: Upload aarch dylib
+        uses: actions/upload-artifact@v3
+        with:
+          name: dylib-aarch64
+          path: ./rust-sdk/target/aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib
+
 
   collect_artifacts:
     runs-on: ubuntu-latest
@@ -125,7 +134,7 @@ jobs:
       - name: Download macOS x86_64 artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dylib-x86_64
+          name: dylib-x86_84
           path: java-sdk/src/main/resources/com/okx
       - name: Download macOS aarch64 artifacts
         uses: actions/download-artifact@v2
@@ -137,7 +146,7 @@ jobs:
           mv java-sdk/src/main/resources/com/okx/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
           mv java-sdk/src/main/resources/com/okx/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
           mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
-          mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch6.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
+          mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
       - name: Record Version
         run: echo "$CARGO_PKG_VERSION" > java-sdk/src/main/resources/com/okx/version.txt
 
