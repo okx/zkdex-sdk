@@ -2,12 +2,8 @@ name: java-sdk-CI
 
 on:
   push:
-    branches:
-      - main
-      - spot
-    tags:
-      - '*'
-  pull_request:
+    paths:
+      - 'rust-sdk/**'
   workflow_dispatch:
 
 permissions:
