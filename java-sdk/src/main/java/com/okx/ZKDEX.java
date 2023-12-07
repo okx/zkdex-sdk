@@ -13,11 +13,11 @@ public class ZKDEX {
 
     private static final String LIB_NAME = "libzkdex_sdk";
 
-    private static final String ARM_MAC_LIB_NAME = "arm_" + LIB_NAME + "_" + VERSION + ".dylib";
-    private static final String X86_MAC_LIB_NAME = "x86_64_" + LIB_NAME + "_" + VERSION + ".dylib";
+    private static final String ARM_MAC_LIB_NAME = LIB_NAME + "_aarch64_"  + VERSION + ".dylib";
+    private static final String X86_MAC_LIB_NAME =  LIB_NAME + "_x86_64_" + VERSION + ".dylib";
 
-    private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_" + VERSION + ".so";
-    private static final String X86_WIN_LIB_NAME = LIB_NAME + "_" + VERSION + ".dll";
+    private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_x86_64_" + VERSION + ".so";
+    private static final String X86_WIN_LIB_NAME = "zkdex_sdk" + "_x86_64_" + VERSION + ".dll";
 
     static {
 

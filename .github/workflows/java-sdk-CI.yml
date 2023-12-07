@@ -87,11 +87,14 @@ jobs:
           rust-version: '1.70.0'
       - name: Build
         run: cd rust-sdk && cargo build --features java --release
+      - name: Rename
+        run : |
+          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
       - name: Upload dylib
         uses: actions/upload-artifact@v3
         with:
           name: dylib-${{matrix.target}}
-          path: ./rust-sdk/target/release/libzkdex_sdk.dylib
+          path: ./rust-sdk/target/release/libzkdex_sdk_${{matrix.target}}.dylib
 
   collect_artifacts:
     runs-on: ubuntu-latest
@@ -105,38 +108,38 @@ jobs:
           echo "CARGO_PKG_VERSION=\"$(awk -F ' = ' '$1 == "version" { gsub("\"", "", $2); print $2 }' ./rust-sdk/Cargo.toml)\"" >> $GITHUB_ENV
           echo "$CARGO_PKG_VERSION"
       - name: Remove old artifacts
-        run: rm -rf java-sdk/src/main/resources/com/okx/x86_64_linux && rm -rf java-sdk/src/main/resources/com/okx/x86_64_windows && rm -rf java-sdk/src/main/resources/com/okx/x86_64_mac && rm -rf java-sdk/src/main/resources/com/okx/aarch64_mac
+        run: rm -rf java-sdk/src/main/resources/com/okx/*
 
       - name: Download Linux artifacts
         uses: actions/download-artifact@v2
         with:
           name: linux_so
-          path: java-sdk/src/main/resources/com/okx/x86_64_linux
+          path: java-sdk/src/main/resources/com/okx
 
       - name: Download Windows artifacts
         uses: actions/download-artifact@v2
         with:
           name: dll
-          path: java-sdk/src/main/resources/com/okx/x86_64_windows
+          path: java-sdk/src/main/resources/com/okx
       - name: Download macOS x86_64 artifacts
         uses: actions/download-artifact@v2
         with:
           name: dylib-x86_64
-          path: java-sdk/src/main/resources/com/okx/x86_64_mac
+          path: java-sdk/src/main/resources/com/okx
       - name: Download macOS aarch64 artifacts
         uses: actions/download-artifact@v2
         with:
           name: dylib-aarch64
-          path: java-sdk/src/main/resources/com/okx/aarch64_mac
+          path: java-sdk/src/main/resources/com/okx/
       - name: Rename artifacts
         run: |
-          mv java-sdk/src/main/resources/com/okx/x86_64_windows/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/x86_64_windows/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
-          mv java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/x86_64_linux/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
-          mv java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/x86_64_mac/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
-          mv java-sdk/src/main/resources/com/okx/aarch64_mac/libzkdex_sdk.dylib java-sdk/src/main/resources/com/okx/aarch64_mac/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
-          
-        
-        
+          mv java-sdk/src/main/resources/com/okx/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
+          mv java-sdk/src/main/resources/com/okx/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
+          mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
+          mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch6.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
+      - name: Record Version
+        run: echo "$CARGO_PKG_VERSION" > java-sdk/src/main/resources/com/okx/version.txt
+
 
       - name: Commit and push changes
         run: |
