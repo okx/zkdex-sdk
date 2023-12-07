@@ -1,4 +1,4 @@
-name: java-sdk-CI
+name: dynamic-library-CI
 
 on:
   push:
