@@ -1,0 +1,15 @@
+{
+	"name": "@ok/zkdex-sdk",
+	"version": "0.1.1",
+	"browser": "dist/zkdex-web.js",
+	"main": "dist/zkdex-node.js",
+	"files": [
+		"dist/*.ts",
+		"dist/*.wasm",
+		"dist/*.js"
+	],
+	"scripts": {
+		"build": "./build.sh && node web-wasm.js",
+		"test": "zk f cargo test"
+	}
+}
