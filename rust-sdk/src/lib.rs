@@ -1178,6 +1178,7 @@ mod test {
         "amount": "1000000",
         "asset_id": "0x00001",
         "position_id": "1",
+        "chain_id": "1",
         "eth_address": "0x0"
         }"##;
         let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();

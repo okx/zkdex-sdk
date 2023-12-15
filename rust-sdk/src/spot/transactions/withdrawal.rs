@@ -11,6 +11,7 @@ use crate::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+use crate::serde_wrapper::u32_serde::U32SerdeAsString;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +28,8 @@ pub struct Withdrawal {
     pub asset_id: AssetIdType,
     #[serde(rename = "position_id")]
     pub position_id: PositionIdType,
+    #[serde(rename = "chain_id", with="U32SerdeAsString")]
+    pub chain_id: u32,
 }
 
 impl Withdrawal {
@@ -46,6 +49,8 @@ impl Withdrawal {
             hasher.update_single(&(self.asset_id.0 as u64));
             hasher.update_single(&self.owner_key);
         }
+
+        hasher.update_single(&(self.chain_id as u64));
 
         let packed_message1 = U256([
             (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
@@ -86,12 +91,13 @@ mod test {
         "asset_id": "0x00001",
         "position_id": "1",
         "eth_address": "0x0",
+        "chain_id": "1",
         "signature": {"r":"0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732","s":"0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476"}
         }
         "##;
 
         let req = serde_json::from_str::<Withdrawal>(json_str);
         assert!(req.is_ok());
-        assert!(req.unwrap().hash().to_string() == "19613946648663752148867793359722465674053875641453207421148597071264686066238")
+        assert!(req.unwrap().hash().to_string() == "119039369094889261403898889385918450319671151073804265247384487898016834057")
     }
 }
