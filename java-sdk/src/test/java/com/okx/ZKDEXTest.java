@@ -485,10 +485,10 @@ public class ZKDEXTest {
 
     @Test
     public void test_sign_spot_withdrawal() throws Exception {
-        String json = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"eth_address\":\"0x0\"}";
+        String json = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"chain_id\":\"1\",\"eth_address\":\"0x0\"}";
         String sigStr = ZKDEX.signSpotWithdrawal(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
-        Signature expectSig = new Signature("0xa03db1396852977320874eb328a5abd0887105db5a6906fd0a58d5e92c47e063", "0x001d1142fb55ee7ace2f9ca18e9148b3e122753ce972f462878e6ce4d96edd40");
+        Signature expectSig = new Signature("0xa5ddaa85042f91be1d036a89d49cb9532f063a911516f3c13a55fa7889e03d70", "0x05cfefa9b959b4538bf2050286025dd522ad047e1f1ae499ae3627ac6ba5aa59");
         assertEquals(expectSig, signature);
 
         String hash = ZKDEX.hashSpotWithdrawal(json);
