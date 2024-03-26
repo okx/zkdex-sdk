@@ -87,6 +87,9 @@ mod test {
         "#;
         let limit_order = serde_json::from_str::<LimitOrder>(json);
         assert!(limit_order.is_ok());
-        assert!(limit_order.unwrap().hash().to_string() == "11862331312157360900677001705316294883250002101778892306581558769101577195139")
+        assert!(
+            limit_order.unwrap().hash().to_string()
+                == "11862331312157360900677001705316294883250002101778892306581558769101577195139"
+        )
     }
 }
