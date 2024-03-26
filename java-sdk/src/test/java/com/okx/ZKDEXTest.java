@@ -469,6 +469,7 @@ public class ZKDEXTest {
         expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
 
         assertEquals(expectedSig, signature);
+        assertEquals(true,ZKDEX.l2Verify(signature.getX(),signature.getY(),signature.getS(),signature.getPkX(),signature.getPkY(),msg));
     }
 
     @Test
