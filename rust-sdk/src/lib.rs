@@ -26,7 +26,6 @@ use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
 use crate::transaction::transfer::{transfer_hash, Transfer};
-use crate::transaction::types::HashType;
 use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::tx::convert::FeConvert;
@@ -37,6 +36,7 @@ use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
 use crate::tx::withdraw::withdrawal_hash;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+use types::HashType;
 
 pub mod common;
 mod constant;
@@ -47,8 +47,10 @@ pub mod java_bridge;
 pub mod javascript_bridge;
 mod models;
 pub mod serde_wrapper;
+pub mod spot;
 pub mod transaction;
 pub mod tx;
+pub mod types;
 mod utils;
 pub mod zkw;
 
@@ -275,6 +277,36 @@ struct Signature<'a> {
     s: &'a str,
 }
 
+pub fn sign_spot_transfer(json: &str, private_key: &str) -> Result<JubjubSignature> {
+    let req: spot::Transfer = serde_json::from_str(json).unwrap();
+    Ok(spot::sign_transfer(req, private_key)?)
+}
+
+pub fn hash_spot_transfer(json: &str) -> Result<String> {
+    let req: spot::Transfer = serde_json::from_str(json).unwrap();
+    Ok(hash_type_to_string_with_0xprefix(spot::transfer_hash(&req)))
+}
+
+pub fn sign_spot_limit_order(json: &str, private_key: &str) -> Result<JubjubSignature> {
+    let req: spot::limit_order::LimitOrder = serde_json::from_str(json).unwrap();
+    Ok(spot::limit_order::sign_limit_order(&req, private_key)?)
+}
+
+pub fn hash_spot_limit_order(json: &str) -> Result<String> {
+    let req: spot::limit_order::LimitOrder = serde_json::from_str(json).unwrap();
+    Ok(hash_type_to_string_with_0xprefix(req.hash()))
+}
+
+pub fn sign_spot_withdrawal(json: &str, private_key: &str) -> Result<JubjubSignature> {
+    let req: spot::Withdrawal = serde_json::from_str(json).unwrap();
+    Ok(spot::sign_withdrawal(&req, private_key)?)
+}
+
+pub fn hash_spot_withdrawal(json: &str) -> Result<String> {
+    let req: spot::Withdrawal = serde_json::from_str(json).unwrap();
+    Ok(hash_type_to_string_with_0xprefix(req.hash()))
+}
+
 #[cfg(test)]
 mod test {
     use other_test::Bencher;
@@ -284,14 +316,15 @@ mod test {
     use crate::tx::public_key_type::PublicKeyType;
     use crate::tx::{
         private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
-        LimitOrderRequest, PackedPublicKey,
+        LimitOrderRequest,
     };
     use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
-        is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
-        reverse_hex, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
-        sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
-        Signature,
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign,
+        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
+        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw,
+        verify_jubjub_signature, verify_signature, L1Signature, Signature,
     };
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
@@ -786,7 +819,7 @@ mod test {
         assert!(verify_jubjub_signature(
             sig1,
             &public_key_from_private(&private_key_from_string(pri1).unwrap()).to_string(),
-            &hash1
+            &hash1,
         )
         .unwrap());
         let json2 = r#"
@@ -805,7 +838,7 @@ mod test {
         assert!(verify_jubjub_signature(
             sig2,
             &public_key_from_private(&private_key_from_string(pri2).unwrap()).to_string(),
-            &hash2
+            &hash2,
         )
         .unwrap());
 
@@ -824,7 +857,7 @@ mod test {
         assert!(verify_jubjub_signature(
             sig3,
             &public_key_from_private(&private_key_from_string(pri3).unwrap()).to_string(),
-            &hash3
+            &hash3,
         )
         .unwrap());
 
@@ -844,7 +877,7 @@ mod test {
         assert!(verify_jubjub_signature(
             sig4,
             &public_key_from_private(&private_key_from_string(pri2).unwrap()).to_string(),
-            &hash4
+            &hash4,
         )
         .unwrap());
     }
@@ -920,7 +953,7 @@ mod test {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         let sig_r = "0x1c929aba1dd2f9cacf5c857e014b2ea1bbd98e5758821a20293b12c869e51732";
         let sig_s = "0x03d739463c57a40e49b8e52f54c18acce5f205ee9ffcee2b96ac83bc3fbcf476";
-        let (pk_x,pk_y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
+        let (pk_x, pk_y) = private_key_to_pubkey_xy(PRI_KEY).unwrap();
 
         b.iter(|| {
             let hash = hash_transfer(json).unwrap();
@@ -932,7 +965,6 @@ mod test {
     fn bench_sign_transfer(b: &mut Bencher) {
         let json = "{\"nonce\":\"0\",\"public_key\":\"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa\",\"expiration_timestamp\":\"0\",\"sender_position_id\":\"0\",\"receiver_public_key\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"receiver_position_id\":\"0\",\"amount\":\"0\",\"asset_id\":\"0xa\"}";
         b.iter(|| {
-
             assert!(sign_transfer(json, PRI_KEY).is_ok());
         })
     }
@@ -1095,5 +1127,64 @@ mod test {
             pk_y: "0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55".to_string(),
         };
         assert!(s == expected)
+    }
+
+    #[test]
+    pub fn test_sign_spot_transfer() {
+        let json = r#"
+        {
+
+        "nonce": "1",
+        "sender_public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "10",
+        "asset_id": "0x00001",
+        "receiver_position_id": "1",
+        "receiver_public_key": "0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "sender_position_id": "1"
+
+        }"#;
+
+        let sig = sign_spot_transfer(json, PRI_KEY).unwrap();
+        assert!(verify_jubjub_signature(sig, PUB_KEY, &hash_spot_transfer(json).unwrap()).unwrap());
+    }
+
+    #[test]
+    pub fn test_sign_spot_limit_order() {
+        let json = r#"{
+            "nonce": "0",
+            "expiration_timestamp": "0",
+            "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+            "amount_buy": "0",
+            "amount_sell": "0",
+            "amount_fee": "0",
+            "asset_buy":"0x01",
+            "asset_sell":"0x02",
+            "position_id":"1"
+
+            }"#;
+        let sig = sign_spot_limit_order(json, PRI_KEY).unwrap();
+        assert!(
+            verify_jubjub_signature(sig, PUB_KEY, &hash_spot_limit_order(json).unwrap()).unwrap()
+        );
+    }
+
+    #[test]
+    pub fn test_sign_spot_withdrawal() {
+        let json_str = r##"{
+        "nonce": "1",
+        "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "1000000",
+        "asset_id": "0x00001",
+        "position_id": "1",
+        "chain_id": "1",
+        "eth_address": "0x0"
+        }"##;
+        let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();
+        assert!(
+            verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap())
+                .unwrap()
+        );
     }
 }

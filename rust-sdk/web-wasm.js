@@ -66,9 +66,9 @@ export async function loadZKDEXCrypto(wasmFileUrl) {
   }
   if (!wasmFileUrl) {
     const wasmResponse = new Response(wasmBytes, wasmResponseInit);
-    await init(wasmResponse);
+    await __wbg_init(wasmResponse);
   } else {
-    await init(DefaultZksyncCryptoWasmURL);
+    await init(DefaultZKDEXCryptoWasmURL);
   }
 }
 `;

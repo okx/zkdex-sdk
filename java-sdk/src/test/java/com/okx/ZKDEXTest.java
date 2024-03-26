@@ -470,4 +470,40 @@ public class ZKDEXTest {
 
         assertEquals(expectedSig, signature);
     }
+
+    @Test
+    public void test_sign_spot_transfer() throws Exception {
+        String json = "{\"nonce\":\"1\",\"sender_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"10\",\"asset_id\":\"0x00001\",\"receiver_position_id\":\"1\",\"receiver_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"sender_position_id\":\"1\"}";
+        String sigStr = ZKDEX.signSpotTransfer(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0x2e3aaadfec701f1b18b0fc95798d93c6a5a4ac24117c18200b2010aadb67248c", "0x04b67a05dda815d69c1334e772c73f662c0df65a8c0e4a74a672e6823c133ddf");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.hashSpotTransfer(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
+    }
+
+    @Test
+    public void test_sign_spot_withdrawal() throws Exception {
+        String json = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"chain_id\":\"1\",\"eth_address\":\"0x0\"}";
+        String sigStr = ZKDEX.signSpotWithdrawal(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0xa5ddaa85042f91be1d036a89d49cb9532f063a911516f3c13a55fa7889e03d70", "0x05cfefa9b959b4538bf2050286025dd522ad047e1f1ae499ae3627ac6ba5aa59");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.hashSpotWithdrawal(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
+    }
+
+    @Test
+    public void test_sign_spot_limit_order() throws Exception {
+        String json = "{\"nonce\":\"0\",\"expiration_timestamp\":\"0\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"amount_buy\":\"0\",\"amount_sell\":\"0\",\"amount_fee\":\"0\",\"asset_buy\":\"0x01\",\"asset_sell\":\"0x02\",\"position_id\":\"1\"}";
+        String sigStr = ZKDEX.signSpotLimitOrder(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0x01aabe43b11787a211f9960a2abd2de3667965c52b5ff23ac853a91ebfc9b6c2", "0x01ffebd7ab388ae453baa839f123116bdfac8b57931bbbc463cf8dfcfab6fc02");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.hashSpotLimitOrder(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
+    }
 }

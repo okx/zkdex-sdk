@@ -109,7 +109,7 @@ pub fn hash2<T1: ToHashable, T2: ToHashable>(a: &T1, b: &T2) -> U256 {
 
 #[cfg(test)]
 mod test {
-    use std::thread::{JoinHandle, spawn};
+    use std::thread::{spawn, JoinHandle};
 
     use primitive_types::U256;
 
@@ -140,10 +140,12 @@ mod test {
     fn test_hash_1() {
         let mut hasher = new_hasher();
         let a = hasher.finalize();
-        println!("{}",a.to_string());
+        println!("{}", a.to_string());
         let hash = hash2(&U256::from(1), &U256::from(2));
-        let str =  hash.to_string();
+        let str = hash.to_string();
         println!("{}", str.clone());
-        assert!("12161893061466977591326716549227327416251121218164330599584971528678000121369" == str);
+        assert!(
+            "12161893061466977591326716549227327416251121218164330599584971528678000121369" == str
+        );
     }
 }

@@ -12,10 +12,10 @@ use std::ops::ShlAssign;
 
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
-use crate::transaction::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::{Serialize, TxSignature};
+use crate::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
 use crate::zkw::JubjubSignature;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use anyhow::Result;

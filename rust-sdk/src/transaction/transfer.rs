@@ -8,10 +8,10 @@ use crate::common::OrderBase;
 use crate::common::{CONDITIONAL_TRANSFER_ORDER_TYPE, TRANSFER_ORDER_TYPE};
 use crate::felt::LeBytesConvert;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
-use crate::transaction::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::TxSignature;
+use crate::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::JubjubSignature;
 use crate::{hash, U64SerdeAsString};
 

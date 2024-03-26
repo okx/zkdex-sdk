@@ -18,6 +18,12 @@ export function sign(a: number, b: number, c: number, d: number, e: number): voi
 export function private_key_from_seed(a: number, b: number, c: number): void;
 export function private_key_to_pubkey_xy(a: number, b: number, c: number): void;
 export function public_key_to_xy(a: number, b: number, c: number): void;
+export function sign_spot_transfer(a: number, b: number, c: number, d: number, e: number): void;
+export function hash_spot_transfer(a: number, b: number, c: number): void;
+export function sign_spot_withdrawal(a: number, b: number, c: number, d: number, e: number): void;
+export function hash_spot_withdrawal(a: number, b: number, c: number): void;
+export function sign_spot_limit_order(a: number, b: number, c: number, d: number, e: number): void;
+export function hash_spot_limit_order(a: number, b: number, c: number): void;
 export function zkdex_init(): void;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_malloc(a: number, b: number): number;

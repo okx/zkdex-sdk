@@ -9,15 +9,32 @@ import java.nio.file.Files;
 public class ZKDEX {
 
 
-    private static final String VERSION = "0.1.2";
+    private static String VERSION = "0.1.0";
+
+    static {
+        InputStream in = ZKDEX.class.getResourceAsStream("version.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        try {
+            VERSION = reader.readLine();
+            if (VERSION.startsWith("\"") && VERSION.endsWith("\"")) {
+                VERSION = VERSION.substring(1, VERSION.length() - 1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("{}", "read version.txt failed");
+            System.exit(-1);
+        }
+    }
 
     private static final String LIB_NAME = "libzkdex_sdk";
 
-    private static final String ARM_MAC_LIB_NAME = "arm_" + LIB_NAME + "_" + VERSION + ".dylib";
-    private static final String X86_MAC_LIB_NAME = "x86_64_" + LIB_NAME + "_" + VERSION + ".dylib";
 
-    private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_" + VERSION + ".so";
-    private static final String X86_WIN_LIB_NAME = LIB_NAME + "_" + VERSION + ".dll";
+    private static final String ARM_MAC_LIB_NAME = LIB_NAME + "_aarch64_" + VERSION + ".dylib";
+    private static final String X86_MAC_LIB_NAME = LIB_NAME + "_x86_64_" + VERSION + ".dylib";
+
+    private static final String X86_LINUX_LIB_NAME = LIB_NAME + "_x86_64_" + VERSION + ".so";
+    private static final String X86_WIN_LIB_NAME = "zkdex_sdk" + "_x86_64_" + VERSION + ".dll";
+
 
     static {
 
@@ -39,8 +56,17 @@ public class ZKDEX {
             System.exit(-1);
         }
 
-
-        if (osName.contains("win")) {
+        // get lib path from env
+        String libPath = System.getenv("ZKDEX_LIB_PATH");
+        if (libPath != null && !libPath.isEmpty()) {
+            try {
+                loadLib(libPath, fileName);
+                log.info("[loadLib] load lib from {} success", libPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("[loadLib] try load lib from {} failed: {}", libPath, e.toString());
+            }
+        } else if (osName.contains("win")) {
             try {
                 loadLib(System.getProperty("java.io.tmpdir"), fileName);
             } catch (Exception e) {
@@ -58,7 +84,6 @@ public class ZKDEX {
             }
         }
     }
-
 
 
     private static void loadLib(String path, String name) {
@@ -263,5 +288,62 @@ public class ZKDEX {
      * @throws Exception
      */
     public static native String publicKeyToXY(String publicKey) throws Exception;
+
+    /**
+     * sign a spot Transfer
+     *
+     * @param json   json of spot Transfer
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotTransfer(String json, String priKey) throws Exception;
+
+    /**
+     * sign a spot withdrawal
+     *
+     * @param json   json of spot withdrawal
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotWithdrawal(String json, String priKey) throws Exception;
+
+    /**
+     * sign a spot limit order
+     *
+     * @param json   json of spot limit order
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String signSpotLimitOrder(String json, String priKey) throws Exception;
+
+    /**
+     * hash a spot Transfer
+     *
+     * @param json json of spot Transfer
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotTransfer(String json) throws Exception;
+
+    /**
+     * hash a spot withdrawal
+     *
+     * @param json json of spot withdrawal
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotWithdrawal(String json) throws Exception;
+
+    /**
+     * hash a spot limit order
+     *
+     * @param json json of spot limit order
+     * @return hash
+     * @throws Exception
+     */
+    public static native String hashSpotLimitOrder(String json) throws Exception;
 
 }

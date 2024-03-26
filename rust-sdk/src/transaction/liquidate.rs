@@ -1,5 +1,5 @@
 use crate::transaction::limit_order::LimitOrderRequest;
-use crate::transaction::types::{AmountType, PositionIdType};
+use crate::types::{AmountType, PositionIdType};
 use crate::U64SerdeAsString;
 use serde::{Deserialize, Serialize};
 

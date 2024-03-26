@@ -119,6 +119,45 @@ export function private_key_to_pubkey_xy(pri_key: string): string;
 * @returns {string} json string of public key xy.
 */
 export function public_key_to_xy(pub_key: string): string;
+/**
+* sign_spot_transfer, sign a spot transfer transaction.
+* @param {string} json  json of spot transfer transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of spot transfer transaction.
+*/
+export function sign_spot_transfer(json: string, private_key: string): string;
+/**
+* hash_spot_transfer, hash a spot transfer transaction.
+* @param {string} json  json of spot transfer transaction.
+* @returns {string} string hash of spot transfer transaction with 0x prefix.
+*/
+export function hash_spot_transfer(json: string): string;
+/**
+* sign_spot_withdrawal, sign a spot withdrawal transaction.
+* @param {string} json  json of spot withdrawal transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of spot withdrawal transaction.
+*/
+export function sign_spot_withdrawal(json: string, private_key: string): string;
+/**
+* hash_spot_withdrawal, hash a spot withdrawal transaction.
+* @param {string} json  json of spot withdrawal transaction.
+* @returns {string} string hash of spot withdrawal transaction with 0x prefix.
+*/
+export function hash_spot_withdrawal(json: string): string;
+/**
+* sign_spot_limit_order, sign a spot LimitOrder transaction.
+* @param {string} json  json of spot LimitOrder transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of spot LimitOrder transaction.
+*/
+export function sign_spot_limit_order(json: string, private_key: string): string;
+/**
+* hash_spot_limit_order, hash a spot LimitOrder transaction.
+* @param {string} json  json of spot LimitOrder transaction.
+* @returns {string} string hash of spot LimitOrder transaction with 0x prefix.
+*/
+export function hash_spot_limit_order(json: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -141,6 +180,12 @@ export interface InitOutput {
   readonly private_key_from_seed: (a: number, b: number, c: number) => void;
   readonly private_key_to_pubkey_xy: (a: number, b: number, c: number) => void;
   readonly public_key_to_xy: (a: number, b: number, c: number) => void;
+  readonly sign_spot_transfer: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly hash_spot_transfer: (a: number, b: number, c: number) => void;
+  readonly sign_spot_withdrawal: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly hash_spot_withdrawal: (a: number, b: number, c: number) => void;
+  readonly sign_spot_limit_order: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly hash_spot_limit_order: (a: number, b: number, c: number) => void;
   readonly zkdex_init: () => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;

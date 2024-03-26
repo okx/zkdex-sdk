@@ -1,11 +1,6 @@
 #[cfg(feature = "java")]
 pub mod java_bridge {
-    use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_transfer, hash_withdraw,
-        is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_transfer, sign_withdraw,
-        verify_signature,
-    };
+    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order, hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve, l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature};
     use jni::objects::*;
     use jni::sys::{jboolean, jstring};
     use jni::JNIEnv;
@@ -484,6 +479,167 @@ pub mod java_bridge {
                 let output = env
                     .new_string(serde_json::to_string(&xy).unwrap())
                     .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_signSpotWithdrawal<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            sign_spot_withdrawal(&json, &pri_key).expect("Couldn get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_signSpotTransfer<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            sign_spot_transfer(&json, &pri_key).expect("Couldn get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_signSpotLimitOrder<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            sign_spot_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_hashSpotWithdrawal<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            hash_spot_withdrawal(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_hashSpotTransfer<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            hash_spot_transfer(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_hashSpotLimitOrder<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            hash_spot_limit_order(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
                 output.into_raw()
             }
             Err(e) => {
