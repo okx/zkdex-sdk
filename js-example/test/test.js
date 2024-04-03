@@ -129,6 +129,13 @@ describe('test zkdex js function', function () {
         assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
         assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, err_hash), false);
     })
+
+    it('test sign eth address', () => {
+
+            let sig = zkdex.sign_eth_address("0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2","0x864d63b304b5635579771c0864def9bbc166ae5b1f39a894998ef350f6c521ac","0x05b82dd4f0325bf5fe7cc45ed2e8e8b47388d905f6b1d87c437f9732197425c4");
+            assert.equal(sig,"0x209012cba7e208ab4a9338225568ffb87736721bdfad1168062eaf4a9c9ed04c0f5b1f07a4535f2ff29fe95a61166be31e62a7a418a8e1f1b51fd6ddaa566e090107f225011c74063739dfbee26f81f30d2ac0bfad5b8e188c8e48b4cc19fcd10fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
+
+     })
 })
 
 
