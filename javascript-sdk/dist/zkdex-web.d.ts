@@ -88,6 +88,13 @@ export function verify_signature(sig_r: string, sig_s: string, pub_key_x: string
 */
 export function l1_sign(msg: string, private_key: string): string;
 /**
+* sign eth address
+* @param {string} address  with 0x prefix.
+* @param {string} pubkey with 0x prefix.
+* @param {string} l2_private_key with 0x prefix.
+*/
+export function sign_eth_address(address: string, pubkey: string, l2_private_key: string): string;
+/**
 * is_on_curve, check the (x,y) is on curve.
 * @param {string} pub_key_x  x of public key with 0x prefix.
 * @param {string} pub_key_y  y of public key with 0x prefix.
@@ -175,6 +182,7 @@ export interface InitOutput {
   readonly hash_signed_oracle_price: (a: number, b: number, c: number) => void;
   readonly verify_signature: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly l1_sign: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly sign_eth_address: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly is_on_curve: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly sign: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly private_key_from_seed: (a: number, b: number, c: number) => void;
