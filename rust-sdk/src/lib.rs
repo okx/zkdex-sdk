@@ -59,6 +59,7 @@ pub mod tx;
 pub mod types;
 mod utils;
 pub mod zkw;
+mod unified;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
