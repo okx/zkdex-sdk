@@ -5,9 +5,8 @@ pub mod public_key_type;
 pub mod sign;
 
 pub use crate::*;
-use franklin_crypto::{alt_babyjubjub::AltJubjubBn256, rescue::bn256::Bn256RescueParams};
 use lazy_static::lazy_static;
-use primitive_types::{H256, U256};
+use primitive_types::H256;
 
 lazy_static! {
     pub static ref JUBJUB_PARAMS: AltJubjubBn256 = AltJubjubBn256::new();

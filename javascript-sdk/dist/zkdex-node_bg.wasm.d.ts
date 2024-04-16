@@ -13,6 +13,7 @@ export function sign_signed_oracle_price(a: number, b: number, c: number, d: num
 export function hash_signed_oracle_price(a: number, b: number, c: number): void;
 export function verify_signature(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number): void;
 export function l1_sign(a: number, b: number, c: number, d: number, e: number): void;
+export function sign_eth_address(a: number, b: number, c: number, d: number, e: number, f: number, g: number): void;
 export function is_on_curve(a: number, b: number, c: number, d: number, e: number): void;
 export function sign(a: number, b: number, c: number, d: number, e: number): void;
 export function private_key_from_seed(a: number, b: number, c: number): void;

@@ -196,7 +196,7 @@ fn eth_sign(
     msg: String,
 ) -> PyResult<String> {
      match panic::catch_unwind(|| {
-        let sig = zkdex_sdk::l1_sign(&msg, &private_key).expect("Couldn't sign msg");
+        let sig = zkdex_sdk::l2_sign(&msg, &private_key).expect("Couldn't sign msg");
         let json = serde_json::to_string(&sig).expect("Couldn't serialize signature");
          json
     }) {

@@ -41,6 +41,9 @@ first message.</p>
 <dt><a href="#l1_sign">l1_sign(msg, private_key, string)</a></dt>
 <dd><p>l1 sign, sign a msg on l1 when signing a eth address.</p>
 </dd>
+<dt><a href="#sign_eth_address">sign_eth_address(address, pubkey, l2_private_key)</a></dt>
+<dd><p>sign eth address</p>
+</dd>
 <dt><a href="#is_on_curve">is_on_curve(pub_key_x, pub_key_y)</a> ⇒ <code>bool</code></dt>
 <dd><p>is_on_curve, check the (x,y) is on curve.</p>
 </dd>
@@ -236,6 +239,19 @@ l1 sign, sign a msg on l1 when signing a eth address.
 | msg | <code>string</code> | msg coding in hex with 0x prefix. |
 | private_key | <code>string</code> | private key hex with 0x prefix. |
 | string | <code>string</code> | of signature. |
+
+<a name="sign_eth_address"></a>
+
+## sign\_eth\_address(address, pubkey, l2_private_key)
+sign eth address
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| address | <code>string</code> | with 0x prefix. |
+| pubkey | <code>string</code> | with 0x prefix. |
+| l2_private_key | <code>string</code> | with 0x prefix. |
 
 <a name="is_on_curve"></a>
 

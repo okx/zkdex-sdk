@@ -253,6 +253,19 @@ public class ZKDEX {
     public static native String ethSign(String privateKey, String msg) throws Exception;
 
     /**
+     * verify a l2 signature
+     * @param x
+     * @param y
+     * @param s
+     * @param pkX
+     * @param pkY
+     * @param msg
+     * @return
+     * @throws Exception
+     */
+    public static native boolean l2Verify(String x,String y, String s, String pkX, String pkY , String msg) throws Exception;
+
+    /**
      * derive a private key from a rand seed
      *
      * @param seed random string
