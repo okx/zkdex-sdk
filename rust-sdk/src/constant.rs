@@ -138,6 +138,8 @@ pub const AMOUNT_UPPER_BOUND_U256: U256 = U256([0, 1, 0, 0]);
 pub const EXPIRATION_TIMESTAMP_UPPER_BOUND_U256: U256 = U256([4294967296, 0, 0, 0]);
 pub const NONCE_UPPER_BOUND_U256: U256 = U256([4294967296, 0, 0, 0]);
 
+pub const UNIFIED_TRANSFER_ORDER_TYPE: u64 = 12;
+
 #[cfg(test)]
 mod tests {
     use super::*;

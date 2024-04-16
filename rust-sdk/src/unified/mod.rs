@@ -1,4 +1,5 @@
 mod transactions;
+mod types;
 
 use transactions::transfer::{Transfer};
 use crate::tx::{JubjubSignature, private_key_from_string};
