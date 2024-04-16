@@ -629,7 +629,7 @@ mod test {
         "is_buying_synthetic":false
         }"#;
         let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
-        let pk: PublicKeyType = req.base.public_key.into();
+        let _pk: PublicKeyType = req.base.public_key.into();
 
         assert!(hash_limit_order(json).unwrap().len() == 66)
     }
@@ -1179,9 +1179,12 @@ mod test {
         "asset_id": "0x00001",
         "position_id": "1",
         "chain_id": "1",
+        "fee": "0",
         "eth_address": "0x0"
         }"##;
+
         let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();
+        println!("sig: {}", serde_json::to_string(&sig).unwrap());
         assert!(
             verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap())
                 .unwrap()
