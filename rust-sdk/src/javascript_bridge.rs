@@ -175,6 +175,23 @@ pub mod javascript_bridge {
         }
     }
 
+    /// sign eth address
+    /// @param {string} address  with 0x prefix.
+    /// @param {string} pubkey with 0x prefix.
+    /// @param {string} l2_private_key with 0x prefix.
+    #[wasm_bindgen(js_name = sign_eth_address, skip_jsdoc)]
+    pub fn js_sign_eth_address(
+        address: &str,
+        pubkey: &str,
+        l2_private_key: &str,
+    ) -> Result<String, JsValue> {
+        match sign_eth_address(address, pubkey, l2_private_key) {
+            Ok(ret) => Ok(ret),
+
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
     /// is_on_curve, check the (x,y) is on curve.
     /// @param {string} pub_key_x  x of public key with 0x prefix.
     /// @param {string} pub_key_y  y of public key with 0x prefix.

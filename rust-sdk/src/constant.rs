@@ -141,9 +141,7 @@ pub const NONCE_UPPER_BOUND_U256: U256 = U256([4294967296, 0, 0, 0]);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use num_bigint::BigInt;
     use num_traits::One;
-    use primitive_types::U256;
 
     #[test]
     fn test_constants() {

@@ -18,7 +18,6 @@ pub fn new_hasher() -> impl Hasher {
 }
 
 mod zkw {
-    use crate::hash::Hasher;
     use crate::zkw::PoseidonHasher;
 
     use super::*;
