@@ -3,9 +3,7 @@ use std::cmp::Ordering;
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
 
-use crate::tx::packed_public_key::is_address;
-use crate::tx::PackedPublicKey;
-
+use crate::tx::packed_public_key::{is_address, PackedPublicKey};
 #[derive(Debug, Clone, PartialEq)]
 #[repr(C)]
 pub struct PublicKeyType(pub U256);

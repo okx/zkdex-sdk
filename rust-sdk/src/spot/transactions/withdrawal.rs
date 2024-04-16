@@ -4,7 +4,6 @@ use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
 use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{private_key_from_string, HashType, TxSignature};
 use crate::types::amount::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
@@ -12,6 +11,9 @@ use crate::zkw::JubjubSignature;
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
+use crate::tx::packed_public_key::private_key_from_string;
+use crate::tx::sign::TxSignature;
+use crate::types::HashType;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,27 +1,22 @@
-use crate::unified::spot::*;
-use crate::unified::*;
-
-#[cfg(feature = "notwasm")]
 use serde::{Deserialize, Serialize};
-
-#[cfg_attr(feature = "notwasm", derive(Serialize, Deserialize))]
-#[derive(Debug, Clone, PartialEq, Default)]
-#[repr(C)]
+use crate::unified::transactions::order::spot::LimitOrder;
+use crate::unified::types::{AmountType, SignedAmountType};
+use crate::serde_utils::serde_str;
+#[derive(Debug, Clone, PartialEq, Default,Serialize, Deserialize)]
 pub struct SpotTrade {
     pub party_a_order: LimitOrder,
     pub party_b_order: LimitOrder,
-    #[cfg_attr(feature = "notwasm", serde(with = "serde_str"))]
+    #[serde(with = "serde_str")]
     pub actual_a_sold: AmountType,
-    #[cfg_attr(feature = "notwasm", serde(with = "serde_str"))]
+    #[serde(with = "serde_str")]
     pub actual_b_sold: AmountType,
     pub actual_a_fee: SignedAmountType,
     pub actual_b_fee: SignedAmountType,
 }
 
-#[cfg(feature = "notwasm")]
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::unified::transactions::spot_trade::SpotTrade;
 
     #[test]
     fn test_trade_serde() {
@@ -64,11 +59,7 @@ mod tests {
             "type": "UNIFIED_SPOT_TRADE"
         }
         "##;
-        let tx = serde_json::from_str::<Transaction>(js).unwrap();
-
-        match &tx {
-            Transaction::SpotTrade(_tx) => {}
-            _ => panic!("unexpected tx type"),
-        }
+        let tx = serde_json::from_str::<SpotTrade>(js);
+        assert!(tx.is_ok());
     }
 }

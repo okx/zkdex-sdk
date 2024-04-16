@@ -16,6 +16,7 @@ pub type AssetIdTypeSerdeAsRadix16String = SerdeAsString<16, AssetIdType>;
 pub type AmountTypeSerdeAsRadix10String = SerdeAsString<10, AmountType>;
 pub type NonceTypeSerdeAsRadix10String = SerdeAsString<10, NonceType>;
 
+pub type U64SerdeStr = SerdeAsString<10, u64>;
 pub struct SerdeAsString<const R: u32, T: SerdeRadix>(PhantomData<T>);
 
 pub trait SerdeRadix: Sized {

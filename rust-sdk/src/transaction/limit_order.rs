@@ -12,7 +12,7 @@ use crate::serde_wrapper::I128SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;
 use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::TxSignature;
+use crate::tx::sign::TxSignature;
 use crate::types::{AmountType, AssetIdType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::JubjubSignature;
 
@@ -188,9 +188,9 @@ impl Default for ExchangeLimitOrder {
 #[cfg(test)]
 mod test {
     use crate::common::OrderBase;
-    use crate::tx::limit_order::sign_limit_order;
+    use crate::transaction::limit_order::LimitOrderRequest;
+    use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::tx::public_key_type::PublicKeyType;
-    use crate::tx::{private_key_from_string, public_key_from_private, LimitOrderRequest};
     use crate::types::CollateralAssetId;
 
     #[test]
@@ -217,7 +217,7 @@ mod test {
             is_buying_synthetic: false,
         };
 
-        let w = sign_limit_order(req, prv_key).unwrap();
+        let w = super::sign_limit_order(req, prv_key).unwrap();
         println!("{:?}", w);
     }
 
@@ -229,9 +229,11 @@ mod test {
         use franklin_crypto::eddsa::PublicKey;
 
         use crate::felt::LeBytesConvert;
-        use crate::tx::{
-            private_key_from_string, HashType, LimitOrderRequest, TxSignature, JUBJUB_PARAMS,
-        };
+        use crate::transaction::limit_order::LimitOrderRequest;
+        use crate::tx::{JUBJUB_PARAMS};
+        use crate::tx::packed_public_key::private_key_from_string;
+        use crate::tx::sign::TxSignature;
+        use crate::types::HashType;
 
         #[test]
         pub fn test_sign2() {

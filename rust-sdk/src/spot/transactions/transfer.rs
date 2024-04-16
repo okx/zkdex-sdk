@@ -6,7 +6,6 @@ use crate::constant::SPOT_TRANSFER_ORDER_TYPE;
 use crate::hash;
 use crate::hash::Hasher;
 use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{private_key_from_string, HashType, TxSignature};
 
 use crate::felt::LeBytesConvert;
 use crate::types::amount::AmountType;
@@ -17,6 +16,9 @@ use {
     crate::TransferBaseSerde,
     serde::{Deserialize, Serialize},
 };
+use crate::tx::packed_public_key::private_key_from_string;
+use crate::tx::sign::TxSignature;
+use crate::types::HashType;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 #[repr(C)]

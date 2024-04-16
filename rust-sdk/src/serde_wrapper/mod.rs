@@ -14,6 +14,7 @@ pub mod u32_serde;
 pub mod u64_serde;
 pub mod u8_array_serde;
 pub mod vec_signed_asset_id;
+pub mod serde_utils;
 
 pub use bigint_serde::{
     BigIntSerdeAsRadix10String, BigIntSerdeAsRadix16Prefix0xString,

@@ -25,7 +25,6 @@ impl AsRef<u32> for AssetIdType {
     }
 }
 
-pub use serde_impl::*;
 
 mod serde_impl {
     use super::*;

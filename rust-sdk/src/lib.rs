@@ -32,7 +32,7 @@ use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
 use crate::transaction::transfer::{transfer_hash, Transfer};
-use crate::transaction::withdraw::{Withdraw, WithdrawRequest};
+use crate::transaction::withdraw::{Withdraw, withdrawal_hash, WithdrawRequest};
 use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{
@@ -40,7 +40,6 @@ use crate::tx::packed_public_key::{
 };
 use crate::tx::packed_signature::PackedSignature;
 use crate::tx::sign::TxSignature;
-use crate::tx::withdraw::withdrawal_hash;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use types::HashType;
 
@@ -349,10 +348,7 @@ mod test {
     use sha3::{Digest, Keccak256, Keccak256FullCore};
 
     use crate::tx::public_key_type::PublicKeyType;
-    use crate::tx::{
-        private_key_from_string, public_key_from_private, FeConvert, JubjubSignature,
-        LimitOrderRequest,
-    };
+
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
@@ -361,6 +357,10 @@ mod test {
         sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
         sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature, Signature,
     };
+    use crate::transaction::limit_order::LimitOrderRequest;
+    use crate::tx::convert::FeConvert;
+    use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+    use crate::zkw::JubjubSignature;
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";

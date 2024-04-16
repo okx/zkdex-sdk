@@ -7,18 +7,18 @@
 use crate::i128_serde::U128SerdeAsString;
 use crate::U32SerdeAsString;
 use primitive_types::U256;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::ops::ShlAssign;
 
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{Serialize, TxSignature};
 use crate::types::{AssetIdType, HashType, PriceType, SignedAssetId, TimestampType};
 use crate::zkw::JubjubSignature;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use anyhow::Result;
+use crate::tx::sign::TxSignature;
 
 // Represents a single signature on an external price with a timestamp.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -4,12 +4,12 @@ use crate::tx::public_key_type::PublicKeyType;
 
 pub trait Hasher {
     fn update_single<T: ToHashable>(&mut self, _data: &T);
-    fn update<T: ToHashable>(&mut self, data: &[T]) {
-        self.update_single(&(data.len() as u64));
-        for d in data {
-            self.update_single(d);
-        }
-    }
+    // fn update<T: ToHashable>(&mut self, data: &[T]) {
+    //     self.update_single(&(data.len() as u64));
+    //     for d in data {
+    //         self.update_single(d);
+    //     }
+    // }
     fn finalize(&mut self) -> U256;
 }
 
@@ -18,10 +18,10 @@ pub fn new_hasher() -> impl Hasher {
 }
 
 mod zkw {
-    use crate::hash::Hasher;
+    use primitive_types::U256;
+    use crate::hash::{Hasher, ToHashable};
     use crate::zkw::PoseidonHasher;
 
-    use super::*;
 
     pub struct Poseidon {
         poseidon: PoseidonHasher,
