@@ -1,5 +1,15 @@
+use crate::zkw::JubjubSignature;
+use serde::Serialize;
+
 #[cfg(feature = "js")]
 pub mod javascript_bridge {
+    use crate::javascript_bridge::{ComposeHash, ComposeSignature};
+    use crate::unified::{
+        unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
+        unified_hash_spot_trade, unified_hash_transfer, unified_hash_withdrawal,
+        unified_sign_liquidate, unified_sign_oracle_price, unified_sign_perpetual_trade,
+        unified_sign_spot_trade, unified_sign_transfer, unified_sign_withdrawal,
+    };
     use crate::utils::set_panic_hook;
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
@@ -331,4 +341,192 @@ pub mod javascript_bridge {
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
     }
+
+    /// unified_sign_transfer, sign a transfer transaction.
+    /// @param {string} json of transfer transaction.
+    /// @param {string} private key hex with 0x prefix.
+    /// @returns {string} json signature of transfer transaction.
+    #[wasm_bindgen(js_name = unified_sign_transfer, skip_jsdoc)]
+    pub fn js_unified_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
+        match unified_sign_transfer(json, private_key) {
+            Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_transfer, hash a transfer transaction.
+    /// @param {string} json of transfer transaction.
+    /// @returns {string} hash of transfer transaction.
+    #[wasm_bindgen(js_name = unified_hash_transfer, skip_jsdoc)]
+    pub fn js_unified_hash_transfer(json: &str) -> Result<String, JsValue> {
+        match unified_hash_transfer(json) {
+            Ok(ret) => Ok(ret),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_sign_withdrawal, sign a withdrawal transaction.
+    /// @param {string} json  of withdrawal transaction.
+    /// @param {string} private key hex with 0x prefix.
+    /// @returns {string} json signature of withdrawal transaction.
+    #[wasm_bindgen(js_name = unified_sign_withdrawal, skip_jsdoc)]
+    pub fn js_unified_sign_withdrawal(json: &str, private_key: &str) -> Result<String, JsValue> {
+        match unified_sign_withdrawal(json, private_key) {
+            Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_withdrawal, hash a withdrawal transaction.
+    /// @param {string} json of withdrawal transaction.
+    /// @returns {string} hash of withdrawal transaction.
+    #[wasm_bindgen(js_name = unified_hash_withdrawal, skip_jsdoc)]
+    pub fn js_unified_hash_withdrawal(json: &str) -> Result<String, JsValue> {
+        match unified_hash_withdrawal(json) {
+            Ok(ret) => Ok(ret),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_sign_spot_trade, sign a spot trade transaction.
+    /// @param {string} json of spot trade transaction.
+    /// @param {string} private key A hex with 0x prefix.
+    /// @param {string} private key B hex with 0x prefix.
+    /// @returns {string} json signature of spot trade transaction.
+    #[wasm_bindgen(js_name = unified_sign_spot_trade, skip_jsdoc)]
+    pub fn js_unified_sign_spot_trade(
+        json: &str,
+        private_key_a: &str,
+        private_key_b: &str,
+    ) -> Result<String, JsValue> {
+        match unified_sign_spot_trade(json, private_key_a, private_key_b) {
+            Ok(ret) => {
+                let ret = ComposeSignature {
+                    signature_a: ret.0,
+                    signature_b: ret.1,
+                };
+
+                Ok(serde_json::to_string(&ret).unwrap())
+            }
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_spot_trade, hash a spot trade transaction.
+    /// @param {string} json of spot trade transaction.
+    /// @returns {string} hash of spot trade transaction.
+    #[wasm_bindgen(js_name = unified_sign_spot_trade, skip_jsdoc)]
+    pub fn js_unified_hash_spot_trade(json: &str) -> Result<String, JsValue> {
+        match unified_hash_spot_trade(json) {
+            Ok(ret) => {
+                let ret = ComposeHash {
+                    hash_a: ret.0,
+                    hash_b: ret.1,
+                };
+
+                Ok(serde_json::to_string(&ret).unwrap())
+            }
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_sign_perpetual_trade, sign a perpetual trade transaction.
+    /// @param {string} json of spot trade transaction.
+    /// @param {string} private key A hex with 0x prefix.
+    /// @param {string} private key B hex with 0x prefix.
+    /// @returns {string} json signature of perpetual trade transaction.
+    #[wasm_bindgen(js_name = unified_sign_perpetual_trade, skip_jsdoc)]
+    pub fn js_unified_sign_perpetual_trade(
+        json: &str,
+        private_key_a: &str,
+        private_key_b: &str,
+    ) -> Result<String, JsValue> {
+        match unified_sign_perpetual_trade(json, private_key_a, private_key_b) {
+            Ok(ret) => {
+                let ret = ComposeSignature {
+                    signature_a: ret.0,
+                    signature_b: ret.1,
+                };
+
+                Ok(serde_json::to_string(&ret).unwrap())
+            }
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_perpetual_trade, sign a perpetual trade transaction.
+    /// @param {string} json of spot trade transaction.
+    /// @returns {string} hash of perpetual trade transaction.
+    #[wasm_bindgen(js_name = unified_hash_perpetual_trade, skip_jsdoc)]
+    pub fn js_unified_hash_perpetual_trade(json: &str) -> Result<String, JsValue> {
+        match unified_hash_perpetual_trade(json) {
+            Ok(ret) => {
+                let ret = ComposeHash {
+                    hash_a: ret.0,
+                    hash_b: ret.1,
+                };
+
+                Ok(serde_json::to_string(&ret).unwrap())
+            }
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_sign_oracle_price, sign  oracle price transaction.
+    /// @param {string} json  of oracle price transaction.
+    /// @param {string}  private key hex with 0x prefix.
+    /// @returns {string} json signature of oracle price transaction.
+    #[wasm_bindgen(js_name = unified_sign_oracle_price, skip_jsdoc)]
+    pub fn js_unified_sign_oracle_price(json: &str, private_key: &str) -> Result<String, JsValue> {
+        match unified_sign_oracle_price(json, private_key) {
+            Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_oracle_price, hash oracle price transaction.
+    /// @param {string} json of oracle price transaction.
+    /// @returns {string} hash signature of oracle price transaction.
+    #[wasm_bindgen(js_name = unified_hash_oracle_price, skip_jsdoc)]
+    pub fn js_unified_hash_oracle_price(json: &str) -> Result<String, JsValue> {
+        match unified_hash_oracle_price(json) {
+            Ok(ret) => Ok(ret),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_sign_liquidate, sign liquidate transaction.
+    /// @param {string} json of liquidate transaction.
+    /// @param {string} private_key private key hex with 0x prefix.
+    /// @returns {string} json signature of liquidate transaction.
+    #[wasm_bindgen(js_name = unified_sign_liquidate, skip_jsdoc)]
+    pub fn js_unified_sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
+        match unified_sign_liquidate(json, private_key) {
+            Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+
+    /// unified_hash_liquidate, sign liquidate transaction.
+    /// @param {string} json of liquidate transaction.
+    /// @returns {string} hash of liquidate transaction.
+    #[wasm_bindgen(js_name = unified_hash_liquidate, skip_jsdoc)]
+    pub fn js_unified_hash_liquidate(json: &str) -> Result<String, JsValue> {
+        match unified_hash_liquidate(json) {
+            Ok(ret) => Ok(ret),
+            Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
+        }
+    }
+}
+
+#[derive(Serialize)]
+struct ComposeSignature {
+    signature_a: JubjubSignature,
+    signature_b: JubjubSignature,
+}
+
+#[derive(Serialize)]
+struct ComposeHash {
+    hash_a: String,
+    hash_b: String,
 }
