@@ -506,4 +506,163 @@ public class ZKDEXTest {
         String hash = ZKDEX.hashSpotLimitOrder(json);
         assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
+
+    @Test
+    void unifiedSignWithdrawal() throws Exception {
+        String json = """
+                       {
+                                   "amount": "1682637359498011204",
+                                   "eth_address": "0xB6aD5EfBd6aDfa29dEfad5BC0f8cE0ad57d4c5Fb",
+                                   "expiration_timestamp": "2101470722",
+                                   "asset_id": "0x11111",
+                                   "nonce": "4265854110",
+                                   "position_id": "775817640",
+                                   "fee":"0",
+                                   "public_key": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+                                   "chain_id": "123"
+                               }
+                """;
+        String sigStr = ZKDEX.unifiedSignWithdrawal(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
+
+    @Test
+    void unifiedSignTransfer() throws Exception{
+        String json = """
+                {
+                            "amount": "7758176404715800194",
+                            "asset_id": "0x1234",
+                            "synthetic_id" : "0x0",
+                            "expiration_timestamp": "2404381470",
+                            "nonce": "2195908194",
+                            "receiver_position_id": "609106",
+                            "receiver_public_key": "0x259f432e6f4590b9a164106cf6a659eb4862b21fb97d43588561712e8e5216b",
+                            "sender_position_id": "93098",
+                            "sender_public_key": "0x28e4d45cd0538ffa6fdc09e70f0fea4e56c47fda87a2a969c22b4fdfe997f60"
+                        }
+                """;
+        String sigStr = ZKDEX.unifiedSignTransfer(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
+
+    @Test
+    void unifiedSignSpotTrade() throws Exception {
+        String json = """
+                {
+                            "party_a_order": {
+                                "amount_buy": "80",
+                                "amount_sell": "70",
+                                "amount_fee": "111",
+                                "expiration_timestamp": "3396833",
+                                "nonce": "1654615998",
+                                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
+                                "asset_buy": "0x22222",
+                                "asset_sell": "0x1111",
+                                "position_id": "922337"
+                            },
+                            "party_b_order": {
+                                "amount_buy": "80",
+                                "amount_sell": "70",
+                                "amount_fee": "111",
+                                "expiration_timestamp": "3396833",
+                                "nonce": "1654615998",
+                                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
+                                "asset_buy": "0x2222",
+                                "asset_sell": "0x111",
+                                "position_id": "9223"
+                            },
+                            "actual_a_sold": "30",
+                            "actual_b_sold": "40",
+                            "actual_a_fee": "1",
+                            "actual_b_fee": "-2"
+                        }
+                """;
+        String sigStr = ZKDEX.unifiedSignSpotTrade(json, priKey,priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
+
+    @Test
+    void unifiedSignPerpetualTrade() throws Exception{
+        String json = """
+                {
+                    "party_a_order":{
+                        "type":"PERP_CROSS",
+                        "amount_collateral":"15334874",
+                        "amount_fee":"1767749",
+                        "amount_synthetic":"15460142",
+                        "asset_id_collateral":"0x57d05d",
+                        "asset_id_synthetic":"0x2",
+                        "expiration_timestamp":"3608164305",
+                        "is_buying_synthetic":true,
+                        "nonce":"1210484339",
+                        "order_type":"LIMIT_ORDER_WITH_FEES",
+                        "position_id":"4805234",
+                        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
+                    },
+                    "party_b_order":{
+                        "type":"PERP_CROSS",
+                        "amount_collateral":"15334874138764573096",
+                        "amount_fee":"17677494534592486883",
+                        "amount_synthetic":"15460142528840632302",
+                        "asset_id_collateral":"0x57d05d",
+                        "asset_id_synthetic":"0x2",
+                        "expiration_timestamp":"36081",
+                        "is_buying_synthetic":true,
+                        "nonce":"12104",
+                        "order_type":"LIMIT_ORDER_WITH_FEES",
+                        "position_id":"48052349",
+                        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
+                   
+                    },
+                    "actual_a_fee":"87916620",
+                    "actual_b_fee":"-9309",
+                    "actual_collateral":"775817",
+                    "actual_synthetic":"1530808"
+                }
+                """;
+        String sigStr = ZKDEX.unifiedSignPerpetualTrade(json, priKey,priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
+
+    @Test
+    void unifiedSignOraclePrice() throws Exception{
+        String json = """
+                {
+                            "signer_key": "0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83",
+                            "external_price": "30000000",
+                            "timestamp": "1651148012",
+                            "signed_asset_id": "0x425443555344000000000000000000004d616b6572"
+                            }
+                """;
+        String sigStr = ZKDEX.unifiedSignOraclePrice(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
+
+    @Test
+    void unifiedSignLiquidate() throws Exception{
+        String json = """
+                {
+                    "actual_collateral":"7758176404715800194",
+                    "actual_liquidator_fee":"8791662011684601223",
+                    "actual_synthetic":"15308084094301570617",
+                    "liquidated_position_id":"1541968236",
+                    "liquidated_type":"PERP_CROSS",
+                    "liquidator_order":{
+                        "amount_collateral":"8187132600743567510",
+                        "amount_fee":"11081939229867047606",
+                        "amount_synthetic":"16558026091473266411",
+                        "asset_id_collateral":"0x57d05d1",
+                        "asset_id_synthetic":"0x2",
+                        "expiration_timestamp":"1430804514",
+                        "is_buying_synthetic":false,
+                        "type":"PERP_CROSS",
+                        "nonce":"3900315155",
+                        "position_id":"11534",
+                        "public_key":"0x5db665983e23607de57d6dc068797336bfdcb954238044688bec922ca296d3e"
+                        }
+                    }
+                """;
+        String sigStr = ZKDEX.unifiedSignLiquidate(json, priKey);
+        Signature signature = JSON.parseObject(sigStr, Signature.class);
+    }
 }

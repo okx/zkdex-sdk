@@ -346,4 +346,60 @@ public class ZKDEX {
      */
     public static native String hashSpotLimitOrder(String json) throws Exception;
 
+    /**
+     * sign a Withdrawal transaction
+     * @param json json of transfer transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignWithdrawal(String json, String priKey) throws Exception;
+
+    /**
+     * sign a Transfer transaction
+     * @param json json of transfer transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignTransfer(String json, String priKey) throws Exception;
+
+    /**
+     * sign a SpotTrade transaction
+     * @param json json of spot trade transaction
+     * @param priKeyA private key of account A
+     * @param priKeyB private key of account B
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignSpotTrade(String json, String priKeyA, String priKeyB) throws Exception;
+
+    /**
+     * sign a PerpetualTrade transaction
+     * @param json json of perpetual trade transaction
+     * @param priKeyA private key of account A
+     * @param priKeyB private key of account B
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignPerpetualTrade(String json, String priKeyA, String priKeyB) throws Exception;
+
+    /**
+     * sign a OraclePrice transaction
+     * @param json json of oracle price transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignOraclePrice(String json, String priKey) throws Exception;
+
+    /**
+     * sign a Liquidate transaction
+     * @param json json of liquidate transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignLiquidate(String json, String priKey) throws Exception;
+
 }

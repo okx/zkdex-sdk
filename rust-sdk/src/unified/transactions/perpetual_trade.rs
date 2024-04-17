@@ -93,11 +93,7 @@ mod tests {
         "nonce":"1210484339",
         "order_type":"LIMIT_ORDER_WITH_FEES",
         "position_id":"4805234",
-        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7",
-        "signature": {
-            "r": "0x9d4ed071faf946d6e22aa9f72016b4dcb07137bfdd976a1482d26c862bc1cd6e",
-            "s": "0x2baed04d00fbf2109d9d53235f6168d6e43b8858fc9b435bb8823e7d3aff335"
-        }
+        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
     },
     "party_b_order":{
         "type":"PERP_CROSS",
@@ -112,16 +108,11 @@ mod tests {
         "order_type":"LIMIT_ORDER_WITH_FEES",
         "position_id":"48052349",
         "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7",
-        "signature": {
-            "r": "0x9d4ed071faf946d6e22aa9f72016b4dcb07137bfdd976a1482d26c862bc1cd6e",
-            "s": "0x2baed04d00fbf2109d9d53235f6168d6e43b8858fc9b435bb8823e7d3aff335"
-        }
     },
     "actual_a_fee":"87916620",
     "actual_b_fee":"-9309",
     "actual_collateral":"775817",
     "actual_synthetic":"1530808",
-    "type":"UNIFIED_PERP_TRADE"
 }
         "##;
         let tx = serde_json::from_str::<PerpetualTrade>(js);
