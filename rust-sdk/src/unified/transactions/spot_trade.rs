@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
+
+use crate::serde_utils::serde_str;
 use crate::unified::transactions::order::spot::LimitOrder;
 use crate::unified::types::{AmountType, SignedAmountType};
-use crate::serde_utils::serde_str;
-#[derive(Debug, Clone, PartialEq, Default,Serialize, Deserialize)]
+
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct SpotTrade {
     pub party_a_order: LimitOrder,
     pub party_b_order: LimitOrder,
@@ -13,7 +15,6 @@ pub struct SpotTrade {
     pub actual_a_fee: SignedAmountType,
     pub actual_b_fee: SignedAmountType,
 }
-
 
 #[cfg(test)]
 mod tests {

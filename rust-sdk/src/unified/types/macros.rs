@@ -117,7 +117,6 @@ macro_rules! impl_math {
 #[macro_export]
 macro_rules! impl_serde {
     ($name:ty, $inner_type:ty, $radix:expr) => {
-
         mod serde_impl {
             use super::*;
             use serde::{Deserializer, Serializer};

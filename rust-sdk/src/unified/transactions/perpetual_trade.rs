@@ -1,12 +1,12 @@
-
 use {
     crate::U64SerdeStr,
     serde::{Deserialize, Serialize},
 };
+
 use crate::unified::transactions::order::perpetual::LimitOrder;
 use crate::unified::types::{AmountType, SignedAmountType};
 
-#[derive(Debug, Clone, PartialEq, Default,Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[repr(C)]
 pub struct PerpetualTrade {
     pub party_a_order: LimitOrder,
@@ -22,6 +22,7 @@ pub struct PerpetualTrade {
 #[cfg(test)]
 mod tests {
     use crate::unified::transactions::sign_and_verify;
+
     use super::*;
 
     #[test]
