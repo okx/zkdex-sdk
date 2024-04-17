@@ -1,4 +1,4 @@
-name: dynamic-library-CI
+name: js-sdk-generator
 
 on:
   #push:
