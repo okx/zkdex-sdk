@@ -57,12 +57,7 @@ impl HashTrait for SignedOraclePrice {
 
 impl SignTrait for SignedOraclePrice {}
 
-// Represents a single Oracle Price of an asset in internal representation and
-// signatures on that price. The price is a median of all prices in the signatures.
-#[derive(Debug, Clone, PartialEq)]
-pub struct AssetOraclePrice {
-    pub asset_id: AssetIdType,
-    pub price: PriceType,
-    // Oracle signatures, sorted by signer_key.
-    pub signed_prices: Vec<SignedOraclePrice>,
+#[cfg(test)]
+mod test{
+
 }
