@@ -356,6 +356,14 @@ public class ZKDEX {
     public static native String unifiedSignWithdrawal(String json, String priKey) throws Exception;
 
     /**
+     * hash a Withdrawal transaction
+     * @param json json of transfer transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashWithdrawal(String json) throws Exception;
+
+    /**
      * sign a Transfer transaction
      * @param json json of transfer transaction
      * @param priKey private key
@@ -363,6 +371,14 @@ public class ZKDEX {
      * @throws Exception
      */
     public static native String unifiedSignTransfer(String json, String priKey) throws Exception;
+
+    /**
+     * hash a Transfer transaction
+     * @param json json of transfer transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashTransfer(String json) throws Exception;
 
     /**
      * sign a SpotTrade transaction
@@ -375,6 +391,14 @@ public class ZKDEX {
     public static native String unifiedSignSpotTrade(String json, String priKeyA, String priKeyB) throws Exception;
 
     /**
+     * hash a SpotTrade transaction
+     * @param json json of spot trade transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashSpotTrade(String json) throws Exception;
+
+    /**
      * sign a PerpetualTrade transaction
      * @param json json of perpetual trade transaction
      * @param priKeyA private key of account A
@@ -383,6 +407,14 @@ public class ZKDEX {
      * @throws Exception
      */
     public static native String unifiedSignPerpetualTrade(String json, String priKeyA, String priKeyB) throws Exception;
+
+    /**
+     * hash a PerpetualTrade transaction
+     * @param json json of perpetual trade transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashPerpetualTrade(String json) throws Exception;
 
     /**
      * sign a OraclePrice transaction
@@ -394,6 +426,14 @@ public class ZKDEX {
     public static native String unifiedSignOraclePrice(String json, String priKey) throws Exception;
 
     /**
+     * hash a OraclePrice transaction
+     * @param json json of oracle price transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashOraclePrice(String json) throws Exception;
+
+    /**
      * sign a Liquidate transaction
      * @param json json of liquidate transaction
      * @param priKey private key
@@ -401,5 +441,13 @@ public class ZKDEX {
      * @throws Exception
      */
     public static native String unifiedSignLiquidate(String json, String priKey) throws Exception;
+
+    /**
+     * hash a Liquidate transaction
+     * @param json json of liquidate transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashLiquidate(String json) throws Exception;
 
 }

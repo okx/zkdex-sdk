@@ -508,7 +508,7 @@ public class ZKDEXTest {
     }
 
     @Test
-    void unifiedSignWithdrawal() throws Exception {
+    public void unifiedSignWithdrawal() throws Exception {
         String json = """
                        {
                                    "amount": "1682637359498011204",
@@ -524,10 +524,15 @@ public class ZKDEXTest {
                 """;
         String sigStr = ZKDEX.unifiedSignWithdrawal(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0xac9e44326ff48c57b47370a51adc0c8de9a9a3c84a9dc22db5c6777a1a640fe8","0x018b5aa8267edecdb21a7383831c448c9cb93965cc76e12b796a66920e3482b7");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.unifiedHashWithdrawal(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
-    void unifiedSignTransfer() throws Exception{
+    public void unifiedSignTransfer() throws Exception{
         String json = """
                 {
                             "amount": "7758176404715800194",
@@ -543,10 +548,15 @@ public class ZKDEXTest {
                 """;
         String sigStr = ZKDEX.unifiedSignTransfer(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0x281b28a1a2548cb0ca16a8c49b0039dfb48fb59d46a8dc82a2d73f44005bdc9a","0x047a122cb46c03a131e671dea7f2545ac503c141810bc1d8040111649be7adc6");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.unifiedHashTransfer(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
-    void unifiedSignSpotTrade() throws Exception {
+    public void unifiedSignSpotTrade() throws Exception {
         String json = """
                 {
                             "party_a_order": {
@@ -578,11 +588,19 @@ public class ZKDEXTest {
                         }
                 """;
         String sigStr = ZKDEX.unifiedSignSpotTrade(json, priKey,priKey);
-        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        ComposeSig composeSig = JSON.parseObject(sigStr, ComposeSig.class);
+        Signature expectSigA = new Signature("0x0a2b0c3cf58f4eeca57fd7681d273e7ed024857334a153f97987adba5462d094","0x0291850c33dd523e361bfa3518e7c8e4079227ec1874f3bbf0c308e3e398e0dd");
+        assertEquals(expectSigA, composeSig.getSignature_a());
+        Signature expectSigB = new Signature("0x815275ff98bfd56ac5548d33949c739ba8ac8fddd9545456570f137aa241320f","0x01ec94f6488ee3e9d2a6e38082bd5ea175b52aaec7407aab14d10efa2e0f55b4");
+        assertEquals(expectSigB, composeSig.getSignature_b());
+        String hashStr = ZKDEX.unifiedHashSpotTrade(json);
+        ComposeHash composeHash = JSON.parseObject(hashStr, ComposeHash.class);
+        assert ZKDEX.verifySignature(composeSig.getSignature_a().getR(),composeSig.getSignature_a().getS(), pubKeyX, pubKeyY, composeHash.getHash_a());
+        assert ZKDEX.verifySignature(composeSig.getSignature_b().getR(),composeSig.getSignature_b().getS(), pubKeyX, pubKeyY, composeHash.getHash_b());
     }
 
     @Test
-    void unifiedSignPerpetualTrade() throws Exception{
+    public void unifiedSignPerpetualTrade() throws Exception{
         String json = """
                 {
                     "party_a_order":{
@@ -621,11 +639,19 @@ public class ZKDEXTest {
                 }
                 """;
         String sigStr = ZKDEX.unifiedSignPerpetualTrade(json, priKey,priKey);
-        Signature signature = JSON.parseObject(sigStr, Signature.class);
+        ComposeSig composeSig = JSON.parseObject(sigStr, ComposeSig.class);
+        Signature expectSigA = new Signature("0x05b3949d9397f8aa5bff3e2858f493e16691965d5d09e59d94213583ba2b85a5","0x01f87f794dc75a3e157b8b2b8ebd3781842d84404c91b76c624cb94f8566cb2b");
+        assertEquals(expectSigA, composeSig.getSignature_a());
+        Signature expectSigB = new Signature("0x8bf248588ff8a993641394280d5db01b5c2c378bea1fe5f14b6d05539274ee6f","0x03f7800345fa619567b92791ea323e709ea3466a0be3dafc118981fc1d9ef422");
+        assertEquals(expectSigB, composeSig.getSignature_b());
+        String hashStr = ZKDEX.unifiedHashPerpetualTrade(json);
+        ComposeHash composeHash = JSON.parseObject(hashStr, ComposeHash.class);
+        assert ZKDEX.verifySignature(composeSig.getSignature_a().getR(),composeSig.getSignature_a().getS(), pubKeyX, pubKeyY, composeHash.getHash_a());
+        assert ZKDEX.verifySignature(composeSig.getSignature_b().getR(),composeSig.getSignature_b().getS(), pubKeyX, pubKeyY, composeHash.getHash_b());
     }
 
     @Test
-    void unifiedSignOraclePrice() throws Exception{
+    public void unifiedSignOraclePrice() throws Exception{
         String json = """
                 {
                             "signer_key": "0x87e5235c9c3916ef2b0def77111366ecef72914613f52febad308440b6463f83",
@@ -636,10 +662,14 @@ public class ZKDEXTest {
                 """;
         String sigStr = ZKDEX.unifiedSignOraclePrice(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0x094cd1d065e17ee1dd32682eb7328c0981501f93fc1a9f6befd93d81f18c4ac6","0x008a8d751047b04ee9080ca0b58330dd6a847a3954f95dab3c04585437ca8458");
+        assertEquals(expectSig, signature);
+        String hash = ZKDEX.unifiedHashOraclePrice(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 
     @Test
-    void unifiedSignLiquidate() throws Exception{
+    public void unifiedSignLiquidate() throws Exception{
         String json = """
                 {
                     "actual_collateral":"7758176404715800194",
@@ -664,5 +694,10 @@ public class ZKDEXTest {
                 """;
         String sigStr = ZKDEX.unifiedSignLiquidate(json, priKey);
         Signature signature = JSON.parseObject(sigStr, Signature.class);
+        Signature expectSig = new Signature("0x908bcabbc7593af06c834eb8ae3db82883028eae8f68897b034e26b2fde76000","0x020de17410d65b6a93680f854cdb7f3d4cfbd4f55ffd0c8f6bcba945eec9ac5f");
+        assertEquals(expectSig, signature);
+
+        String hash = ZKDEX.unifiedHashLiquidate(json);
+        assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
     }
 }
