@@ -415,7 +415,7 @@ pub mod javascript_bridge {
     /// unified_hash_spot_trade, hash a spot trade transaction.
     /// @param {string} json of spot trade transaction.
     /// @returns {string} hash of spot trade transaction.
-    #[wasm_bindgen(js_name = unified_sign_spot_trade, skip_jsdoc)]
+    #[wasm_bindgen(js_name = unified_hash_spot_trade, skip_jsdoc)]
     pub fn js_unified_hash_spot_trade(json: &str) -> Result<String, JsValue> {
         match unified_hash_spot_trade(json) {
             Ok(ret) => {
