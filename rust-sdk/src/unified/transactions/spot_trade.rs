@@ -18,8 +18,8 @@ pub struct SpotTrade {
 
 #[cfg(test)]
 mod tests {
-    use crate::unified::transactions::sign_and_verify;
     use crate::unified::transactions::spot_trade::SpotTrade;
+    use crate::unified::transactions::test::sign_and_verify;
 
     #[test]
     fn test_trade_serde() {

@@ -68,7 +68,8 @@ impl SignTrait for Withdrawal {}
 
 #[cfg(test)]
 mod tests {
-    use crate::unified::transactions::{sign_and_verify, Withdrawal};
+    use crate::unified::transactions::test::sign_and_verify;
+    use crate::unified::transactions::Withdrawal;
 
     #[test]
     fn test_withdrawal_serde() {

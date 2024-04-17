@@ -50,6 +50,7 @@ impl SignTrait for SignedOraclePrice {}
 
 #[cfg(test)]
 mod test {
+    use crate::unified::transactions::test::sign_and_verify;
     use crate::unified::transactions::{sign_and_verify, SignedOraclePrice};
 
     #[test]

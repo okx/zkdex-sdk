@@ -1,5 +1,12 @@
 #[cfg(feature = "java")]
 pub mod java_bridge {
+    use crate::unified::{
+        unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
+        unified_hash_spot_trade, unified_hash_transfer, unified_hash_withdrawal,
+        unified_sign_liquidate, unified_sign_oracle_price, unified_sign_perpetual_trade,
+        unified_sign_spot_trade, unified_sign_transfer, unified_sign_withdrawal,
+    };
+    use crate::zkw::JubjubSignature;
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
@@ -643,6 +650,378 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             hash_spot_limit_order(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignWithdrawal<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            unified_sign_withdrawal(&json, &pri_key).expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashWithdrawal<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_withdrawal(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignTransfer<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            unified_sign_transfer(&json, &pri_key).expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashTransfer<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_transfer(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignSpotTrade<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key_a: JString<'local>,
+        pri_key_b: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key_a = env.get_string(&pri_key_a);
+        let pri_key_b = env.get_string(&pri_key_b);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key_a: String = pri_key_a.expect("Coludn't get java pri_key a").into();
+            let pri_key_b: String = pri_key_b.expect("Coludn't get java pri_key b").into();
+            unified_sign_spot_trade(&json, &pri_key_a, &pri_key_b)
+                .expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                #[derive(Serialize)]
+                struct ComposeSignature {
+                    signature_a: JubjubSignature,
+                    signature_b: JubjubSignature,
+                }
+                let c_sig = ComposeSignature {
+                    signature_a: ret.0,
+                    signature_b: ret.1,
+                };
+                let output = env
+                    .new_string(serde_json::to_string(&c_sig).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashSpotTrade<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_spot_trade(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                #[derive(Serialize)]
+                struct ComposeHash {
+                    hash_a: String,
+                    hash_b: String,
+                }
+                let c_h = ComposeHash {
+                    hash_a: ret.0,
+                    hash_b: ret.1,
+                };
+                let output = env
+                    .new_string(serde_json::to_string(&c_h).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignPerpetualTrade<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key_a: JString<'local>,
+        pri_key_b: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key_a = env.get_string(&pri_key_a);
+        let pri_key_b = env.get_string(&pri_key_b);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key_a: String = pri_key_a.expect("Coludn't get java pri_key a").into();
+            let pri_key_b: String = pri_key_b.expect("Coludn't get java pri_key b").into();
+            unified_sign_perpetual_trade(&json, &pri_key_a, &pri_key_b)
+                .expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                #[derive(Serialize)]
+                struct ComposeSignature {
+                    signature_a: JubjubSignature,
+                    signature_b: JubjubSignature,
+                }
+                let c_sig = ComposeSignature {
+                    signature_a: ret.0,
+                    signature_b: ret.1,
+                };
+                let output = env
+                    .new_string(serde_json::to_string(&c_sig).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashPerpetualTrade<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_perpetual_trade(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                #[derive(Serialize)]
+                struct ComposeHash {
+                    hash_a: String,
+                    hash_b: String,
+                }
+                let c_h = ComposeHash {
+                    hash_a: ret.0,
+                    hash_b: ret.1,
+                };
+                let output = env
+                    .new_string(serde_json::to_string(&c_h).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignOraclePrice<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            unified_sign_oracle_price(&json, &pri_key).expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashOraclePrice<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_oracle_price(&json).expect("Couldn't get hash")
+        }) {
+            Ok(ret) => {
+                let output = env.new_string(ret).expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedSignLiquidate<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+        pri_key: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        let pri_key = env.get_string(&pri_key);
+
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
+            unified_sign_liquidate(&json, &pri_key).expect("Couldn't get jubjubSignature")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(err) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_unifiedHashLiquidate<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        json: JString<'local>,
+    ) -> jstring {
+        let json = env.get_string(&json);
+        match panic::catch_unwind(|| {
+            let json: String = json.expect("Couldn't get java json").into();
+            unified_hash_liquidate(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");

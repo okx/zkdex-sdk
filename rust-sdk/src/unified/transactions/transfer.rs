@@ -61,7 +61,8 @@ impl SignTrait for Transfer {}
 
 #[cfg(test)]
 mod tests {
-    use crate::unified::transactions::{sign_and_verify, Transfer};
+    use crate::unified::transactions::test::sign_and_verify;
+    use crate::unified::transactions::Transfer;
 
     #[test]
     fn test_transfer_serde() {

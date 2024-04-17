@@ -38,6 +38,7 @@ impl SignTrait for Liquidate {
 mod tests {
     use super::*;
     use crate::unified::transactions::sign_and_verify;
+    use crate::unified::transactions::test::sign_and_verify;
 
     #[test]
     fn test_tx_serde() {
