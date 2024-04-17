@@ -10,10 +10,10 @@ use crate::felt::LeBytesConvert;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
+use crate::tx::sign::TxSignature;
 use crate::types::{AmountType, CollateralAssetId, HashType, PositionIdType};
 use crate::zkw::JubjubSignature;
 use crate::{hash, U64SerdeAsString};
-use crate::tx::sign::TxSignature;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Transfer {
@@ -145,7 +145,6 @@ mod test {
     use crate::transaction::transfer::{sign_transfer, Transfer};
     use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::tx::public_key_type::PublicKeyType;
-
 
     #[test]
     pub fn test_sign_transfer() {

@@ -27,9 +27,9 @@ pub mod serde_str {
 
 pub mod serde_hex_str {
     use super::*;
+    use crate::trim_0x;
     use std::fmt::Display;
     use std::fmt::LowerHex;
-    use crate::trim_0x;
 
     pub fn serialize<T, S>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -55,9 +55,9 @@ pub mod serde_hex_str {
 
 pub mod serde_hex_str_vec {
     use super::*;
+    use crate::trim_0x;
     use std::fmt::Display;
     use std::fmt::LowerHex;
-    use crate::trim_0x;
 
     pub fn serialize<T, S>(value: &Vec<T>, serializer: S) -> Result<S::Ok, S::Error>
     where

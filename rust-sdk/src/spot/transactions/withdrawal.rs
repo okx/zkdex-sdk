@@ -3,17 +3,17 @@ use crate::constant::{SPOT_WITHDRAWAL, SPOT_WITHDRAWAL_TO_OWNER_KEY};
 use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
+use crate::serde_wrapper::u32_serde::U32SerdeAsString;
+use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
+use crate::tx::sign::TxSignature;
 use crate::types::amount::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
+use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
-use crate::serde_wrapper::u32_serde::U32SerdeAsString;
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::sign::TxSignature;
-use crate::types::HashType;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -30,7 +30,7 @@ pub struct Withdrawal {
     pub asset_id: AssetIdType,
     #[serde(rename = "position_id")]
     pub position_id: PositionIdType,
-    #[serde(rename = "chain_id", with="U32SerdeAsString")]
+    #[serde(rename = "chain_id", with = "U32SerdeAsString")]
     pub chain_id: u32,
 }
 
@@ -79,8 +79,8 @@ pub fn sign_withdrawal(
 
 #[cfg(test)]
 mod test {
-    use std::hash::Hash;
     use crate::spot::Withdrawal;
+    use std::hash::Hash;
 
     #[test]
     pub fn test_deserialize() {
@@ -100,6 +100,9 @@ mod test {
 
         let req = serde_json::from_str::<Withdrawal>(json_str);
         assert!(req.is_ok());
-        assert!(req.unwrap().hash().to_string() == "119039369094889261403898889385918450319671151073804265247384487898016834057")
+        assert!(
+            req.unwrap().hash().to_string()
+                == "119039369094889261403898889385918450319671151073804265247384487898016834057"
+        )
     }
 }

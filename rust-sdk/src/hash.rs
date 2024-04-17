@@ -18,10 +18,9 @@ pub fn new_hasher() -> impl Hasher {
 }
 
 mod zkw {
-    use primitive_types::U256;
     use crate::hash::{Hasher, ToHashable};
     use crate::zkw::PoseidonHasher;
-
+    use primitive_types::U256;
 
     pub struct Poseidon {
         poseidon: PoseidonHasher,

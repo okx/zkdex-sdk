@@ -230,9 +230,9 @@ mod test {
 
         use crate::felt::LeBytesConvert;
         use crate::transaction::limit_order::LimitOrderRequest;
-        use crate::tx::{JUBJUB_PARAMS};
         use crate::tx::packed_public_key::private_key_from_string;
         use crate::tx::sign::TxSignature;
+        use crate::tx::JUBJUB_PARAMS;
         use crate::types::HashType;
 
         #[test]

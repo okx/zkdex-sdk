@@ -8,17 +8,17 @@ use crate::hash::Hasher;
 use crate::tx::public_key_type::PublicKeyType;
 
 use crate::felt::LeBytesConvert;
+use crate::tx::packed_public_key::private_key_from_string;
+use crate::tx::sign::TxSignature;
 use crate::types::amount::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
+use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use {
     crate::TransferBaseSerde,
     serde::{Deserialize, Serialize},
 };
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::sign::TxSignature;
-use crate::types::HashType;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 #[repr(C)]
@@ -81,7 +81,7 @@ pub fn sign_transfer(transfer: Transfer, private_key: &str) -> anyhow::Result<Ju
 
 #[cfg(test)]
 mod test {
-    use crate::spot::{Transfer, transfer_hash};
+    use crate::spot::{transfer_hash, Transfer};
 
     #[test]
     pub fn test_deserialize() {
@@ -100,6 +100,9 @@ mod test {
 
         let transfer = serde_json::from_str::<Transfer>(json);
         assert!(transfer.is_ok());
-        assert!(transfer_hash(&transfer.unwrap()).to_string() == "8868821431893765158267276750476252224391306572586061693346985054677660276548");
+        assert!(
+            transfer_hash(&transfer.unwrap()).to_string()
+                == "8868821431893765158267276750476252224391306572586061693346985054677660276548"
+        );
     }
 }

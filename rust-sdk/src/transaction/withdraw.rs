@@ -94,9 +94,11 @@ pub fn withdrawal_hash(withdrawal: &Withdraw, asset_id_collateral: &CollateralAs
 #[cfg(test)]
 mod test {
     use crate::common::OrderBase;
-    use crate::transaction::withdraw::{sign_withdraw, CollateralAssetId, Withdraw, WithdrawRequest};
-    use crate::tx::public_key_type::PublicKeyType;
+    use crate::transaction::withdraw::{
+        sign_withdraw, CollateralAssetId, Withdraw, WithdrawRequest,
+    };
     use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
+    use crate::tx::public_key_type::PublicKeyType;
 
     #[test]
     pub fn test_withdraw() {
