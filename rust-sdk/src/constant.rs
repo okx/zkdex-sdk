@@ -147,9 +147,7 @@ pub const UNIFIED_PERPETUAL_LIMIT_ORDER_TYPE: u64 = 14;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use num_bigint::BigInt;
     use num_traits::One;
-    use primitive_types::U256;
 
     #[test]
     fn test_constants() {

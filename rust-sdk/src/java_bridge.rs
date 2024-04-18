@@ -1,5 +1,12 @@
 #[cfg(feature = "java")]
 pub mod java_bridge {
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
+        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature,
+    };
     use crate::unified::{
         unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
         unified_hash_spot_trade, unified_hash_transfer, unified_hash_withdrawal,
@@ -368,7 +375,50 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let msg: String = msg.expect("Couldn't get java msg").into();
             let private_key: String = private_key.expect("Couldn't get java json").into();
-            l1_sign(&msg, &private_key).expect("Couldn't sign msg")
+            l2_sign(&msg, &private_key).expect("Couldn't sign msg")
+        }) {
+            Ok(ret) => {
+                let output = env
+                    .new_string(serde_json::to_string(&ret).unwrap())
+                    .expect("Couldn't create java string!");
+                output.into_raw()
+            }
+            Err(e) => {
+                env.exception_clear().expect("clear");
+                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                    .expect("throw");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_okx_ZKDEX_l2Verify<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass<'local>,
+        x: JString<'local>,
+        y: JString<'local>,
+        s: JString<'local>,
+        pk_x: JString<'local>,
+        pk_y: JString<'local>,
+        msg: JString<'local>,
+    ) -> jstring {
+        let x = env.get_string(&x);
+        let y = env.get_string(&y);
+        let s = env.get_string(&s);
+        let pk_x = env.get_string(&pk_x);
+        let pk_y = env.get_string(&pk_y);
+        let msg = env.get_string(&msg);
+
+        match panic::catch_unwind(|| {
+            let x: String = x.expect("Couldn't get java x").into();
+            let y: String = y.expect("Couldn't get java y").into();
+            let s: String = s.expect("Couldn't get java s").into();
+            let pk_x: String = pk_x.expect("Couldn't get java pk_x").into();
+            let pk_y: String = pk_y.expect("Couldn't get java pk_y").into();
+            let msg: String = msg.expect("Couldn't get java msg").into();
+
+            l2_verify(&x, &y, &s, &pk_x, &pk_y, &msg).expect("Couldn't verify")
         }) {
             Ok(ret) => {
                 let output = env

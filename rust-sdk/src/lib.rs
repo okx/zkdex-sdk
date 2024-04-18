@@ -19,8 +19,9 @@ use franklin_crypto::{
 use num::Integer;
 use num_bigint::BigInt;
 use num_traits::Num;
-use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+
+use primitive_types::U256;
 pub use serde_wrapper::*;
 use sha2::{Digest as tDigest, Sha256};
 use sha3::Digest;
@@ -38,7 +39,7 @@ use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{
     convert_to_pubkey, private_key_from_string, public_key_from_private, PackedPublicKey,
 };
-use crate::tx::packed_signature::PackedSignature;
+use crate::tx::packed_signature::{get_r_from_xy, PackedSignature};
 use crate::tx::sign::TxSignature;
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 use types::HashType;
@@ -253,7 +254,7 @@ pub struct L1Signature {
     pub pk_y: String,
 }
 
-pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
+pub fn l2_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let msg = msg.trim_start_matches("0x").trim_start_matches("0X");
     let private_key = private_key_from_string(private_key)?;
     let msg = HashType::from_str(msg)?;
@@ -271,6 +272,17 @@ pub fn l1_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     })
 }
 
+pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -> Result<bool> {
+    let x = x.trim_start_matches("0x").trim_start_matches("0X");
+    let y = y.trim_start_matches("0x").trim_start_matches("0X");
+    let r = get_r_from_xy(
+        &U256::from_str_radix(x, 16).unwrap(),
+        &U256::from_str_radix(y, 16).unwrap(),
+    );
+    let s = s.trim_start_matches("0x").trim_start_matches("0X");
+    verify_signature(&format!("0x{:064x}", r), s, pk_x, pk_y, msg)
+}
+
 pub fn sign_eth_address(address: &str, pub_key: &str, private_key: &str) -> Result<String> {
     let t1 = Token::String("UserRegistration:".to_string());
     let t2 = Token::Address(address.parse().unwrap());
@@ -285,7 +297,7 @@ pub fn sign_eth_address(address: &str, pub_key: &str, private_key: &str) -> Resu
         .unwrap()
         .mod_floor(&max)
         .to_str_radix(16);
-    let sig = l1_sign(&hash, private_key)?;
+    let sig = l2_sign(&hash, private_key)?;
     let sig = sig.x
         + sig.y.trim_start_matches("0x")
         + sig.s.trim_start_matches("0x")
@@ -356,10 +368,11 @@ mod test {
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, reverse_hex, sign,
-        sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
-        sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
-        sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature, Signature,
+        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
+        reverse_hex, sign, sign_eth_address, sign_limit_order, sign_liquidate,
+        sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal,
+        sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
+        Signature,
     };
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
@@ -664,7 +677,7 @@ mod test {
         "is_buying_synthetic":false
         }"#;
         let req: LimitOrderRequest = serde_json::from_str(json).unwrap();
-        let pk: PublicKeyType = req.base.public_key.into();
+        let _pk: PublicKeyType = req.base.public_key.into();
 
         assert!(hash_limit_order(json).unwrap().len() == 66)
     }
@@ -1153,7 +1166,7 @@ mod test {
     pub fn test_l1_sign() {
         let msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
         let priv_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
-        let s = l1_sign(msg, priv_key).unwrap();
+        let s = l2_sign(msg, priv_key).unwrap();
         let expected = L1Signature {
             x: "0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a".to_string(),
             y: "0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595".to_string(),
@@ -1161,7 +1174,9 @@ mod test {
             pk_x: "0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86".to_string(),
             pk_y: "0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55".to_string(),
         };
-        assert!(s == expected)
+
+        assert!(l2_verify(&s.x, &s.y, &s.s, &s.pk_x, &s.pk_y, msg).unwrap() == true);
+        assert!(s == expected);
     }
 
     #[test]
@@ -1214,9 +1229,12 @@ mod test {
         "asset_id": "0x00001",
         "position_id": "1",
         "chain_id": "1",
+        "fee": "0",
         "eth_address": "0x0"
         }"##;
+
         let sig = sign_spot_withdrawal(json_str, PRI_KEY).unwrap();
+        println!("sig: {}", serde_json::to_string(&sig).unwrap());
         assert!(
             verify_jubjub_signature(sig, PUB_KEY, &hash_spot_withdrawal(json_str).unwrap())
                 .unwrap()

@@ -4,6 +4,7 @@ use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
+use crate::serde_wrapper::u32_serde::U32SerdeAsString;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::sign::TxSignature;
@@ -30,6 +31,8 @@ pub struct Withdrawal {
     pub asset_id: AssetIdType,
     #[serde(rename = "position_id")]
     pub position_id: PositionIdType,
+    #[serde(rename = "fee", default)]
+    pub fee: AmountType,
     #[serde(rename = "chain_id", with = "U32SerdeAsString")]
     pub chain_id: u32,
 }
@@ -52,7 +55,14 @@ impl Withdrawal {
             hasher.update_single(&self.owner_key);
         }
 
-        hasher.update_single(&(self.chain_id as u64));
+        let fee_amount: u128 = self.fee.into();
+        let packed0 = U256([
+            self.chain_id as u64,
+            fee_amount as u64,
+            (fee_amount >> 64) as u64,
+            0,
+        ]);
+        hasher.update_single(&packed0);
 
         let packed_message1 = U256([
             (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
@@ -80,7 +90,6 @@ pub fn sign_withdrawal(
 #[cfg(test)]
 mod test {
     use crate::spot::Withdrawal;
-    use std::hash::Hash;
 
     #[test]
     pub fn test_deserialize() {
