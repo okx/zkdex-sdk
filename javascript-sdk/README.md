@@ -77,6 +77,42 @@ first message.</p>
 <dt><a href="#hash_spot_limit_order">hash_spot_limit_order(json)</a> ⇒ <code>string</code></dt>
 <dd><p>hash_spot_limit_order, hash a spot LimitOrder transaction.</p>
 </dd>
+<dt><a href="#unified_sign_transfer">unified_sign_transfer(json, private)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_transfer, sign a transfer transaction.</p>
+</dd>
+<dt><a href="#unified_hash_transfer">unified_hash_transfer(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_transfer, hash a transfer transaction.</p>
+</dd>
+<dt><a href="#unified_sign_withdrawal">unified_sign_withdrawal(json, private)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_withdrawal, sign a withdrawal transaction.</p>
+</dd>
+<dt><a href="#unified_hash_withdrawal">unified_hash_withdrawal(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_withdrawal, hash a withdrawal transaction.</p>
+</dd>
+<dt><a href="#unified_sign_spot_trade">unified_sign_spot_trade(json, private, private)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_spot_trade, sign a spot trade transaction.</p>
+</dd>
+<dt><a href="#unified_hash_spot_trade">unified_hash_spot_trade(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_spot_trade, hash a spot trade transaction.</p>
+</dd>
+<dt><a href="#unified_sign_perpetual_trade">unified_sign_perpetual_trade(json, private, private)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_perpetual_trade, sign a perpetual trade transaction.</p>
+</dd>
+<dt><a href="#unified_hash_perpetual_trade">unified_hash_perpetual_trade(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_perpetual_trade, sign a perpetual trade transaction.</p>
+</dd>
+<dt><a href="#unified_sign_oracle_price">unified_sign_oracle_price(json, private)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_oracle_price, sign  oracle price transaction.</p>
+</dd>
+<dt><a href="#unified_hash_oracle_price">unified_hash_oracle_price(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_oracle_price, hash oracle price transaction.</p>
+</dd>
+<dt><a href="#unified_sign_liquidate">unified_sign_liquidate(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_liquidate, sign liquidate transaction.</p>
+</dd>
+<dt><a href="#unified_hash_liquidate">unified_hash_liquidate(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_liquidate, sign liquidate transaction.</p>
+</dd>
 </dl>
 
 <a name="zkdex_init"></a>
@@ -389,4 +425,156 @@ hash_spot_limit_order, hash a spot LimitOrder transaction.
 | Param | Type | Description |
 | --- | --- | --- |
 | json | <code>string</code> | json of spot LimitOrder transaction. |
+
+<a name="unified_sign_transfer"></a>
+
+## unified\_sign\_transfer(json, private) ⇒ <code>string</code>
+unified_sign_transfer, sign a transfer transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of transfer transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of transfer transaction. |
+| private | <code>string</code> | key hex with 0x prefix. |
+
+<a name="unified_hash_transfer"></a>
+
+## unified\_hash\_transfer(json) ⇒ <code>string</code>
+unified_hash_transfer, hash a transfer transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of transfer transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of transfer transaction. |
+
+<a name="unified_sign_withdrawal"></a>
+
+## unified\_sign\_withdrawal(json, private) ⇒ <code>string</code>
+unified_sign_withdrawal, sign a withdrawal transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of withdrawal transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of withdrawal transaction. |
+| private | <code>string</code> | key hex with 0x prefix. |
+
+<a name="unified_hash_withdrawal"></a>
+
+## unified\_hash\_withdrawal(json) ⇒ <code>string</code>
+unified_hash_withdrawal, hash a withdrawal transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of withdrawal transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of withdrawal transaction. |
+
+<a name="unified_sign_spot_trade"></a>
+
+## unified\_sign\_spot\_trade(json, private, private) ⇒ <code>string</code>
+unified_sign_spot_trade, sign a spot trade transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of spot trade transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot trade transaction. |
+| private | <code>string</code> | key A hex with 0x prefix. |
+| private | <code>string</code> | key B hex with 0x prefix. |
+
+<a name="unified_hash_spot_trade"></a>
+
+## unified\_hash\_spot\_trade(json) ⇒ <code>string</code>
+unified_hash_spot_trade, hash a spot trade transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of spot trade transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot trade transaction. |
+
+<a name="unified_sign_perpetual_trade"></a>
+
+## unified\_sign\_perpetual\_trade(json, private, private) ⇒ <code>string</code>
+unified_sign_perpetual_trade, sign a perpetual trade transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of perpetual trade transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot trade transaction. |
+| private | <code>string</code> | key A hex with 0x prefix. |
+| private | <code>string</code> | key B hex with 0x prefix. |
+
+<a name="unified_hash_perpetual_trade"></a>
+
+## unified\_hash\_perpetual\_trade(json) ⇒ <code>string</code>
+unified_hash_perpetual_trade, sign a perpetual trade transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of perpetual trade transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot trade transaction. |
+
+<a name="unified_sign_oracle_price"></a>
+
+## unified\_sign\_oracle\_price(json, private) ⇒ <code>string</code>
+unified_sign_oracle_price, sign  oracle price transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of oracle price transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of oracle price transaction. |
+| private | <code>string</code> | key hex with 0x prefix. |
+
+<a name="unified_hash_oracle_price"></a>
+
+## unified\_hash\_oracle\_price(json) ⇒ <code>string</code>
+unified_hash_oracle_price, hash oracle price transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash signature of oracle price transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of oracle price transaction. |
+
+<a name="unified_sign_liquidate"></a>
+
+## unified\_sign\_liquidate(json, private_key) ⇒ <code>string</code>
+unified_sign_liquidate, sign liquidate transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of liquidate transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of liquidate transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="unified_hash_liquidate"></a>
+
+## unified\_hash\_liquidate(json) ⇒ <code>string</code>
+unified_hash_liquidate, sign liquidate transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of liquidate transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of liquidate transaction. |
 

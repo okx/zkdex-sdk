@@ -25,6 +25,18 @@ export function sign_spot_withdrawal(a: number, b: number, c: number, d: number,
 export function hash_spot_withdrawal(a: number, b: number, c: number): void;
 export function sign_spot_limit_order(a: number, b: number, c: number, d: number, e: number): void;
 export function hash_spot_limit_order(a: number, b: number, c: number): void;
+export function unified_sign_transfer(a: number, b: number, c: number, d: number, e: number): void;
+export function unified_hash_transfer(a: number, b: number, c: number): void;
+export function unified_sign_withdrawal(a: number, b: number, c: number, d: number, e: number): void;
+export function unified_hash_withdrawal(a: number, b: number, c: number): void;
+export function unified_sign_spot_trade(a: number, b: number, c: number, d: number, e: number, f: number, g: number): void;
+export function unified_hash_spot_trade(a: number, b: number, c: number): void;
+export function unified_sign_perpetual_trade(a: number, b: number, c: number, d: number, e: number, f: number, g: number): void;
+export function unified_hash_perpetual_trade(a: number, b: number, c: number): void;
+export function unified_sign_oracle_price(a: number, b: number, c: number, d: number, e: number): void;
+export function unified_hash_oracle_price(a: number, b: number, c: number): void;
+export function unified_sign_liquidate(a: number, b: number, c: number, d: number, e: number): void;
+export function unified_hash_liquidate(a: number, b: number, c: number): void;
 export function zkdex_init(): void;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_malloc(a: number, b: number): number;

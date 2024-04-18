@@ -165,3 +165,83 @@ export function sign_spot_limit_order(json: string, private_key: string): string
 * @returns {string} string hash of spot LimitOrder transaction with 0x prefix.
 */
 export function hash_spot_limit_order(json: string): string;
+/**
+* unified_sign_transfer, sign a transfer transaction.
+* @param {string} json of transfer transaction.
+* @param {string} private key hex with 0x prefix.
+* @returns {string} json signature of transfer transaction.
+*/
+export function unified_sign_transfer(json: string, private_key: string): string;
+/**
+* unified_hash_transfer, hash a transfer transaction.
+* @param {string} json of transfer transaction.
+* @returns {string} hash of transfer transaction.
+*/
+export function unified_hash_transfer(json: string): string;
+/**
+* unified_sign_withdrawal, sign a withdrawal transaction.
+* @param {string} json  of withdrawal transaction.
+* @param {string} private key hex with 0x prefix.
+* @returns {string} json signature of withdrawal transaction.
+*/
+export function unified_sign_withdrawal(json: string, private_key: string): string;
+/**
+* unified_hash_withdrawal, hash a withdrawal transaction.
+* @param {string} json of withdrawal transaction.
+* @returns {string} hash of withdrawal transaction.
+*/
+export function unified_hash_withdrawal(json: string): string;
+/**
+* unified_sign_spot_trade, sign a spot trade transaction.
+* @param {string} json of spot trade transaction.
+* @param {string} private key A hex with 0x prefix.
+* @param {string} private key B hex with 0x prefix.
+* @returns {string} json signature of spot trade transaction.
+*/
+export function unified_sign_spot_trade(json: string, private_key_a: string, private_key_b: string): string;
+/**
+* unified_hash_spot_trade, hash a spot trade transaction.
+* @param {string} json of spot trade transaction.
+* @returns {string} hash of spot trade transaction.
+*/
+export function unified_hash_spot_trade(json: string): string;
+/**
+* unified_sign_perpetual_trade, sign a perpetual trade transaction.
+* @param {string} json of spot trade transaction.
+* @param {string} private key A hex with 0x prefix.
+* @param {string} private key B hex with 0x prefix.
+* @returns {string} json signature of perpetual trade transaction.
+*/
+export function unified_sign_perpetual_trade(json: string, private_key_a: string, private_key_b: string): string;
+/**
+* unified_hash_perpetual_trade, sign a perpetual trade transaction.
+* @param {string} json of spot trade transaction.
+* @returns {string} hash of perpetual trade transaction.
+*/
+export function unified_hash_perpetual_trade(json: string): string;
+/**
+* unified_sign_oracle_price, sign  oracle price transaction.
+* @param {string} json  of oracle price transaction.
+* @param {string}  private key hex with 0x prefix.
+* @returns {string} json signature of oracle price transaction.
+*/
+export function unified_sign_oracle_price(json: string, private_key: string): string;
+/**
+* unified_hash_oracle_price, hash oracle price transaction.
+* @param {string} json of oracle price transaction.
+* @returns {string} hash signature of oracle price transaction.
+*/
+export function unified_hash_oracle_price(json: string): string;
+/**
+* unified_sign_liquidate, sign liquidate transaction.
+* @param {string} json of liquidate transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of liquidate transaction.
+*/
+export function unified_sign_liquidate(json: string, private_key: string): string;
+/**
+* unified_hash_liquidate, sign liquidate transaction.
+* @param {string} json of liquidate transaction.
+* @returns {string} hash of liquidate transaction.
+*/
+export function unified_hash_liquidate(json: string): string;
