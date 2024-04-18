@@ -1,12 +1,12 @@
 #[cfg(feature = "java")]
 pub mod java_bridge {
-    use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
-        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
-        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature,
-    };
+    use std::panic;
+
+    use jni::objects::*;
+    use jni::sys::{jboolean, jstring};
+    use jni::JNIEnv;
+    use serde::Serialize;
+
     use crate::unified::{
         unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
         unified_hash_spot_trade, unified_hash_transfer, unified_hash_withdrawal,
@@ -17,15 +17,10 @@ pub mod java_bridge {
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
         sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
         sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature,
     };
-    use jni::objects::*;
-    use jni::sys::{jboolean, jstring};
-    use jni::JNIEnv;
-    use serde::Serialize;
-    use std::panic;
 
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_verifySignature<'local>(
@@ -842,11 +837,6 @@ pub mod java_bridge {
                 .expect("Couldn't get jubjubSignature")
         }) {
             Ok(ret) => {
-                #[derive(Serialize)]
-                struct ComposeSignature {
-                    signature_a: JubjubSignature,
-                    signature_b: JubjubSignature,
-                }
                 let c_sig = ComposeSignature {
                     signature_a: ret.0,
                     signature_b: ret.1,
@@ -877,11 +867,6 @@ pub mod java_bridge {
             unified_hash_spot_trade(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
-                #[derive(Serialize)]
-                struct ComposeHash {
-                    hash_a: String,
-                    hash_b: String,
-                }
                 let c_h = ComposeHash {
                     hash_a: ret.0,
                     hash_b: ret.1,
@@ -920,11 +905,6 @@ pub mod java_bridge {
                 .expect("Couldn't get jubjubSignature")
         }) {
             Ok(ret) => {
-                #[derive(Serialize)]
-                struct ComposeSignature {
-                    signature_a: JubjubSignature,
-                    signature_b: JubjubSignature,
-                }
                 let c_sig = ComposeSignature {
                     signature_a: ret.0,
                     signature_b: ret.1,
@@ -955,11 +935,6 @@ pub mod java_bridge {
             unified_hash_perpetual_trade(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
-                #[derive(Serialize)]
-                struct ComposeHash {
-                    hash_a: String,
-                    hash_b: String,
-                }
                 let c_h = ComposeHash {
                     hash_a: ret.0,
                     hash_b: ret.1,
@@ -1084,5 +1059,17 @@ pub mod java_bridge {
                 std::ptr::null_mut()
             }
         }
+    }
+
+    #[derive(Serialize)]
+    struct ComposeSignature {
+        signature_a: JubjubSignature,
+        signature_b: JubjubSignature,
+    }
+
+    #[derive(Serialize)]
+    struct ComposeHash {
+        hash_a: String,
+        hash_b: String,
     }
 }

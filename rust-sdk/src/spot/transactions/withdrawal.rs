@@ -4,7 +4,6 @@ use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
-use crate::serde_wrapper::u32_serde::U32SerdeAsString;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::sign::TxSignature;

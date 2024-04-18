@@ -1,9 +1,5 @@
-use crate::zkw::JubjubSignature;
-use serde::Serialize;
-
 #[cfg(feature = "js")]
 pub mod javascript_bridge {
-    use crate::javascript_bridge::{ComposeHash, ComposeSignature};
     use crate::unified::{
         unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
         unified_hash_spot_trade, unified_hash_transfer, unified_hash_withdrawal,
@@ -11,18 +7,11 @@ pub mod javascript_bridge {
         unified_sign_spot_trade, unified_sign_transfer, unified_sign_withdrawal,
     };
     use crate::utils::set_panic_hook;
+    use crate::zkw::JubjubSignature;
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
         l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
-        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature,
-        JUBJUB_PARAMS, RESCUE_PARAMS,
-    };
-    use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
-        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        l1_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
         sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
         sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
         sign_withdraw, verify_signature, JUBJUB_PARAMS, RESCUE_PARAMS,
@@ -525,16 +514,16 @@ pub mod javascript_bridge {
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
     }
-}
 
-#[derive(Serialize)]
-struct ComposeSignature {
-    signature_a: JubjubSignature,
-    signature_b: JubjubSignature,
-}
+    #[derive(Serialize)]
+    struct ComposeSignature {
+        signature_a: JubjubSignature,
+        signature_b: JubjubSignature,
+    }
 
-#[derive(Serialize)]
-struct ComposeHash {
-    hash_a: String,
-    hash_b: String,
+    #[derive(Serialize)]
+    struct ComposeHash {
+        hash_a: String,
+        hash_b: String,
+    }
 }
