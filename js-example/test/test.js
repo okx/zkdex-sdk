@@ -122,7 +122,7 @@ describe('test zkdex js function', function () {
     })
 
     it('test sign spot withdrawal', () => {
-        let json = '{"nonce":"1","public_key":"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","expiration_timestamp":"3608164305","amount":"1000000","asset_id":"0x00001","position_id":"1","chain_id":"1","eth_address":"0x0"}';
+        let json = '{"nonce":"1","public_key":"0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a","expiration_timestamp":"3608164305","amount":"1000000","asset_id":"0x00001","position_id":"1","chain_id":"1","fee":"0","eth_address":"0x0"}';
         let sig_str = zkdex.sign_spot_withdrawal(json, pri_key);
         let hash = zkdex.hash_spot_withdrawal(json);
         let sig = JSON.parse(sig_str);

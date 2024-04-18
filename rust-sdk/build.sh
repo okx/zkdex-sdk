@@ -25,8 +25,8 @@ if [ "$CI" == "1" ]; then
 fi
 
 # convert the bundler build into JS in case the environment doesn't support WebAssembly
-../build_binaryen.sh
-../binaryen/bin/wasm2js ./dist/zkdex-bundler_bg.wasm -o $BG_ASM
+#../build_binaryen.sh
+../binaryen-version_117/bin/wasm2js ./dist/zkdex-bundler_bg.wasm -o $BG_ASM
 
 # save another copy for bg_asm import
 # note that due to the behavior of wasm-pack we copy the different file:
