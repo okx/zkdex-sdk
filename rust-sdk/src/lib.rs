@@ -60,6 +60,7 @@ pub mod types;
 mod unified;
 mod utils;
 pub mod zkw;
+pub use unified::*;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 
