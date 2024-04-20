@@ -4609,3 +4609,8 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "rustls"
+version = "0.22.0"
+source = "git+https://github.com/rustls/rustls.git?rev=4d1b762#4d1b762b5328a1714862ba73ec72d5522fe0c049"
