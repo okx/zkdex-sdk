@@ -107,12 +107,12 @@ mod tests {
         "nonce":"12104",
         "order_type":"LIMIT_ORDER_WITH_FEES",
         "position_id":"48052349",
-        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7",
+        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
     },
     "actual_a_fee":"87916620",
     "actual_b_fee":"-9309",
     "actual_collateral":"775817",
-    "actual_synthetic":"1530808",
+    "actual_synthetic":"1530808"
 }
         "##;
         let tx = serde_json::from_str::<PerpetualTrade>(js);

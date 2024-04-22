@@ -8,7 +8,7 @@ pub use withdrawal::*;
 pub(crate) mod hash_trait;
 mod liquidate;
 mod oracle;
-mod order;
+pub mod order;
 mod perpetual_trade;
 pub(crate) mod sign_trait;
 mod spot_trade;

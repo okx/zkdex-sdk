@@ -52,3 +52,34 @@ impl HashTrait for LimitOrder {
 }
 
 impl SignTrait for LimitOrder {}
+
+#[cfg(test)]
+mod test {
+    use crate::unified::transactions::order::spot::LimitOrder;
+    use crate::unified::transactions::test::sign_and_verify;
+
+    #[test]
+    fn test_sign_verify() {
+        let json = r#"
+        {
+                "amount_buy": "80",
+                "amount_sell": "70",
+                "amount_fee": "111",
+                "expiration_timestamp": "3396833",
+                "nonce": "1654615998",
+                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
+                "signature": {
+                    "r": "0x9d4ed071faf946d6e22aa9f72016b4dcb07137bfdd976a1482d26c862bc1cd6e",
+                    "s": "0x2baed04d00fbf2109d9d53235f6168d6e43b8858fc9b435bb8823e7d3aff335"
+                 },
+                "asset_buy": "0x22222",
+                "asset_sell": "0x1111",
+                "position_id": "922337"
+        }
+        "#;
+        let tx = serde_json::from_str::<LimitOrder>(json);
+        assert!(tx.is_ok());
+        let tx = tx.unwrap();
+        sign_and_verify(tx);
+    }
+}

@@ -76,7 +76,7 @@ mod tests {
                 "amount_fee": "111",
                 "expiration_timestamp": "3396833",
                 "nonce": "1654615998",
-                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2"
+                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
                 "asset_buy": "0x22222",
                 "asset_sell": "0x1111",
                 "position_id": "922337"
@@ -87,7 +87,7 @@ mod tests {
                 "amount_fee": "111",
                 "expiration_timestamp": "3396833",
                 "nonce": "1654615998",
-                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2"
+                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
                 "asset_buy": "0x2222",
                 "asset_sell": "0x111",
                 "position_id": "9223"

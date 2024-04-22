@@ -70,3 +70,33 @@ impl HashTrait for LimitOrder {
 }
 
 impl SignTrait for LimitOrder {}
+
+#[cfg(test)]
+mod test {
+    use crate::unified::transactions::order::perpetual::LimitOrder;
+    use crate::unified::transactions::test::sign_and_verify;
+
+    #[test]
+    fn test_sign_verify() {
+        let json = r#"
+        {
+        "type":"PERP_CROSS",
+        "amount_collateral":"15334874",
+        "amount_fee":"1767749",
+        "amount_synthetic":"15460142",
+        "asset_id_collateral":"0x57d05d",
+        "asset_id_synthetic":"0x2",
+        "expiration_timestamp":"3608164305",
+        "is_buying_synthetic":true,
+        "nonce":"1210484339",
+        "order_type":"LIMIT_ORDER_WITH_FEES",
+        "position_id":"4805234",
+        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
+        }
+        "#;
+        let tx = serde_json::from_str::<LimitOrder>(json);
+        assert!(tx.is_ok());
+        let tx = tx.unwrap();
+        sign_and_verify(tx);
+    }
+}

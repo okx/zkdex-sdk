@@ -1,15 +1,15 @@
-mod transactions;
-mod types;
-use crate::unified::transactions::hash_trait::HashTrait;
-
 use crate::hash_type::hash_type_to_string_with_0xprefix;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::types::HashType;
-use crate::unified::transactions::sign_trait::SignTrait;
 use crate::unified::transactions::{
     Liquidate, PerpetualTrade, SignedOraclePrice, SpotTrade, Transfer, Withdrawal,
 };
+use crate::unified::transactions::hash_trait::HashTrait;
+use crate::unified::transactions::sign_trait::SignTrait;
 use crate::zkw::JubjubSignature;
+
+mod transactions;
+mod types;
 
 /// Sign a withdrawal transaction
 /// json: the withdrawal transaction in json format
@@ -141,5 +141,43 @@ pub fn unified_sign_liquidate(json: &str, private_key: &str) -> anyhow::Result<J
 /// return: the hash in hex format
 pub fn unified_hash_liquidate(json: &str) -> anyhow::Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
+    Ok(hash_type_to_string_with_0xprefix(req.hash() as HashType))
+}
+
+/// Sign a spot limit order transaction
+/// json: the spot limit order transaction in json format
+/// private_key: the private key in hex format
+/// return: the JubjubSignature
+pub fn unified_sign_spot_limit_order(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
+    let req: transactions::order::spot::LimitOrder = serde_json::from_str(json)?;
+    let private_key = private_key_from_string(private_key)?;
+    let signature = req.sign(&private_key);
+    Ok(signature.into())
+}
+
+/// Hash a spot limit order transaction
+/// json: the spot limit order transaction in json format
+/// return: the hash in hex format
+pub fn unified_hash_spot_limit_order(json: &str) -> anyhow::Result<String> {
+    let req: transactions::order::spot::LimitOrder = serde_json::from_str(json)?;
+    Ok(hash_type_to_string_with_0xprefix(req.hash() as HashType))
+}
+
+/// Sign a perpetual limit order transaction
+/// json: the perpetual limit order transaction in json format
+/// private_key: the private key in hex format
+/// return: the JubjubSignature
+pub fn unified_sign_perpetual_limit_order(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
+    let req: transactions::order::perpetual::LimitOrder = serde_json::from_str(json)?;
+    let private_key = private_key_from_string(private_key)?;
+    let signature = req.sign(&private_key);
+    Ok(signature.into())
+}
+
+/// Hash a perpetual limit order transaction
+/// json: the perpetual limit order transaction in json format
+/// return: the hash in hex format
+pub fn unified_hash_perpetual_limit_order(json: &str) -> anyhow::Result<String> {
+    let req: transactions::order::perpetual::LimitOrder = serde_json::from_str(json)?;
     Ok(hash_type_to_string_with_0xprefix(req.hash() as HashType))
 }
