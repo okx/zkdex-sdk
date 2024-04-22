@@ -45,6 +45,10 @@ fn zkdex_python_sdk(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(unified_hash_oracle_price, m)?)?;
     m.add_function(wrap_pyfunction!(unified_sign_liquidate, m)?)?;
     m.add_function(wrap_pyfunction!(unified_hash_liquidate, m)?)?;
+    m.add_function(wrap_pyfunction!(unified_sign_spot_limit_order, m)?)?;
+    m.add_function(wrap_pyfunction!(unified_hash_spot_limit_order, m)?)?;
+    m.add_function(wrap_pyfunction!(unified_sign_perpetual_limit_order, m)?)?;
+    m.add_function(wrap_pyfunction!(unified_hash_perpetual_limit_order, m)?)?;
 
     Ok(())
 }
@@ -534,6 +538,58 @@ fn unified_hash_liquidate(
 ) -> PyResult<String> {
     match panic::catch_unwind(|| {
         zkdex_sdk::unified_hash_liquidate(&json).expect("Couldn't get hash")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}", e)))
+    }
+}
+
+#[pyfunction]
+fn unified_sign_spot_limit_order(
+    json: String,
+    pri_key: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        let sig = zkdex_sdk::unified_sign_spot_limit_order(&json, &pri_key).expect("Couldn't get hash");
+        serde_json::to_string(&sig).expect("Couldn't serialize signature")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}", e)))
+    }
+}
+
+#[pyfunction]
+fn unified_hash_spot_limit_order(
+    json: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        zkdex_sdk::unified_hash_spot_limit_order(&json).expect("Couldn't get hash")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}", e)))
+    }
+}
+
+#[pyfunction]
+fn unified_sign_perpetual_limit_order(
+    json: String,
+    pri_key: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        let sig = zkdex_sdk::unified_sign_perpetual_limit_order(&json, &pri_key).expect("Couldn't get hash");
+        serde_json::to_string(&sig).expect("Couldn't serialize signature")
+    }) {
+        Ok(ret) => Ok(ret),
+        Err(e) => Err(PyValueError::new_err(format!("{:?}", e)))
+    }
+}
+
+#[pyfunction]
+fn unified_hash_perpetual_limit_order(
+    json: String,
+) -> PyResult<String> {
+    match panic::catch_unwind(|| {
+        zkdex_sdk::unified_hash_perpetual_limit_order(&json).expect("Couldn't get hash")
     }) {
         Ok(ret) => Ok(ret),
         Err(e) => Err(PyValueError::new_err(format!("{:?}", e)))

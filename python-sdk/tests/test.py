@@ -290,7 +290,7 @@ class TestZKDEX(unittest.TestCase):
         sig = json.loads(sig_str)
         self.assertEqual('0x094cd1d065e17ee1dd32682eb7328c0981501f93fc1a9f6befd93d81f18c4ac6', sig['r'])
         self.assertEqual('0x008a8d751047b04ee9080ca0b58330dd6a847a3954f95dab3c04585437ca8458', sig['s'])
-        hash = zkdex_python_sdk.unified_hash_price_oracle(json_str)
+        hash = zkdex_python_sdk.unified_hash_oracle_price(json_str)
         self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
     def test_unified_sign_liquidate(self):
@@ -321,6 +321,51 @@ class TestZKDEX(unittest.TestCase):
         self.assertEqual('0x908bcabbc7593af06c834eb8ae3db82883028eae8f68897b034e26b2fde76000', sig['r'])
         self.assertEqual('0x020de17410d65b6a93680f854cdb7f3d4cfbd4f55ffd0c8f6bcba945eec9ac5f', sig['s'])
         hash = zkdex_python_sdk.unified_hash_liquidate(json_str)
+        self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
+
+    def test_unified_sign_spot_limit_order(self):
+        json_str = """
+        {
+                "amount_buy": "80",
+                "amount_sell": "70",
+                "amount_fee": "111",
+                "expiration_timestamp": "3396833",
+                "nonce": "1654615998",
+                "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
+                "asset_buy": "0x22222",
+                "asset_sell": "0x1111",
+                "position_id": "922337"
+        }
+        """
+        sig_str = zkdex_python_sdk.unified_sign_spot_limit_order(json_str, pri_key)
+        sig = json.loads(sig_str)
+        self.assertEqual('0x0a2b0c3cf58f4eeca57fd7681d273e7ed024857334a153f97987adba5462d094', sig['r'])
+        self.assertEqual('0x0291850c33dd523e361bfa3518e7c8e4079227ec1874f3bbf0c308e3e398e0dd', sig['s'])
+        hash = zkdex_python_sdk.unified_hash_spot_limit_order(json_str)
+        self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
+
+    def test_unified_sign_perpetual_limit_order(self):
+        json_str = """
+       {
+        "type":"PERP_CROSS",
+        "amount_collateral":"15334874",
+        "amount_fee":"1767749",
+        "amount_synthetic":"15460142",
+        "asset_id_collateral":"0x57d05d",
+        "asset_id_synthetic":"0x2",
+        "expiration_timestamp":"3608164305",
+        "is_buying_synthetic":true,
+        "nonce":"1210484339",
+        "order_type":"LIMIT_ORDER_WITH_FEES",
+        "position_id":"4805234",
+        "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
+        }
+        """
+        sig_str = zkdex_python_sdk.unified_sign_perpetual_limit_order(json_str, pri_key)
+        sig = json.loads(sig_str)
+        self.assertEqual('0x05b3949d9397f8aa5bff3e2858f493e16691965d5d09e59d94213583ba2b85a5', sig['r'])
+        self.assertEqual('0x01f87f794dc75a3e157b8b2b8ebd3781842d84404c91b76c624cb94f8566cb2b', sig['s'])
+        hash = zkdex_python_sdk.unified_hash_perpetual_limit_order(json_str)
         self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
 if __name__ == '__main__':

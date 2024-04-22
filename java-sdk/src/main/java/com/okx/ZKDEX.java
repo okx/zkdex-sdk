@@ -463,4 +463,38 @@ public class ZKDEX {
      */
     public static native String unifiedHashLiquidate(String json) throws Exception;
 
+    /**
+     * sign a Spot Limit Order transaction
+     * @param json json of Spot Limit Order transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignSpotLimitOrder(String json, String priKey) throws Exception;
+
+    /**
+     * hash a Spot Limit Order transaction
+     * @param json json of Spot Limit Order transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashSpotLimitOrder(String json) throws Exception;
+
+    /**
+     * sign a Spot Limit Order transaction
+     * @param json json of Spot Limit Order transaction
+     * @param priKey private key
+     * @return signature
+     * @throws Exception
+     */
+    public static native String unifiedSignPerpetualLimitOrder(String json, String priKey) throws Exception;
+
+    /**
+     * hash a Perpetual Limit Order transaction
+     * @param json json of Perpetual Limit Order transaction
+     * @return hash
+     * @throws Exception
+     */
+    public static native String unifiedHashPerpetualLimitOrder(String json) throws Exception;
+
 }
