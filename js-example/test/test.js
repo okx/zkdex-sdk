@@ -335,6 +335,57 @@ describe('test zkdex js function', function () {
         let hash = zkdex.unified_hash_liquidate(json);
         assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
     })
+
+    it('test unified sign spot limit order', ()=> {
+        let json = `
+                          {
+                                     "amount_buy": "80",
+                                     "amount_sell": "70",
+                                     "amount_fee": "111",
+                                     "expiration_timestamp": "3396833",
+                                     "nonce": "1654615998",
+                                     "public_key": "0x19c78df8f4ff31e78de58575487ce1eaf19922ad9b8a714e61a441c12e0c8b2",
+                                     "asset_buy": "0x22222",
+                                     "asset_sell": "0x1111",
+                                     "position_id": "922337"
+                }
+        `;
+
+        let sig_str = zkdex.unified_sign_spot_limit_order(json, pri_key);
+        let sig = JSON.parse(sig_str);
+        assert.equal(sig.r,'0x0a2b0c3cf58f4eeca57fd7681d273e7ed024857334a153f97987adba5462d094');
+        assert.equal(sig.s,'0x0291850c33dd523e361bfa3518e7c8e4079227ec1874f3bbf0c308e3e398e0dd');
+
+        let hash = zkdex.unified_hash_spot_limit_order(json);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
+    })
+
+    it('test unified sign perpetual limit order', ()=> {
+        let json = `
+                          {
+                         "type":"PERP_CROSS",
+                         "amount_collateral":"15334874",
+                         "amount_fee":"1767749",
+                         "amount_synthetic":"15460142",
+                         "asset_id_collateral":"0x57d05d",
+                         "asset_id_synthetic":"0x2",
+                         "expiration_timestamp":"3608164305",
+                         "is_buying_synthetic":true,
+                         "nonce":"1210484339",
+                         "order_type":"LIMIT_ORDER_WITH_FEES",
+                         "position_id":"4805234",
+                         "public_key":"0x6b974202431eb8c0692c9c8111528d947bc7e70f7ffefaffbab7455dfa5d4f7"
+                }
+        `;
+
+        let sig_str = zkdex.unified_sign_perpetual_limit_order(json, pri_key);
+        let sig = JSON.parse(sig_str);
+        assert.equal(sig.r,'0x05b3949d9397f8aa5bff3e2858f493e16691965d5d09e59d94213583ba2b85a5');
+        assert.equal(sig.s,'0x01f87f794dc75a3e157b8b2b8ebd3781842d84404c91b76c624cb94f8566cb2b');
+
+        let hash = zkdex.unified_hash_perpetual_limit_order(json);
+        assert.equal(zkdex.verify_signature(sig.r, sig.s, pub_key_x,pub_key_y, hash), true);
+    })
 })
 
 
