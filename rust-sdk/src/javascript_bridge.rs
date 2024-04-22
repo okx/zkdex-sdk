@@ -546,7 +546,7 @@ pub mod javascript_bridge {
     /// unified_hash_spot_limit_order, sign perpetual limit order transaction.
     /// @param {string} json of perpetual limit order transaction.
     /// @returns {string} hash of perpetual limit order transaction.
-    #[wasm_bindgen(js_name = unified_hash_spot_limit_order, skip_jsdoc)]
+    #[wasm_bindgen(js_name = unified_hash_perpetual_limit_order, skip_jsdoc)]
     pub fn js_unified_hash_perpetual_limit_order(json: &str) -> Result<String, JsValue> {
         match unified_hash_perpetual_limit_order(json) {
             Ok(ret) => Ok(ret),
