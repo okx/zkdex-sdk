@@ -1,0 +1,44 @@
+name: js-sdk-generator
+
+on:
+  #push:
+  #  paths:
+  #    - 'rust-sdk/src/**'
+  push:
+    branches:
+      - unified-account
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rust-version: '1.70.0'
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install wasm-pack
+        run: cargo install wasm-pack@0.10.2
+      - name: Build
+        run: cd rust-sdk && npm run build
+      - name: Commit and push changes
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-generated build js-sdk artifacts"
+          git push
