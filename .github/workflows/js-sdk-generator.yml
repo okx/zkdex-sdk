@@ -4,9 +4,9 @@ on:
   #push:
   #  paths:
   #    - 'rust-sdk/src/**'
-  push:
-    branches:
-      - unified-account
+#  push:
+#    branches:
+#      - unified-account
   workflow_dispatch:
 
 permissions:
