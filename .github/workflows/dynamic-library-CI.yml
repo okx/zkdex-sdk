@@ -1,9 +1,9 @@
 name: dynamic-library-CI
 
 on:
-  push:
-    paths:
-      - 'rust-sdk/src/**'
+#  push:
+#    paths:
+#      - 'rust-sdk/src/**'
   workflow_dispatch:
 
 permissions:
