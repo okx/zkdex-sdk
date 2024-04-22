@@ -245,3 +245,29 @@ export function unified_sign_liquidate(json: string, private_key: string): strin
 * @returns {string} hash of liquidate transaction.
 */
 export function unified_hash_liquidate(json: string): string;
+/**
+* unified_sign_spot_limit_order, sign spot limit order transaction.
+* @param {string} json of spot limit order transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of spot limit order transaction.
+*/
+export function unified_sign_spot_limit_order(json: string, private_key: string): string;
+/**
+* unified_hash_spot_limit_order, sign spot limit order transaction.
+* @param {string} json of spot limit order transaction.
+* @returns {string} hash of spot limit order transaction.
+*/
+export function unified_hash_spot_limit_order(json: string): string;
+/**
+* unified_sign_perpetual_limit_order, sign perpetual limit order transaction.
+* @param {string} json of perpetual limit order transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of perpetual limit order transaction.
+*/
+export function unified_sign_perpetual_limit_order(json: string, private_key: string): string;
+/**
+* unified_hash_spot_limit_order, sign perpetual limit order transaction.
+* @param {string} json of perpetual limit order transaction.
+* @returns {string} hash of perpetual limit order transaction.
+*/
+export function unified_hash_perpetual_limit_order(json: string): string;

@@ -113,6 +113,18 @@ first message.</p>
 <dt><a href="#unified_hash_liquidate">unified_hash_liquidate(json)</a> ⇒ <code>string</code></dt>
 <dd><p>unified_hash_liquidate, sign liquidate transaction.</p>
 </dd>
+<dt><a href="#unified_sign_spot_limit_order">unified_sign_spot_limit_order(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_spot_limit_order, sign spot limit order transaction.</p>
+</dd>
+<dt><a href="#unified_hash_spot_limit_order">unified_hash_spot_limit_order(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_spot_limit_order, sign spot limit order transaction.</p>
+</dd>
+<dt><a href="#unified_sign_perpetual_limit_order">unified_sign_perpetual_limit_order(json, private_key)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_sign_perpetual_limit_order, sign perpetual limit order transaction.</p>
+</dd>
+<dt><a href="#unified_hash_perpetual_limit_order">unified_hash_perpetual_limit_order(json)</a> ⇒ <code>string</code></dt>
+<dd><p>unified_hash_spot_limit_order, sign perpetual limit order transaction.</p>
+</dd>
 </dl>
 
 <a name="zkdex_init"></a>
@@ -577,4 +589,54 @@ unified_hash_liquidate, sign liquidate transaction.
 | Param | Type | Description |
 | --- | --- | --- |
 | json | <code>string</code> | of liquidate transaction. |
+
+<a name="unified_sign_spot_limit_order"></a>
+
+## unified\_sign\_spot\_limit\_order(json, private_key) ⇒ <code>string</code>
+unified_sign_spot_limit_order, sign spot limit order transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of spot limit order transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot limit order transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="unified_hash_spot_limit_order"></a>
+
+## unified\_hash\_spot\_limit\_order(json) ⇒ <code>string</code>
+unified_hash_spot_limit_order, sign spot limit order transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of spot limit order transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of spot limit order transaction. |
+
+<a name="unified_sign_perpetual_limit_order"></a>
+
+## unified\_sign\_perpetual\_limit\_order(json, private_key) ⇒ <code>string</code>
+unified_sign_perpetual_limit_order, sign perpetual limit order transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - json signature of perpetual limit order transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of perpetual limit order transaction. |
+| private_key | <code>string</code> | private key hex with 0x prefix. |
+
+<a name="unified_hash_perpetual_limit_order"></a>
+
+## unified\_hash\_perpetual\_limit\_order(json) ⇒ <code>string</code>
+unified_hash_spot_limit_order, sign perpetual limit order transaction.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - hash of perpetual limit order transaction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | <code>string</code> | of perpetual limit order transaction. |
 

@@ -245,6 +245,32 @@ export function unified_sign_liquidate(json: string, private_key: string): strin
 * @returns {string} hash of liquidate transaction.
 */
 export function unified_hash_liquidate(json: string): string;
+/**
+* unified_sign_spot_limit_order, sign spot limit order transaction.
+* @param {string} json of spot limit order transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of spot limit order transaction.
+*/
+export function unified_sign_spot_limit_order(json: string, private_key: string): string;
+/**
+* unified_hash_spot_limit_order, sign spot limit order transaction.
+* @param {string} json of spot limit order transaction.
+* @returns {string} hash of spot limit order transaction.
+*/
+export function unified_hash_spot_limit_order(json: string): string;
+/**
+* unified_sign_perpetual_limit_order, sign perpetual limit order transaction.
+* @param {string} json of perpetual limit order transaction.
+* @param {string} private_key private key hex with 0x prefix.
+* @returns {string} json signature of perpetual limit order transaction.
+*/
+export function unified_sign_perpetual_limit_order(json: string, private_key: string): string;
+/**
+* unified_hash_spot_limit_order, sign perpetual limit order transaction.
+* @param {string} json of perpetual limit order transaction.
+* @returns {string} hash of perpetual limit order transaction.
+*/
+export function unified_hash_perpetual_limit_order(json: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -286,6 +312,10 @@ export interface InitOutput {
   readonly unified_hash_oracle_price: (a: number, b: number, c: number) => void;
   readonly unified_sign_liquidate: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly unified_hash_liquidate: (a: number, b: number, c: number) => void;
+  readonly unified_sign_spot_limit_order: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly unified_hash_spot_limit_order: (a: number, b: number, c: number) => void;
+  readonly unified_sign_perpetual_limit_order: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly unified_hash_perpetual_limit_order: (a: number, b: number, c: number) => void;
   readonly zkdex_init: () => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
