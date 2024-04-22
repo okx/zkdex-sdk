@@ -58,7 +58,7 @@ poseidon = { git = "https://github.com/lanbones/poseidon" }
 
 jni = {version = '0.21.1', optional = true}
 sha3 = "0.10.8"
-ethers = {version = "2.0.14", features = ["eip712"]}
+ethers = {version = "2.0.14"}
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
