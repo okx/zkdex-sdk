@@ -1,8 +1,0 @@
-[workspace]
-members = [
-    "python-sdk",
-    "rust-sdk",
-]
-
-[patch.crates-io]
-#rustls = {git = "https://github.com/rustls/rustls.git"}
