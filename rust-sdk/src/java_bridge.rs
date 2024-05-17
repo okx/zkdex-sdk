@@ -406,15 +406,7 @@ pub mod java_bridge {
 
             l2_verify(&x, &y, &s, &pk_x, &pk_y, &msg).expect("Couldn't verify")
         }) {
-            Ok(ret) => {
-                jboolean::from(ret)
-                // let output = env.new_boolean_array(ret).expect("Couldn't create java string!");
-                // output.into_raw()
-                // let output = env
-                //     .new_string(serde_json::to_string(&ret).unwrap())
-                //     .expect("Couldn't create java string!");
-                // output.into_raw()
-            }
+            Ok(ret) => jboolean::from(ret),
             Err(err) => {
                 env.exception_clear().expect("clear");
                 env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
