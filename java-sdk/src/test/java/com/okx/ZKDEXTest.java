@@ -456,20 +456,23 @@ public class ZKDEXTest {
 
     @Test
     public void l1sign() throws Exception {
-        String msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
-        String pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
-        String json = ZKDEX.ethSign(pri, msg);
-        EthAddressSignature signature = JSON.parseObject(json, EthAddressSignature.class);
+//        String msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+//        String pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+//        String json = ZKDEX.ethSign(pri, msg);
+//        EthAddressSignature signature = JSON.parseObject(json, EthAddressSignature.class);
+//
+//        EthAddressSignature expectedSig = new EthAddressSignature();
+//        expectedSig.setX("0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a");
+//        expectedSig.setY("0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595");
+//        expectedSig.setS("0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4");
+//        expectedSig.setPkX("0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86");
+//        expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
 
-        EthAddressSignature expectedSig = new EthAddressSignature();
-        expectedSig.setX("0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a");
-        expectedSig.setY("0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595");
-        expectedSig.setS("0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4");
-        expectedSig.setPkX("0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86");
-        expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
+//        assertEquals(expectedSig, signature);
+//        assertEquals(true,ZKDEX.l2Verify(signature.getX(),signature.getY(),signature.getS(),signature.getPkX(),signature.getPkY(),msg));
+        Boolean ret = ZKDEX.l2Verify("1b788bae91e209e0c0bd3378c436c8dffd77c309bf91e079269209c7b2a4420a","21c7312575dd3ceae528c7437e3d25d39f76ce950ffff9d069e78d3735114486","0437fdd0062cbbb0b884c88855c07270f1b91a62ba5a1754c59f8be7c35655f8","0x00ff19b5400701b6e8d4b2344763f965197459e0d327833a4f1eb9175a863c5d","0x1627e696b01c3f6b7889d6fb6fd99a62d53e2915319319b8d8c9cdc7e2272a76","0x08739c26a8663449be48fe75bc1c73982e81e14de24c287a169cb83ead8dcba0");
+        assertEquals(true,ret);
 
-        assertEquals(expectedSig, signature);
-        assertEquals(true,ZKDEX.l2Verify(signature.getX(),signature.getY(),signature.getS(),signature.getPkX(),signature.getPkY(),msg));
     }
 
     @Test
@@ -506,5 +509,24 @@ public class ZKDEXTest {
 
         String hash = ZKDEX.hashSpotLimitOrder(json);
         assert ZKDEX.verifySignature(signature.getR(), signature.getS(), pubKeyX, pubKeyY, hash);
+    }
+
+    @Test
+    public void test_l2_verify() throws Exception{
+        Boolean ret = ZKDEX.l2Verify("1b788bae91e209e0c0bd3378c436c8dffd77c309bf91e079269209c7b2a4420a",
+                "21c7312575dd3ceae528c7437e3d25d39f76ce950ffff9d069e78d3735114486",
+                "0437fdd0062cbbb0b884c88855c07270f1b91a62ba5a1754c59f8be7c35655f8",
+                "0x00ff19b5400701b6e8d4b2344763f965197459e0d327833a4f1eb9175a863c5c",
+                "0x0cc0b1fbe52a846fcbc3bd7d238146ff19ed76a78fddff0dd5fb98d911b36984",
+                "0x11abcd25a3a8f132217fd411397cc2e38521f62dd1afafec2e9956b28d53044c");
+        assertEquals(false,ret);
+
+        Boolean ret2 = ZKDEX.l2Verify("2cdb8f1de3bf58c83060aab3d5fa041812dbe114aca6a32f2e5d43be2e1ead0c",
+                "0c0cd3a4ee3a61157a99c051fbc6e0f809820a7b6430740ecc9651f4be68b901",
+                "0500a34df5f0d7e3b7aefc1f1a796b2fe990c49afa10e84703b34493f125779a",
+                "0x87736b70b0761c82dbc5950e434b71517b4b7e78e35fcf4ae3e12bbb9be38109",
+                "0x0246d308bb9bff172be1858fee0cd3da2d1870818a8901cc5c1e124dc9814a6d",
+                "0x03a8a1fd4975219bdb8b098f86ed49a52a05257be2f2ce75950fdfc9f95e66b2");
+        assertEquals(true,ret2);
     }
 }

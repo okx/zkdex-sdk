@@ -388,7 +388,7 @@ pub mod java_bridge {
         pk_x: JString<'local>,
         pk_y: JString<'local>,
         msg: JString<'local>,
-    ) -> jstring {
+    ) -> jboolean {
         let x = env.get_string(&x);
         let y = env.get_string(&y);
         let s = env.get_string(&s);
@@ -407,16 +407,19 @@ pub mod java_bridge {
             l2_verify(&x, &y, &s, &pk_x, &pk_y, &msg).expect("Couldn't verify")
         }) {
             Ok(ret) => {
-                let output = env
-                    .new_string(serde_json::to_string(&ret).unwrap())
-                    .expect("Couldn't create java string!");
-                output.into_raw()
+                jboolean::from(ret)
+                // let output = env.new_boolean_array(ret).expect("Couldn't create java string!");
+                // output.into_raw()
+                // let output = env
+                //     .new_string(serde_json::to_string(&ret).unwrap())
+                //     .expect("Couldn't create java string!");
+                // output.into_raw()
             }
-            Err(e) => {
+            Err(err) => {
                 env.exception_clear().expect("clear");
-                env.throw_new("Ljava/lang/Exception;", format!("{e:?}"))
+                env.throw_new("Ljava/lang/Exception;", format!("{err:?}"))
                     .expect("throw");
-                std::ptr::null_mut()
+                jboolean::from(false)
             }
         }
     }
