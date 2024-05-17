@@ -81,6 +81,7 @@ jobs:
       - name: Build
         run: |
           cd ./rust-sdk
+          rustup target add x86_64-apple-darwin
           cargo build --features java  --target x86_64-apple-darwin --release
       - name: Rename
         run : |
