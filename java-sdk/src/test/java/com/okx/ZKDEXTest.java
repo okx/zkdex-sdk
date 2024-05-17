@@ -456,22 +456,20 @@ public class ZKDEXTest {
 
     @Test
     public void l1sign() throws Exception {
-//        String msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
-//        String pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
-//        String json = ZKDEX.ethSign(pri, msg);
-//        EthAddressSignature signature = JSON.parseObject(json, EthAddressSignature.class);
-//
-//        EthAddressSignature expectedSig = new EthAddressSignature();
-//        expectedSig.setX("0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a");
-//        expectedSig.setY("0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595");
-//        expectedSig.setS("0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4");
-//        expectedSig.setPkX("0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86");
-//        expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
+        String msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+        String pri = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+        String json = ZKDEX.ethSign(pri, msg);
+        EthAddressSignature signature = JSON.parseObject(json, EthAddressSignature.class);
 
-//        assertEquals(expectedSig, signature);
-//        assertEquals(true,ZKDEX.l2Verify(signature.getX(),signature.getY(),signature.getS(),signature.getPkX(),signature.getPkY(),msg));
-        Boolean ret = ZKDEX.l2Verify("1b788bae91e209e0c0bd3378c436c8dffd77c309bf91e079269209c7b2a4420a","21c7312575dd3ceae528c7437e3d25d39f76ce950ffff9d069e78d3735114486","0437fdd0062cbbb0b884c88855c07270f1b91a62ba5a1754c59f8be7c35655f8","0x00ff19b5400701b6e8d4b2344763f965197459e0d327833a4f1eb9175a863c5d","0x1627e696b01c3f6b7889d6fb6fd99a62d53e2915319319b8d8c9cdc7e2272a76","0x08739c26a8663449be48fe75bc1c73982e81e14de24c287a169cb83ead8dcba0");
-        assertEquals(true,ret);
+        EthAddressSignature expectedSig = new EthAddressSignature();
+        expectedSig.setX("0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a");
+        expectedSig.setY("0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595");
+        expectedSig.setS("0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4");
+        expectedSig.setPkX("0x96c4d93a49c8159e27542601ba19fdfce52b3e9b43dafaefe9aa9cd32efded86");
+        expectedSig.setPkY("0x0cc8a68b8dba85bd5418e308b34439ddffca3a0f6589a32f02adf60da6e73f55");
+
+        assertEquals(expectedSig, signature);
+        assertEquals(true,ZKDEX.l2Verify(signature.getX(),signature.getY(),signature.getS(),signature.getPkX(),signature.getPkY(),msg));
 
     }
 
