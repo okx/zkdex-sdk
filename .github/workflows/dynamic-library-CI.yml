@@ -1,9 +1,9 @@
 name: dynamic-library-CI
 
 on:
-  #push:
-  #  paths:
-  #    - 'rust-sdk/src/**'
+#  push:
+#    paths:
+#      - 'rust-sdk/src/**'
   workflow_dispatch:
 
 permissions:
@@ -81,10 +81,11 @@ jobs:
       - name: Build
         run: |
           cd ./rust-sdk
-          cargo build --features java --release
+          rustup target add x86_64-apple-darwin
+          cargo build --features java  --target x86_64-apple-darwin --release
       - name: Rename
         run : |
-          mv ./rust-sdk/target/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_x86_64.dylib
+          mv ./rust-sdk/target/x86_64-apple-darwin/release/libzkdex_sdk.dylib ./rust-sdk/target/release/libzkdex_sdk_x86_64.dylib
       - name: Upload x86_64 dylib
         uses: actions/upload-artifact@v3
         with:
