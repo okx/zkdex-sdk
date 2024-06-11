@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 use anyhow::{Error, Result};
 pub use convert::*;
-use ethers::abi::{encode_packed, Token};
+use ethers::abi::{encode_packed, ethereum_types, AbiEncode, Token};
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
@@ -286,7 +286,10 @@ pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -
 pub fn sign_eth_address(address: &str, pub_key: &str, private_key: &str) -> Result<String> {
     let t1 = Token::String("UserRegistration:".to_string());
     let t2 = Token::Address(address.parse().unwrap());
-    let t3 = Token::Uint(U256::from_str_radix(pub_key, 16).unwrap());
+
+    //let t3 = Token::Uint(U256::from_str_radix(pub_key, 16).unwrap());
+
+    let t3 = Token::FixedBytes(U256::from_str_radix(pub_key, 16).unwrap().encode());
     let data = encode_packed(&[t1, t2, t3]).unwrap();
     let result = Keccak256::digest(data.as_slice());
     let max = BigInt::from_str(
@@ -297,6 +300,7 @@ pub fn sign_eth_address(address: &str, pub_key: &str, private_key: &str) -> Resu
         .unwrap()
         .mod_floor(&max)
         .to_str_radix(16);
+
     let sig = l2_sign(&hash, private_key)?;
     let sig = sig.x
         + sig.y.trim_start_matches("0x")
@@ -1241,6 +1245,13 @@ mod test {
         let pri_key = "0x05b82dd4f0325bf5fe7cc45ed2e8e8b47388d905f6b1d87c437f9732197425c4";
         let sig = sign_eth_address(address, pub_key, pri_key);
         assert!(sig.is_ok());
-        assert_eq!(sig.unwrap(), "0x209012cba7e208ab4a9338225568ffb87736721bdfad1168062eaf4a9c9ed04c0f5b1f07a4535f2ff29fe95a61166be31e62a7a418a8e1f1b51fd6ddaa566e090107f225011c74063739dfbee26f81f30d2ac0bfad5b8e188c8e48b4cc19fcd10fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b")
+        assert_eq!(sig.unwrap(), "0x209012cba7e208ab4a9338225568ffb87736721bdfad1168062eaf4a9c9ed04c0f5b1f07a4535f2ff29fe95a61166be31e62a7a418a8e1f1b51fd6ddaa566e090107f225011c74063739dfbee26f81f30d2ac0bfad5b8e188c8e48b4cc19fcd10fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
+
+        let address = "0x6adb25ce1b29cd004fdedf40ec5c8f51e33f11ad";
+        let pub_key = "0x00019dd2c8149fae983deac2ce3917476080aaadc420d560a91e56280a576b66";
+        let pri_key = "0x05b82dd4f0325bf5fe7cc45ed2e8e8b47388d905f6b1d87c437f9732197425c4";
+        let sig = sign_eth_address(address, pub_key, pri_key);
+        assert!(sig.is_ok());
+        assert_eq!(sig.unwrap(), "0x18c4fdc6d708e0e4e98dc15135d0fcdcc61a0186ebf3fbef686ed889ae3c5da41fc81fd38365fd592790e3e361128ff2cc128a695863ed92508ca6aebf19e1d30090d870298e42458588e11f0f66c47c6037df66d1c8c06e095778fffb3b8f100fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
     }
 }
