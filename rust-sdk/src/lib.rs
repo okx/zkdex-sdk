@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 use anyhow::{Error, Result};
 pub use convert::*;
-use ethers::abi::{encode_packed, ethereum_types, AbiEncode, Token};
+use ethers::abi::{encode_packed, AbiEncode, Token};
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
