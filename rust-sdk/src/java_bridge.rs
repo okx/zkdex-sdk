@@ -14,7 +14,15 @@ pub mod java_bridge {
         unified_sign_spot_trade, unified_sign_transfer, unified_sign_withdrawal,
     };
     use crate::zkw::JubjubSignature;
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order, hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve, l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order, unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature};
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
+        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw,
+        unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
+        unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
+    };
 
     #[no_mangle]
     pub extern "system" fn Java_com_okx_ZKDEX_verifySignature<'local>(
@@ -1117,7 +1125,8 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            unified_sign_perpetual_limit_order(&json, &pri_key).expect("Couldn't get jubjubSignature")
+            unified_sign_perpetual_limit_order(&json, &pri_key)
+                .expect("Couldn't get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env

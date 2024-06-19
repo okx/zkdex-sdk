@@ -8,7 +8,16 @@ pub mod javascript_bridge {
     };
     use crate::utils::set_panic_hook;
     use crate::zkw::JubjubSignature;
-    use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order, hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve, l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature, JUBJUB_PARAMS, RESCUE_PARAMS, unified_sign_spot_limit_order, unified_hash_spot_limit_order, unified_sign_perpetual_limit_order, unified_hash_perpetual_limit_order};
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
+        sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
+        sign_withdraw, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
+        unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
+        JUBJUB_PARAMS, RESCUE_PARAMS,
+    };
     use crate::{
         hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
         hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
@@ -521,7 +530,10 @@ pub mod javascript_bridge {
     /// @param {string} private_key private key hex with 0x prefix.
     /// @returns {string} json signature of spot limit order transaction.
     #[wasm_bindgen(js_name = unified_sign_spot_limit_order, skip_jsdoc)]
-    pub fn js_unified_sign_spot_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
+    pub fn js_unified_sign_spot_limit_order(
+        json: &str,
+        private_key: &str,
+    ) -> Result<String, JsValue> {
         match unified_sign_spot_limit_order(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
@@ -544,7 +556,10 @@ pub mod javascript_bridge {
     /// @param {string} private_key private key hex with 0x prefix.
     /// @returns {string} json signature of perpetual limit order transaction.
     #[wasm_bindgen(js_name = unified_sign_perpetual_limit_order, skip_jsdoc)]
-    pub fn js_unified_sign_perpetual_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
+    pub fn js_unified_sign_perpetual_limit_order(
+        json: &str,
+        private_key: &str,
+    ) -> Result<String, JsValue> {
         match unified_sign_perpetual_limit_order(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
@@ -561,7 +576,6 @@ pub mod javascript_bridge {
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
     }
-
 
     #[derive(Serialize)]
     struct ComposeSignature {
