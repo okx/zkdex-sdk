@@ -9,6 +9,14 @@ pub mod javascript_bridge {
     use crate::utils::set_panic_hook;
     use crate::zkw::JubjubSignature;
     use crate::{hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order, hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve, l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign, sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw, verify_signature, JUBJUB_PARAMS, RESCUE_PARAMS, unified_sign_spot_limit_order, unified_hash_spot_limit_order, unified_sign_perpetual_limit_order, unified_hash_perpetual_limit_order};
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
+        sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
+        sign_withdraw, verify_signature, JUBJUB_PARAMS, RESCUE_PARAMS,
+    };
     use serde::Serialize;
     use wasm_bindgen::prelude::wasm_bindgen;
     use wasm_bindgen::JsValue;
