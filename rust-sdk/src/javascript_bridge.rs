@@ -14,7 +14,9 @@ pub mod javascript_bridge {
         l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
         sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
         sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
-        sign_withdraw, verify_signature, JUBJUB_PARAMS, RESCUE_PARAMS,
+        sign_withdraw, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
+        unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
+        JUBJUB_PARAMS, RESCUE_PARAMS,
     };
     use serde::Serialize;
     use wasm_bindgen::prelude::wasm_bindgen;
