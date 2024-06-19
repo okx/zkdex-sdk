@@ -6,19 +6,16 @@ use std::convert::TryFrom;
 use std::str::FromStr;
 
 use anyhow::{Error, Result};
-use ethers::abi::{encode_packed, Token};
 pub use convert::*;
 use ethers::abi::{encode_packed, AbiEncode, Token};
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
-    alt_babyjubjub::{AltJubjubBn256, FixedGenerators, fs::FsRepr},
+    alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
     eddsa::PublicKey,
     jubjub::JubjubEngine,
 };
-pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
-use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use num::Integer;
 use num_bigint::BigInt;
 use num_traits::Num;
@@ -28,22 +25,21 @@ use sha2::{Digest as tDigest, Sha256};
 use sha3::Digest;
 use sha3::Keccak256;
 
-pub use convert::*;
 pub use serde_wrapper::*;
 use types::HashType;
 pub use unified::*;
 
 use crate::felt::LeBytesConvert;
 use crate::hash_type::hash_type_to_string_with_0xprefix;
-use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::transaction::limit_order::LimitOrderRequest;
 use crate::transaction::liquidate::Liquidate;
 use crate::transaction::oracle_price::{signed_oracle_price_hash, SignedOraclePrice};
-use crate::transaction::transfer::{Transfer, transfer_hash};
-use crate::transaction::withdraw::{Withdraw, withdrawal_hash, WithdrawRequest};
+use crate::transaction::transfer::{transfer_hash, Transfer};
+use crate::transaction::withdraw::{withdrawal_hash, Withdraw, WithdrawRequest};
+use crate::transaction::{limit_order, oracle_price, transfer, withdraw};
 use crate::tx::convert::FeConvert;
 use crate::tx::packed_public_key::{
-    convert_to_pubkey, PackedPublicKey, private_key_from_string, public_key_from_private,
+    convert_to_pubkey, private_key_from_string, public_key_from_private, PackedPublicKey,
 };
 use crate::tx::packed_signature::{get_r_from_xy, PackedSignature};
 use crate::tx::sign::TxSignature;
@@ -362,20 +358,20 @@ mod test {
 
     use pairing_ce::bn256::Fr;
 
-    use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
-        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        L1Signature, l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy,
-        pub_key_to_xy, reverse_hex, sign, sign_eth_address, sign_limit_order,
-        sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer,
-        sign_spot_withdrawal, sign_transfer, sign_withdraw, Signature, verify_jubjub_signature,
-        verify_signature,
-    };
     use crate::transaction::limit_order::LimitOrderRequest;
     use crate::tx::convert::FeConvert;
     use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::tx::public_key_type::PublicKeyType;
     use crate::zkw::JubjubSignature;
+    use crate::{
+        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
+        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+        l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy,
+        reverse_hex, sign, sign_eth_address, sign_limit_order, sign_liquidate,
+        sign_signed_oracle_price, sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal,
+        sign_transfer, sign_withdraw, verify_jubjub_signature, verify_signature, L1Signature,
+        Signature,
+    };
 
     const PRI_KEY: &str = "0x01e1b55a539517898350ca915cbf8b25b70d9313a5ab0ff0a3466ed7799f11fe";
     const PUB_KEY: &str = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
