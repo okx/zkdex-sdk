@@ -122,16 +122,16 @@ class TestZKDEX(unittest.TestCase):
         json_str = "{\"nonce\":\"1\",\"sender_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"10\",\"asset_id\":\"0x00001\",\"receiver_position_id\":\"1\",\"receiver_public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"sender_position_id\":\"1\"}"
         r = zkdex_python_sdk.sign_spot_transfer(json_str, pri_key)
         sig = json.loads(r)
-        self.assertEqual('0x2e3aaadfec701f1b18b0fc95798d93c6a5a4ac24117c18200b2010aadb67248c', sig['r'])
-        self.assertEqual('0x04b67a05dda815d69c1334e772c73f662c0df65a8c0e4a74a672e6823c133ddf', sig['s'])
+        self.assertEqual('0xa2512dc539db0007395a7a23296da9d464df820faf71c104b4f8914a67394ab5', sig['r'])
+        self.assertEqual('0x03109f8beb7379d9982f1860ea040c3dae4db30b1e20d2c699be11d90e4b8f20', sig['s'])
         hash = zkdex_python_sdk.hash_spot_transfer(json_str)
         self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
     def test_sign_spot_limit_order(self):
         json_str = "{\"nonce\":\"0\",\"expiration_timestamp\":\"0\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"amount_buy\":\"0\",\"amount_sell\":\"0\",\"amount_fee\":\"0\",\"asset_buy\":\"0x01\",\"asset_sell\":\"0x02\",\"position_id\":\"1\"}"
         r = zkdex_python_sdk.sign_spot_limit_order(json_str, pri_key)
         sig = json.loads(r)
-        self.assertEqual('0x01aabe43b11787a211f9960a2abd2de3667965c52b5ff23ac853a91ebfc9b6c2', sig['r'])
-        self.assertEqual('0x01ffebd7ab388ae453baa839f123116bdfac8b57931bbbc463cf8dfcfab6fc02', sig['s'])
+        self.assertEqual('0x0d5fb0c83cc302c9e6d51a5e4d5081c9405a146e079a27f41895ea7e7673f78f', sig['r'])
+        self.assertEqual('0x017e934ee485d0ea5af02719a8923ec1b94c60633dd87e8731673589e9311b98', sig['s'])
         hash = zkdex_python_sdk.hash_spot_limit_order(json_str)
         self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
@@ -139,8 +139,8 @@ class TestZKDEX(unittest.TestCase):
         json_str = "{\"nonce\":\"1\",\"public_key\":\"0x0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a\",\"expiration_timestamp\":\"3608164305\",\"amount\":\"1000000\",\"asset_id\":\"0x00001\",\"position_id\":\"1\",\"chain_id\":\"1\",\"eth_address\":\"0x0\"}"
         r = zkdex_python_sdk.sign_spot_withdrawal(json_str, pri_key)
         sig = json.loads(r)
-        self.assertEqual('0xa5ddaa85042f91be1d036a89d49cb9532f063a911516f3c13a55fa7889e03d70', sig['r'])
-        self.assertEqual('0x05cfefa9b959b4538bf2050286025dd522ad047e1f1ae499ae3627ac6ba5aa59', sig['s'])
+        self.assertEqual('0xaf19578e4a6314d1c35e76d95f1c737c5e5972896ba5108a8c22e3c2ac811394', sig['r'])
+        self.assertEqual('0x0506f65a264f4aef49be00ec1c59338f90fffda5f74020f6afcad00e7a4becbe', sig['s'])
         hash = zkdex_python_sdk.hash_spot_withdrawal(json_str)
         self.assertTrue(zkdex_python_sdk.verify_signature(sig['r'],sig['s'], pk_x, pk_y, hash))
 
