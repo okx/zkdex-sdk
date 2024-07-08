@@ -1,15 +1,14 @@
-use primitive_types::U256;
-use std::ops::ShlAssign;
-
 use crate::common::OrderBase;
 use crate::constant::SPOT_TRANSFER_ORDER_TYPE;
 use crate::hash;
 use crate::hash::Hasher;
+use crate::serde_utils::serde_str;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::{private_key_from_string, HashType, TxSignature};
+use primitive_types::U256;
 
 use crate::felt::LeBytesConvert;
-use crate::types::amount::AmountType;
+use crate::spot::types::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
@@ -23,7 +22,7 @@ use {
 pub struct Transfer {
     #[serde(flatten, with = "TransferBaseSerde")]
     pub base: OrderBase,
-    #[serde(rename = "amount")]
+    #[serde(with = "serde_str")]
     pub amount: AmountType,
     #[serde(rename = "asset_id")]
     pub asset_id: AssetIdType,
@@ -40,30 +39,23 @@ pub fn transfer_hash(transfer: &Transfer) -> HashType {
 
     hasher.update_single(&SPOT_TRANSFER_ORDER_TYPE);
 
-    hasher.update_single(&(transfer.asset_id.0 as u64));
-
-    let mut packed_message0 = U256([
+    let packed_message0 = U256([
+        transfer.asset_id.into(),
+        0,
         transfer.sender_position_id.into(),
         transfer.receiver_position_id.into(),
-        transfer.sender_position_id.into(),
-        0,
     ]);
-
-    packed_message0.shl_assign(32);
-    packed_message0 += U256::from(transfer.base.nonce);
 
     hasher.update_single(&packed_message0);
 
-    let mut packed_message1 = U256([
-        transfer.amount.0 as u64,
-        (transfer.amount.0 >> 64) as u64,
-        SPOT_TRANSFER_ORDER_TYPE,
+    hasher.update_single(&transfer.receiver_public_key);
+
+    let packed_message1 = U256([
+        (transfer.base.expiration_timestamp as u64) << 32 | transfer.base.nonce as u64,
+        transfer.amount,
+        0,
         0,
     ]);
-
-    packed_message1.shl_assign(32);
-    packed_message1 += U256::from(transfer.base.expiration_timestamp);
-    packed_message1.shl_assign(81); // Padding.
 
     hasher.update_single(&packed_message1);
 
@@ -98,9 +90,9 @@ mod test {
 
         let transfer = serde_json::from_str::<Transfer>(json);
         assert!(transfer.is_ok());
-        assert!(
-            transfer_hash(&transfer.unwrap()).to_string()
-                == "8868821431893765158267276750476252224391306572586061693346985054677660276548"
+        assert_eq!(
+            transfer_hash(&transfer.unwrap()).to_string(),
+            "9045777099427406894554486704234796056075978281419646816515004720290031525313"
         );
     }
 }

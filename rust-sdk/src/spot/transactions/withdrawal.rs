@@ -3,10 +3,11 @@ use crate::constant::{SPOT_WITHDRAWAL, SPOT_WITHDRAWAL_TO_OWNER_KEY};
 use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
+use crate::serde_utils::serde_str;
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
+use crate::spot::types::AmountType;
 use crate::tx::public_key_type::PublicKeyType;
 use crate::tx::{private_key_from_string, HashType, TxSignature};
-use crate::types::amount::AmountType;
 use crate::types::asset_id::AssetIdType;
 use crate::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
@@ -20,7 +21,7 @@ use serde::{Deserialize, Serialize};
 pub struct Withdrawal {
     #[serde(flatten)]
     pub base: OrderBase,
-    #[serde(rename = "amount")]
+    #[serde(with = "serde_str")]
     pub amount: AmountType,
     #[serde(rename = "eth_address")]
     pub owner_key: PublicKeyType,
@@ -28,7 +29,7 @@ pub struct Withdrawal {
     pub asset_id: AssetIdType,
     #[serde(rename = "position_id")]
     pub position_id: PositionIdType,
-    #[serde(rename = "fee", default)]
+    #[serde(with = "serde_str", default)]
     pub fee: AmountType,
     #[serde(rename = "chain_id", with = "U32SerdeAsString")]
     pub chain_id: u32,
@@ -52,21 +53,15 @@ impl Withdrawal {
             hasher.update_single(&self.owner_key);
         }
 
-        let fee_amount: u128 = self.fee.into();
-        let packed0 = U256([
-            self.chain_id as u64,
-            fee_amount as u64,
-            (fee_amount >> 64) as u64,
-            0,
-        ]);
+        let packed0 = U256([self.chain_id as u64, self.fee, 0, 0]);
         hasher.update_single(&packed0);
 
         let packed_message1 = U256([
             (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
-            self.amount.0 as u64,
-            (self.amount.0 >> 64) as u64,
-            (prefix << 32) | self.position_id.0 as u64,
-        ]) << 17;
+            self.amount,
+            0,
+            u64::from(self.position_id.0),
+        ]);
 
         hasher.update_single(&packed_message1);
 
@@ -106,9 +101,9 @@ mod test {
 
         let req = serde_json::from_str::<Withdrawal>(json_str);
         assert!(req.is_ok());
-        assert!(
-            req.unwrap().hash().to_string()
-                == "119039369094889261403898889385918450319671151073804265247384487898016834057"
+        assert_eq!(
+            req.unwrap().hash().to_string(),
+            "19341009309045799639710615130384553665838605383371747846905355585001394883521"
         )
     }
 }

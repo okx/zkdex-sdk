@@ -10,7 +10,6 @@ use crate::zkw::JubjubSignature;
 use crate::{hash, HashType};
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 #[repr(C)]
 pub struct LimitOrder {
@@ -36,8 +35,10 @@ impl LimitOrder {
 
         hasher.update_single(&SPOT_SETTLEMENT_ORDER_TYPE);
 
-        hasher.update_single(&(self.asset_sell.0 as u64));
-        hasher.update_single(&(self.asset_buy.0 as u64));
+        let mut packed = Into::<u32>::into(self.asset_buy) as u64;
+        packed |= (Into::<u32>::into(self.asset_sell) as u64) << 32;
+
+        hasher.update_single(&packed);
 
         hasher.update_single(self.amount_sell.as_ref());
         hasher.update_single(self.amount_buy.as_ref());
@@ -47,8 +48,8 @@ impl LimitOrder {
             (self.base.expiration_timestamp as u64) << 32 | self.base.nonce as u64,
             self.position_id.0 as u64,
             0,
-            SPOT_SETTLEMENT_ORDER_TYPE,
-        ]) << 49;
+            0,
+        ]);
 
         hasher.update_single(&packed_message1);
 
@@ -87,9 +88,9 @@ mod test {
         "#;
         let limit_order = serde_json::from_str::<LimitOrder>(json);
         assert!(limit_order.is_ok());
-        assert!(
-            limit_order.unwrap().hash().to_string()
-                == "11862331312157360900677001705316294883250002101778892306581558769101577195139"
+        assert_eq!(
+            limit_order.unwrap().hash().to_string(),
+            "15830014545298432560759991505830644879392216830442607708368985515244601056083"
         )
     }
 }

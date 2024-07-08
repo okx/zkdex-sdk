@@ -8,3 +8,7 @@ pub fn set_panic_hook() {
     // https://github.com/rustwasm/console_error_panic_hook#readme
     console_error_panic_hook::set_once();
 }
+
+pub fn trim_0x(s: &str) -> &str {
+    s.strip_prefix("0x").unwrap()
+}

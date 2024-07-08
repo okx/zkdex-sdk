@@ -53,12 +53,13 @@ mod hash;
 pub mod java_bridge;
 pub mod javascript_bridge;
 mod models;
+pub mod serde_utils;
 pub mod serde_wrapper;
 pub mod spot;
 pub mod transaction;
 pub mod tx;
 pub mod types;
-mod utils;
+pub mod utils;
 pub mod zkw;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
