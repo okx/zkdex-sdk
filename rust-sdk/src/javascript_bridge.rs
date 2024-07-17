@@ -176,16 +176,20 @@ pub mod javascript_bridge {
     }
 
     /// sign eth address
+    /// @param {string} chain_id  l1 chain id.
+    /// @param {string} contract_address l1 contract address.
     /// @param {string} address  with 0x prefix.
     /// @param {string} pubkey with 0x prefix.
     /// @param {string} l2_private_key with 0x prefix.
     #[wasm_bindgen(js_name = sign_eth_address, skip_jsdoc)]
     pub fn js_sign_eth_address(
+        chain_id:&str,
+        contract_address: &str,
         address: &str,
         pubkey: &str,
         l2_private_key: &str,
     ) -> Result<String, JsValue> {
-        match sign_eth_address(address, pubkey, l2_private_key) {
+        match sign_eth_address(chain_id,contract_address,address, pubkey, l2_private_key) {
             Ok(ret) => Ok(ret),
 
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),

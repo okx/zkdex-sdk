@@ -283,14 +283,17 @@ pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -
     verify_signature(&format!("0x{:064x}", r), s, pk_x, pk_y, msg)
 }
 
-pub fn sign_eth_address(address: &str, pub_key: &str, private_key: &str) -> Result<String> {
+pub fn sign_eth_address(chain_id:&str,contract_address: &str,address: &str, pub_key: &str, private_key: &str) -> Result<String> {
     let t1 = Token::String("UserRegistration:".to_string());
-    let t2 = Token::Address(address.parse().unwrap());
+    let t2 = Token::Int(U256::from_str(chain_id).unwrap());
+    let t3 = Token::Address(contract_address.parse().unwrap());
+
+    let t4 = Token::Address(address.parse().unwrap());
 
     //let t3 = Token::Uint(U256::from_str_radix(pub_key, 16).unwrap());
 
-    let t3 = Token::FixedBytes(U256::from_str_radix(pub_key, 16).unwrap().encode());
-    let data = encode_packed(&[t1, t2, t3]).unwrap();
+    let t5 = Token::FixedBytes(U256::from_str_radix(pub_key, 16).unwrap().encode());
+    let data = encode_packed(&[t1, t2, t3,t4,t5]).unwrap();
     let result = Keccak256::digest(data.as_slice());
     let max = BigInt::from_str(
         "21888242871839275222246405745257275088548364400416034343698204186575808495617",
