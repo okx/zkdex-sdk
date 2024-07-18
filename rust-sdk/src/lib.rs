@@ -285,9 +285,8 @@ pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -
 
 pub fn sign_eth_address(chain_id:&str,contract_address: &str,address: &str, pub_key: &str, private_key: &str) -> Result<String> {
     let t1 = Token::String("UserRegistration:".to_string());
-    let t2 = Token::Int(U256::from_str(chain_id).unwrap());
+    let t2 = Token::FixedBytes(U256::from_str_radix(chain_id, 10).unwrap().encode());
     let t3 = Token::Address(contract_address.parse().unwrap());
-
     let t4 = Token::Address(address.parse().unwrap());
 
     //let t3 = Token::Uint(U256::from_str_radix(pub_key, 16).unwrap());
@@ -303,7 +302,6 @@ pub fn sign_eth_address(chain_id:&str,contract_address: &str,address: &str, pub_
         .unwrap()
         .mod_floor(&max)
         .to_str_radix(16);
-
     let sig = l2_sign(&hash, private_key)?;
     let sig = sig.x
         + sig.y.trim_start_matches("0x")
@@ -1243,18 +1241,20 @@ mod test {
 
     #[test]
     pub fn test_eth_address_sign() {
+        let chain_id = "11155111";
+        let contract_address = "0x4b551A084cDdB1a5355Ce17155669A5ce6e94C4E";
         let address = "0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2";
         let pub_key = "0x864d63b304b5635579771c0864def9bbc166ae5b1f39a894998ef350f6c521ac";
-        let pri_key = "0x05b82dd4f0325bf5fe7cc45ed2e8e8b47388d905f6b1d87c437f9732197425c4";
-        let sig = sign_eth_address(address, pub_key, pri_key);
+        let pri_key = private_key_from_seed("hello zkdex ggggggggggggggggggggggggg".as_bytes()).unwrap();
+        let sig = sign_eth_address(chain_id,contract_address,address, pub_key, &pri_key);
         assert!(sig.is_ok());
-        assert_eq!(sig.unwrap(), "0x209012cba7e208ab4a9338225568ffb87736721bdfad1168062eaf4a9c9ed04c0f5b1f07a4535f2ff29fe95a61166be31e62a7a418a8e1f1b51fd6ddaa566e090107f225011c74063739dfbee26f81f30d2ac0bfad5b8e188c8e48b4cc19fcd10fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
+        assert_eq!(sig.unwrap(), "0x0a503625f4d8402e9e252f4a77e9d2ac5e6e347f2689d31a39291e221f1e4cfb1a9bc2f5d8a70cba5b7bbdc6da09f948f22bafecabc6f8d2f0f23078d603322105eccbe6b4b8ada0b52f0779709fb2bb077251a19ce4d5d4c7a705974a4175932a8b55b82014ae69934fe86168fed0670d971ac72ee48ad23a529cad0c941237");
 
         let address = "0x6adb25ce1b29cd004fdedf40ec5c8f51e33f11ad";
         let pub_key = "0x00019dd2c8149fae983deac2ce3917476080aaadc420d560a91e56280a576b66";
         let pri_key = "0x05b82dd4f0325bf5fe7cc45ed2e8e8b47388d905f6b1d87c437f9732197425c4";
-        let sig = sign_eth_address(address, pub_key, pri_key);
+        let sig = sign_eth_address(chain_id,contract_address,address, pub_key, pri_key);
         assert!(sig.is_ok());
-        assert_eq!(sig.unwrap(), "0x18c4fdc6d708e0e4e98dc15135d0fcdcc61a0186ebf3fbef686ed889ae3c5da41fc81fd38365fd592790e3e361128ff2cc128a695863ed92508ca6aebf19e1d30090d870298e42458588e11f0f66c47c6037df66d1c8c06e095778fffb3b8f100fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
+        assert_eq!(sig.unwrap(), "0x03b213c47af8c4f8bd4d72b7ac51e92058d9b1be1fc5bfdf1ee8abb461ec90cc2173babf96b1d41834dbf84decc645bd19fbd74610422b08b4f0632bfae301d804c71a60d4667ffec3c33f48ab50dabfbfa2fbb71bc663a1c8794fc11fb231e50fec8b35377b0f9bef295855de35e9d09e20379704d89f091f8343647490f68b");
     }
 }
