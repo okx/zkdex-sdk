@@ -41,7 +41,7 @@ first message.</p>
 <dt><a href="#l1_sign">l1_sign(msg, private_key, string)</a></dt>
 <dd><p>l1 sign, sign a msg on l1 when signing a eth address.</p>
 </dd>
-<dt><a href="#sign_eth_address">sign_eth_address(address, pubkey, l2_private_key)</a></dt>
+<dt><a href="#sign_eth_address">sign_eth_address(chain_id, contract_address, address, pubkey, l2_private_key)</a></dt>
 <dd><p>sign eth address</p>
 </dd>
 <dt><a href="#is_on_curve">is_on_curve(pub_key_x, pub_key_y)</a> ⇒ <code>bool</code></dt>
@@ -242,13 +242,15 @@ l1 sign, sign a msg on l1 when signing a eth address.
 
 <a name="sign_eth_address"></a>
 
-## sign\_eth\_address(address, pubkey, l2_private_key)
+## sign\_eth\_address(chain_id, contract_address, address, pubkey, l2_private_key)
 sign eth address
 
 **Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
+| chain_id | <code>string</code> | l1 chain id. |
+| contract_address | <code>string</code> | l1 contract address. |
 | address | <code>string</code> | with 0x prefix. |
 | pubkey | <code>string</code> | with 0x prefix. |
 | l2_private_key | <code>string</code> | with 0x prefix. |

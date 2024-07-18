@@ -89,11 +89,13 @@ export function verify_signature(sig_r: string, sig_s: string, pub_key_x: string
 export function l1_sign(msg: string, private_key: string): string;
 /**
 * sign eth address
+* @param {string} chain_id  l1 chain id.
+* @param {string} contract_address l1 contract address.
 * @param {string} address  with 0x prefix.
 * @param {string} pubkey with 0x prefix.
 * @param {string} l2_private_key with 0x prefix.
 */
-export function sign_eth_address(address: string, pubkey: string, l2_private_key: string): string;
+export function sign_eth_address(chain_id: string, contract_address: string, address: string, pubkey: string, l2_private_key: string): string;
 /**
 * is_on_curve, check the (x,y) is on curve.
 * @param {string} pub_key_x  x of public key with 0x prefix.
