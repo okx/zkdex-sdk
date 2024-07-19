@@ -527,38 +527,44 @@ module.exports.l1_sign = function(msg, private_key) {
 
 /**
 * sign eth address
+* @param {string} chain_id  l1 chain id.
+* @param {string} contract_address l1 contract address.
 * @param {string} address  with 0x prefix.
 * @param {string} pubkey with 0x prefix.
 * @param {string} l2_private_key with 0x prefix.
 */
-module.exports.sign_eth_address = function(address, pubkey, l2_private_key) {
-    let deferred5_0;
-    let deferred5_1;
+module.exports.sign_eth_address = function(chain_id, contract_address, address, pubkey, l2_private_key) {
+    let deferred7_0;
+    let deferred7_1;
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passStringToWasm0(chain_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(pubkey, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr1 = passStringToWasm0(contract_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(l2_private_key, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr2 = passStringToWasm0(address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len2 = WASM_VECTOR_LEN;
-        wasm.sign_eth_address(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
+        const ptr3 = passStringToWasm0(pubkey, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(l2_private_key, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        wasm.sign_eth_address(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
         var r3 = getInt32Memory0()[retptr / 4 + 3];
-        var ptr4 = r0;
-        var len4 = r1;
+        var ptr6 = r0;
+        var len6 = r1;
         if (r3) {
-            ptr4 = 0; len4 = 0;
+            ptr6 = 0; len6 = 0;
             throw takeObject(r2);
         }
-        deferred5_0 = ptr4;
-        deferred5_1 = len4;
-        return getStringFromWasm0(ptr4, len4);
+        deferred7_0 = ptr6;
+        deferred7_1 = len6;
+        return getStringFromWasm0(ptr6, len6);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+        wasm.__wbindgen_free(deferred7_0, deferred7_1, 1);
     }
 };
 
