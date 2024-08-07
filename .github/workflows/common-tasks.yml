@@ -1,4 +1,5 @@
 name: Common Tasks
+
 on:
   workflow_call:
     inputs:
@@ -136,6 +137,7 @@ jobs:
         with:
           name: js-sdk
           path: js-sdk.zip
+
   upload_assets:
     needs: build
     runs-on: ubuntu-latest
