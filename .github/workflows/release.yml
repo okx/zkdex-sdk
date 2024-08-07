@@ -6,8 +6,6 @@ on:
       - 'v*'
 
 jobs:
-  build_all:
-    uses: ./github/workflows/common-tasks.yml@ci
   generate_changelog:
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +20,7 @@ jobs:
           file_pattern: CHANGELOG.md
 
   create_release:
-    needs: [generate_changelog, build_all]
+    needs: [generate_changelog]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

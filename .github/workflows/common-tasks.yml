@@ -2,11 +2,12 @@ name: Common Tasks
 on:
   workflow_call:
     inputs:
-      workflow_id:
-        - "release.yml"
-        - "dynamic-library-CI.yml"
-        - "python-sdk-CI.yml"
-        - "js-sdk-CI.yml"
+      binary_names:
+        required: true
+        type: array
+      upload_url:
+        required: true
+        type: string
 jobs:
   build_so:
     runs-on: ubuntu-latest
