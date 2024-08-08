@@ -139,18 +139,15 @@ jobs:
           path: js-sdk.zip
 
   upload_assets:
-    needs: [build_so, build_dll, build_x86_64_dylib, build_aarch64_dylib, build_js_sdk]
+    needs: [build_so, build_x86_64_dylib, build_aarch64_dylib, build_js_sdk]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh
-      - name: Upload Release Assets
-        run: |
-          IFS=',' read -r -a binaries <<< "${{ inputs.binary_names }}"
-          for file in "${binaries[@]}"; do
-            gh release upload "${{ inputs.upload_url }}" "target/$file" --clobber
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Upload so to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./rust-sdk/target/x86_64-unknown-linux-gnu/release/libzkdex_sdk.so
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
