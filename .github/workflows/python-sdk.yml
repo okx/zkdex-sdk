@@ -6,6 +6,9 @@
 name: python-sdk
 
 on:
+  push:
+    branches:
+      - ci-pre
   workflow_call:
   workflow_dispatch:
 
