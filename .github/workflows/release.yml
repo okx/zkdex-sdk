@@ -43,6 +43,3 @@ jobs:
     needs:
       - create_release
     uses: ./.github/workflows/common-tasks.yml
-    with:
-      binary_names: 'aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib,x86_64-apple-darwin/release/libzkdex_sdk.dylib'
-      upload_url: ${{ needs.create_release.outputs.upload_url }}

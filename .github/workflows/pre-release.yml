@@ -19,7 +19,7 @@ jobs:
           commit_message: 'chore: update CHANGELOG for release ${{ github.ref_name }}'
           file_pattern: CHANGELOG.md
 
-  create_release:
+  create_prerelease:
     needs: [generate_changelog]
     runs-on: ubuntu-latest
     steps:
