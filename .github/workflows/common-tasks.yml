@@ -139,7 +139,7 @@ jobs:
           path: js-sdk.zip
 
   upload_assets:
-    needs: [build_so, build_x86_64_dylib, build_aarch64_dylib, build_js_sdk]
+    needs: [build_so,build_dll, build_x86_64_dylib, build_aarch64_dylib, build_js_sdk]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
