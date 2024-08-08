@@ -42,17 +42,21 @@ jobs:
   publish:
     needs:
       - create_prerelease
-    uses:
-      - ./.github/workflows/java-sdk.yml
-      - ./.github/workflows/python-sdk.yml
-      - ./.github/workflows/js-sdk.yml
+      - build-js-sdk
+      - publish-python
+      - build-java-sdk
+    runs-on: ubuntu-latest
 
-#  publish-python:
-#    needs:
-#      - create_prerelease
-#    #    if: "startsWith(github.ref, 'refs/tags/')"
-#    uses: ./.github/workflows/python-sdk.yml
-#  build-js-sdk:
-#    needs:
-#      - create_prerelease
-#    uses: ./.github/workflows/js-sdk.yml
+  publish-python:
+    needs:
+      - create_prerelease
+    #    if: "startsWith(github.ref, 'refs/tags/')"
+    uses: ./.github/workflows/python-sdk.yml
+  build-js-sdk:
+    needs:
+      - create_prerelease
+    uses: ./.github/workflows/js-sdk.yml
+  build-java-sdk:
+    needs:
+      - create_prerelease
+    uses: ./.github/workflows/java-sdk.yml
