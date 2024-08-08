@@ -50,7 +50,7 @@ jobs:
 #    if: "startsWith(github.ref, 'refs/tags/')"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: build python
         uses: ./.github/workflows/python-sdk.yml
       - uses: actions/download-artifact@v3
