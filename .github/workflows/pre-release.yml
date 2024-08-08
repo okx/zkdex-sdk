@@ -43,10 +43,18 @@ jobs:
     needs:
       - create_prerelease
     uses: ./.github/workflows/common-tasks.yml
+
   publish_python:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: publish python sdk
-        uses: ./.github/workflows/python-sdk.yml
+      - uses: ./.github/workflows/python-sdk.yml
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels
+      - name: Publish to PyPI
+        uses: PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        with:
+          command: upload
+          args: --non-interactive --skip-existing *
