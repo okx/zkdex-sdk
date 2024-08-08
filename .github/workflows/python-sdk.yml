@@ -6,17 +6,12 @@
 name: python-sdk
 
 on:
-  push:
-    branches:
-      - ci-pre
   workflow_call:
   workflow_dispatch:
 
 
 permissions:
   contents: read
-
-
 
 jobs:
   linux:
@@ -125,7 +120,7 @@ jobs:
   publish:
     name: Release
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
+#    if: "startsWith(github.ref, 'refs/tags/')"
     needs: [windows,linux, macos, sdist]
     steps:
       - uses: actions/download-artifact@v3

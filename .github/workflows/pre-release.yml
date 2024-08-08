@@ -43,3 +43,10 @@ jobs:
     needs:
       - create_prerelease
     uses: ./.github/workflows/common-tasks.yml
+  publish_python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: publish python sdk
+        uses: ./.github/workflows/python-sdk.yml
