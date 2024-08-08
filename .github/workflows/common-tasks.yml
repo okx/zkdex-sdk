@@ -130,6 +130,13 @@ jobs:
         with:
           name: js-sdk
           path: js-sdk.zip
+  publish_python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: publish python sdk
+        uses: ./.github/workflows/python-sdk.yml
 
   upload_assets:
     needs: [build_so,build_dll, build_x86_64_dylib, build_aarch64_dylib, build_js_sdk]
@@ -169,6 +176,15 @@ jobs:
         mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
     - name: Record Version
       run: echo $CARGO_PKG_VERSION > java-sdk/src/main/resources/com/okx/version.txt
+    - name: zip java-sdk
+      run: zip -r java-sdk.zip java-sdk
+    - name: Upload java sdk to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: java-sdk.zip
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
 
     - name: Upload so to release
       uses: svenstaro/upload-release-action@v2
