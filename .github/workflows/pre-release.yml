@@ -44,22 +44,21 @@ jobs:
       - create_prerelease
     uses: ./.github/workflows/common-tasks.yml
 
-  publish:
-    name: publish python sdk
-    runs-on: ubuntu-latest
+  publish-python:
 #    if: "startsWith(github.ref, 'refs/tags/')"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: build python
-        uses: ./.github/workflows/python-sdk.yml
-      - uses: actions/download-artifact@v3
-        with:
-          name: wheels
-      - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        with:
-          command: upload
-          args: --non-interactive --skip-existing *
+    uses: ./.github/workflows/python-sdk.yml
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#      - name: build python
+#        uses: ./.github/workflows/python-sdk.yml
+#      - uses: actions/download-artifact@v3
+#        with:
+#          name: wheels
+#      - name: Publish to PyPI
+#        uses: PyO3/maturin-action@v1
+#        env:
+#          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+#        with:
+#          command: upload
+#          args: --non-interactive --skip-existing *
