@@ -151,11 +151,11 @@ jobs:
         name: linux_so
         path: java-sdk/src/main/resources/com/okx
 
-#    - name: Download Windows artifacts
-#      uses: actions/download-artifact@v2
-#      with:
-#        name: dll
-#        path: java-sdk/src/main/resources/com/okx
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: dll
+        path: java-sdk/src/main/resources/com/okx
 
     - name: Download macOS x86_64 artifacts
       uses: actions/download-artifact@v2
@@ -168,11 +168,52 @@ jobs:
       with:
         name: dylib-aarch64
         path: java-sdk/src/main/resources/com/okx
+    - name: Rename artifacts
+      run: |
+        mv java-sdk/src/main/resources/com/okx/zkdex_sdk.dll java-sdk/src/main/resources/com/okx/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
+        mv java-sdk/src/main/resources/com/okx/libzkdex_sdk.so java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
+        mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
+        mv java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64.dylib java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
+    - name: Record Version
+      run: echo $CARGO_PKG_VERSION > java-sdk/src/main/resources/com/okx/version.txt
 
     - name: Upload so to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./java-sdk/src/main/resources/com/okx/libzkdex_sdk.so
+        file: ./java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.so
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+    - name: Upload dll to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./java-sdk/src/main/resources/com/okx/zkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dll
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+    - name: Upload x86_64_dylib to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./java-sdk/src/main/resources/com/okx/libzkdex_sdk_x86_64_${{ env.CARGO_PKG_VERSION }}.dylib
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+    - name: Upload arm_dylib to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./java-sdk/src/main/resources/com/okx/libzkdex_sdk_aarch64_${{ env.CARGO_PKG_VERSION }}.dylib
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+    - name: Download js artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: js-sdk
+        path: ./
+    - name: Upload js-sdk to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: js-sdk.zip
         asset_name: ${{ matrix.asset_name }}
         tag: ${{ github.ref }}
