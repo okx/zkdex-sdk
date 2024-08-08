@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - '*-beta*'
 
 jobs:
   generate_changelog:
@@ -32,17 +32,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: '${{ github.ref_name }}'
           release_name: Release ${{ github.ref_name }}
           body: |
             ## Changes
             ${{ steps.changelog.outputs.changelog }}
           draft: false
-          prerelease: false
+          prerelease: true
   upload:
     needs:
       - create_release
     uses: ./.github/workflows/common-tasks.yml
-    with:
-      binary_names: 'aarch64-apple-darwin/release/libzkdex_sdk_aarch64.dylib,x86_64-apple-darwin/release/libzkdex_sdk.dylib'
-      upload_url: ${{ needs.create_release.outputs.upload_url }}
