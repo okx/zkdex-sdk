@@ -58,7 +58,7 @@ poseidon = { git = "https://github.com/lanbones/poseidon" }
 
 jni = {version = '0.21.1', optional = true}
 sha3 = "0.10.8"
-ethers = "2.0.14"
+ethers = {version = "2.0.14"}
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
@@ -73,3 +73,4 @@ java = ["jni"]
 xargo = false
 image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main-centos"
 runner = "custom-runner"
+

@@ -13,7 +13,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <jmh.version>1.23</jmh.version>
-        <javac.target>1.8</javac.target>
+        <javac.target>15</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 
