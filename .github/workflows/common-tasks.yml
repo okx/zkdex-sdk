@@ -5,7 +5,7 @@ on:
     inputs:
       binary_names:
         required: true
-        type: array
+        type: string
       upload_url:
         required: true
         type: string
@@ -144,9 +144,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
       - name: Upload Release Assets
         run: |
-          for file in ${{ inputs.binary_names }}; do
+          IFS=',' read -r -a binaries <<< "${{ inputs.binary_names }}"
+          for file in "${binaries[@]}"; do
             gh release upload "${{ inputs.upload_url }}" "target/$file" --clobber
           done
         env:
