@@ -38,13 +38,14 @@ jobs:
         run: cd rust-sdk && npm run build
       - name: zip js-sdk
         run: zip -r js-sdk.zip javascript-sdk
-      - name: Upload js-sdk to release
+      - name: Upload js sdk to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: js-sdk.zip
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
+
 #      - name: Commit and push changes
 #        run: |
 #          git config user.name "${{ github.actor }}"
