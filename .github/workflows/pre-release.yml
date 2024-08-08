@@ -45,7 +45,9 @@ jobs:
     uses: ./.github/workflows/common-tasks.yml
 
   publish-python:
-#    if: "startsWith(github.ref, 'refs/tags/')"
+    needs:
+      - create_prerelease
+    #    if: "startsWith(github.ref, 'refs/tags/')"
     uses: ./.github/workflows/python-sdk.yml
 #    steps:
 #      - name: Checkout code
