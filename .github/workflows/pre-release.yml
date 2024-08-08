@@ -39,28 +39,20 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: true
-  upload:
+  publish:
     needs:
       - create_prerelease
-    uses: ./.github/workflows/common-tasks.yml
+    uses:
+      - ./.github/workflows/java-sdk.yml
+      - ./.github/workflows/python-sdk.yml
+      - ./.github/workflows/js-sdk.yml
 
-  publish-python:
-    needs:
-      - create_prerelease
-    #    if: "startsWith(github.ref, 'refs/tags/')"
-    uses: ./.github/workflows/python-sdk.yml
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#      - name: build python
-#        uses: ./.github/workflows/python-sdk.yml
-#      - uses: actions/download-artifact@v3
-#        with:
-#          name: wheels
-#      - name: Publish to PyPI
-#        uses: PyO3/maturin-action@v1
-#        env:
-#          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-#        with:
-#          command: upload
-#          args: --non-interactive --skip-existing *
+#  publish-python:
+#    needs:
+#      - create_prerelease
+#    #    if: "startsWith(github.ref, 'refs/tags/')"
+#    uses: ./.github/workflows/python-sdk.yml
+#  build-js-sdk:
+#    needs:
+#      - create_prerelease
+#    uses: ./.github/workflows/js-sdk.yml
