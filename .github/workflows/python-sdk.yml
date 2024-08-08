@@ -3,16 +3,10 @@
 #
 #    maturin generate-ci github
 #
-name: CI
+name: python-sdk
 
 on:
-#  push:
-#    branches:
-#      - main
-#    tags:
-#      - '*'
-#  pull_request:
-  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
