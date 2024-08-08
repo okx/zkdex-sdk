@@ -41,5 +41,5 @@ jobs:
           prerelease: true
   upload:
     needs:
-      - create_release
+      - create_prerelease
     uses: ./.github/workflows/common-tasks.yml
