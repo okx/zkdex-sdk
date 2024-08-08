@@ -45,16 +45,7 @@ jobs:
           file: js-sdk.zip
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
-  upload:
-    needs: linux
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download js-sdk
-        uses: actions/download-artifact@v3
-        with:
-          name: js-sdk
-      - name: Unzip js-sdk
-        run: unzip js-sdk.zip
+
 
 #      - name: Commit and push changes
 #        run: |
