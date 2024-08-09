@@ -1,13 +1,14 @@
 name: PreRelease
 
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*-beta*'
+      - 'v*'
+    tags-ignore:
+      - 'v*.*.*-beta.*'
 
 jobs:
-  create_prerelease:
+  create_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -47,17 +48,17 @@ jobs:
 
   publish-python:
     needs:
-      - create_prerelease
+      - create_release
     uses: ./.github/workflows/python-sdk.yml
   build-js-sdk:
     needs:
-      - create_prerelease
+      - create_release
     uses: ./.github/workflows/js-sdk.yml
     with:
-      upload_url: ${{ needs.create_prerelease.outputs.upload_url }}
+      upload_url: ${{ needs.create_release.outputs.upload_url }}
   build-java-sdk:
     needs:
-      - create_prerelease
+      - create_release
     uses: ./.github/workflows/java-sdk.yml
     with:
-      upload_url: ${{ needs.create_prerelease.outputs.upload_url }}
+      upload_url: ${{ needs.create_release.outputs.upload_url }}
