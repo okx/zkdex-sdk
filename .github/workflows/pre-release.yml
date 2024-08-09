@@ -38,7 +38,7 @@ jobs:
             ## Changes
             ${{ steps.changelog.outputs.changelog }}
           draft: false
-          prerelease: true
+          prerelease: false
   publish:
     name: build and publish
     needs:
