@@ -2,9 +2,6 @@ name: PreRelease
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*.*.*-beta'
 
 jobs:
   create_prerelease:
