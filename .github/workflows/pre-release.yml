@@ -27,9 +27,10 @@ jobs:
         with:
           tag_name: 'beta-${{ github.ref }}'
           release_name: 'Beta Release ${{ github.ref }}'
-          body: |
-            # Changes
-            $(cat CHANGELOG.md)
+          body_path: CHANGELOG.md
+#          body: |
+#            # Changes
+#            $(cat CHANGELOG.md)
           draft: false
           prerelease: true  # This is a pre-release
     outputs:
