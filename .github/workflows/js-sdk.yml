@@ -8,10 +8,11 @@ on:
 #    branches:
 #      - unified-account
   workflow_call:
-    upload_url:
-      required: true
-      description: 'The URL to upload the release asset to'
-      type: string
+    inputs:
+      upload_url:
+        required: true
+        description: 'The URL to upload the release asset to'
+        type: string
   workflow_dispatch:
 
 permissions:
