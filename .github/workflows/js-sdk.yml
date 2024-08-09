@@ -38,13 +38,22 @@ jobs:
         run: cd rust-sdk && npm run build
       - name: zip js-sdk
         run: zip -r js-sdk.zip ./javascript-sdk
-      - name: Upload js sdk to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: js-sdk.zip
-          asset_name: ${{ matrix.asset_name }}
-          tag: ${{ github.ref }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: js-sdk.zip
+          asset_name: js-sdk.zip
+          asset_content_type: application/octet-stream
+#      - name: Upload js sdk to release
+#        uses: svenstaro/upload-release-action@v2
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#          file: js-sdk.zip
+#          asset_name: ${{ matrix.asset_name }}
+#          tag: ${{ github.ref }}
 
 
 #      - name: Commit and push changes

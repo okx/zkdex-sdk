@@ -160,13 +160,22 @@ jobs:
         run: echo $CARGO_PKG_VERSION > java-sdk/src/main/resources/com/okx/version.txt
       - name: zip java-sdk
         run: zip -r java-sdk.zip java-sdk
-      - name: Upload java sdk to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: java-sdk.zip
-          asset_name: ${{ matrix.asset_name }}
-          tag: ${{ github.ref }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: java-sdk.zip
+          asset_name: java-sdk.zip
+          asset_content_type: application/octet-stream
+#      - name: Upload java sdk to release
+#        uses: svenstaro/upload-release-action@v2
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#          file: java-sdk.zip
+#          asset_name: ${{ matrix.asset_name }}
+#          tag: ${{ github.ref }}
 
 #      - name: Commit and push changes
 #        run: |
