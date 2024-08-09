@@ -57,10 +57,10 @@ jobs:
       - create_prerelease
     uses: ./.github/workflows/js-sdk.yml
     with:
-      upload_url: ${{ needs.create_release.outputs.upload_url }}
+      upload_url: ${{ needs.create_prerelease.outputs.upload_url }}
   build-java-sdk:
     needs:
       - create_prerelease
     uses: ./.github/workflows/java-sdk.yml
     with:
-      upload_url: ${{ needs.create_release.outputs.upload_url }}
+      upload_url: ${{ needs.create_prerelease.outputs.upload_url }}
