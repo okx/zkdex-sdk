@@ -25,8 +25,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'beta-${{ github.ref }}'
-          release_name: 'Beta Release ${{ github.ref }}'
+          tag_name: '${{ github.heads.ref }}-beta'
+          release_name: 'Beta Release ${{ github.heads.ref }}'
           body_path: CHANGELOG.md
 #          body: |
 #            # Changes
