@@ -6,34 +6,32 @@ on:
       - ci-pre
 
 jobs:
-  generate_changelog:
+  create_prerelease:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Generate CHANGELOG
-        id: changelog
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          commit_message: 'chore: update CHANGELOG for release ${{ github.ref_name }}'
-          file_pattern: CHANGELOG.md
-
-  create_prerelease:
-    needs: [generate_changelog]
-    runs-on: ubuntu-latest
-    steps:
+          ruby-version: '3.0'
+      - name: Install GitHub Changelog Generator
+        run: gem install github_changelog_generator
+      - name: Generate Change Log
+        run: github_changelog_generator --user FineKe --project zkdex-sdk --token ${{ secrets.GITHUB_TOKEN }} --output CHANGELOG.md
       - name: Create Pre-Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'beta-${{ github.sha }}'  # 使用 commit SHA 作为 tag
-          release_name: 'Beta Release ${{ github.sha }}'
-          body: "Pre-release automatically generated from commit ${{ github.sha }}."
+          tag_name: 'beta-${{ github.ref }}'
+          release_name: 'Beta Release ${{ github.ref }}'
+          body: |
+            # Changes
+            $(cat CHANGELOG.md)
           draft: false
-          prerelease: true  # 标记为预发布版本
+          prerelease: true  # This is a pre-release
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
