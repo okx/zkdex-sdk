@@ -18,7 +18,7 @@ jobs:
       - name: Install GitHub Changelog Generator
         run: gem install github_changelog_generator
       - name: Generate Change Log
-        run: github_changelog_generator --user FineKe --project zkdex-sdk --token ${{ secrets.GITHUB_TOKEN }} --output CHANGELOG.md
+        run: github_changelog_generator --user okx --project zkdex-sdk --token ${{ secrets.GITHUB_TOKEN }} --output CHANGELOG.md
       - name: Create Pre-Release
         id: create_release
         uses: actions/create-release@v1
