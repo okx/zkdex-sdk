@@ -1,5 +1,6 @@
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
+use std::u128;
 
 pub struct U32SerdeAsString;
 
@@ -16,6 +17,25 @@ impl U32SerdeAsString {
         D: Deserializer<'de>,
     {
         u32::from_str(&String::deserialize(deserializer)?)
+            .map_err(|e| de::Error::custom(format!("u64 from string error: {}", e)))
+    }
+}
+
+pub struct U128SerdeAsString;
+
+impl U128SerdeAsString {
+    pub fn serialize<S>(val: &u128, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        String::serialize(&val.to_string(), serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<u128, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        u128::from_str(&String::deserialize(deserializer)?)
             .map_err(|e| de::Error::custom(format!("u64 from string error: {}", e)))
     }
 }

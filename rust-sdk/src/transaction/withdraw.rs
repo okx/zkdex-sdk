@@ -11,7 +11,8 @@ use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::tx::packed_public_key::private_key_from_string;
 use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::{HashType, TxSignature};
+use crate::tx::sign::TxSignature;
+use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use crate::U64SerdeAsString;
@@ -93,9 +94,11 @@ pub fn withdrawal_hash(withdrawal: &Withdraw, asset_id_collateral: &CollateralAs
 #[cfg(test)]
 mod test {
     use crate::common::OrderBase;
-    use crate::transaction::withdraw::{sign_withdraw, CollateralAssetId};
+    use crate::transaction::withdraw::{
+        sign_withdraw, CollateralAssetId, Withdraw, WithdrawRequest,
+    };
+    use crate::tx::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::tx::public_key_type::PublicKeyType;
-    use crate::tx::{private_key_from_string, public_key_from_private, Withdraw, WithdrawRequest};
 
     #[test]
     pub fn test_withdraw() {
