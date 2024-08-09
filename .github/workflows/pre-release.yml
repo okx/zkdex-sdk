@@ -23,22 +23,18 @@ jobs:
     needs: [generate_changelog]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Create Release
+      - name: Create Pre-Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: beta-${{ github.ref_name }}
-          release_name: Beta Release ${{ github.ref_name }}
-          body: |
-            ## Changes
-            ${{ steps.changelog.outputs.changelog }}
+          tag_name: 'beta-${{ github.sha }}'  # 使用 commit SHA 作为 tag
+          release_name: 'Beta Release ${{ github.sha }}'
+          body: "Pre-release automatically generated from commit ${{ github.sha }}."
           draft: false
-          prerelease: false
+          prerelease: true  # 标记为预发布版本
+
   publish:
     name: build and publish
     needs:
