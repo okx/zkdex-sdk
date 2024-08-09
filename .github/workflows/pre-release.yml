@@ -34,6 +34,8 @@ jobs:
           body: "Pre-release automatically generated from commit ${{ github.sha }}."
           draft: false
           prerelease: true  # 标记为预发布版本
+      - name: save upload url
+        run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 
   publish:
     name: build and publish
@@ -55,10 +57,10 @@ jobs:
       - create_prerelease
     uses: ./.github/workflows/js-sdk.yml
     with:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      upload_url: ${{ upload_url }}
   build-java-sdk:
     needs:
       - create_prerelease
     uses: ./.github/workflows/java-sdk.yml
     with:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      upload_url: ${{ upload_url }}
