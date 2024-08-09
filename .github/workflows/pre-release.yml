@@ -1,6 +1,9 @@
 name: PreRelease
 
 on:
+  push:
+    branches:
+      - ci-pre
   workflow_dispatch:
 
 jobs:
