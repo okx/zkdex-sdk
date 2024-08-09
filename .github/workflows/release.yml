@@ -25,11 +25,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'beta-${{ github.ref }}'
-          release_name: 'Beta Release ${{ github.ref }}'
+          tag_name: '${{ github.ref }}'
+          release_name: 'Release ${{ github.ref }}'
           body_path: CHANGELOG.md
           draft: false
-          prerelease: true  # This is a pre-release
+          prerelease: false
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
