@@ -1,3 +1,7 @@
+//! Unified API for all transactions.
+//! In this module, we provide a unified API for all transactions, including withdrawal, spot trade, perpetual trade, transfer, oracle price, and liquidate.
+//! And also, we provide the hash and sign functions for each transaction.
+
 use crate::crypto::packed_public_key::private_key_from_string;
 use crate::hash_type::hash_type_to_string_with_0xprefix;
 use crate::types::HashType;

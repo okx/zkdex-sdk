@@ -18,8 +18,6 @@ use crate::zkw::JubjubSignature;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use crate::U64SerdeAsString;
 
-
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WithdrawRequest {
     #[serde(flatten)]
@@ -96,6 +94,7 @@ mod test {
     use crate::common::OrderBase;
     use crate::crypto::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::crypto::public_key_type::PublicKeyType;
+    use crate::perpetual::transaction::withdraw::withdrawal_hash;
     use crate::perpetual::withdraw::{sign_withdraw, CollateralAssetId, Withdraw, WithdrawRequest};
 
     #[test]
@@ -136,5 +135,32 @@ mod test {
 
         let withdraw = serde_json::from_str::<WithdrawRequest>(json);
         assert!(withdraw.is_ok());
+    }
+
+    #[test]
+    pub fn test_hash_with_different_key() {
+        let json = r#"{
+        "nonce":"1",
+        "public_key":"0x9bb04dba1329711e145d387f71926fb2b81496c72210d53588200a954dbb443f",
+        "expiration_timestamp":"1684832800",
+        "position_id":"2",
+        "amount":"3",
+        "eth_address":"0x0",
+        "asset_id": "0x1a"
+        }"#;
+        let req = serde_json::from_str::<WithdrawRequest>(json);
+        assert!(req.is_ok());
+        let req = req.unwrap();
+        let withdraw = Withdraw {
+            base: req.base,
+            position_id: req.position_id,
+            amount: req.amount,
+            owner_key: req.owner_key,
+        };
+        let hash = withdrawal_hash(&withdraw, &CollateralAssetId::from(10));
+        assert_eq!(
+            hash.to_string(),
+            "2076520846603401202015051919688757934566008521517410161632637698894540989026"
+        );
     }
 }

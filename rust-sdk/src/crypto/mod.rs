@@ -13,7 +13,6 @@ lazy_static! {
     pub static ref RESCUE_PARAMS: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
 }
 
-
 pub fn u256_to_h256(u: U256) -> H256 {
     let mut h = [0u8; 32];
     u.to_little_endian(&mut h[..]);

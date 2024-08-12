@@ -7,7 +7,6 @@ pub struct SignedAmountType {
     pub is_neg: bool,
 }
 
-
 mod native_env {
     use super::*;
     use num_traits::Zero;

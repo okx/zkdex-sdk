@@ -17,8 +17,6 @@ pub fn ratio_to_big_decimal(num: &Ratio<BigUint>, precision: usize) -> BigDecima
     BigDecimal::new(bigint, precision as i64)
 }
 
-
-
 pub fn big_decimal_to_ratio(num: &BigDecimal) -> Result<Ratio<BigUint>, anyhow::Error> {
     let (big_int, exp) = num.as_bigint_and_exponent();
     anyhow::ensure!(!big_int.is_negative(), "BigDecimal should be unsigned");
@@ -45,11 +43,11 @@ pub fn reverse_hex(str: &str) -> anyhow::Result<String> {
 }
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
+    use crate::{big_decimal_to_ratio, ratio_to_big_decimal, round_precision};
     use bigdecimal::BigDecimal;
     use num::rational::Ratio;
     use num_bigint::BigUint;
-    use crate::{big_decimal_to_ratio, ratio_to_big_decimal, round_precision};
+    use std::str::FromStr;
 
     #[test]
     fn test_ratio_to_big_decimal() {

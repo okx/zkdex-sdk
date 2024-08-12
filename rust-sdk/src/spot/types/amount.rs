@@ -132,7 +132,6 @@ impl num_traits::Zero for AmountType {
     }
 }
 
-
 mod serde_impl {
     use super::*;
     use serde::{Deserializer, Serializer};

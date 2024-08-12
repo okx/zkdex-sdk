@@ -3,9 +3,10 @@ mod types;
 
 use crate::hash_type::hash_type_to_string_with_0xprefix;
 use crate::spot;
-use crate::spot::transactions::{limit_order, sign_transfer, sign_withdrawal, transfer_hash, Transfer, Withdrawal};
+use crate::spot::transactions::{
+    limit_order, sign_transfer, sign_withdrawal, transfer_hash, Transfer, Withdrawal,
+};
 use crate::zkw::JubjubSignature;
-
 
 pub fn sign_spot_transfer(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let req: Transfer = serde_json::from_str(json).unwrap();

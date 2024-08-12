@@ -10,10 +10,8 @@ pub mod javascript_bridge {
     use crate::utils::set_panic_hook;
     use crate::zkw::JubjubSignature;
     use crate::{
-        is_on_curve,
-        l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_eth_address,
-        unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
+        is_on_curve, l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_eth_address, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
         unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
         JUBJUB_PARAMS, RESCUE_PARAMS,
     };

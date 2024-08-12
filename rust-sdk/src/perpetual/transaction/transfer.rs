@@ -12,9 +12,9 @@ use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
 use crate::perpetual::types::{AmountType, CollateralAssetId, PositionIdType};
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
+use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use crate::{hash, U64SerdeAsString};
-use crate::types::HashType;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub(crate) struct Transfer {
@@ -145,6 +145,7 @@ mod test {
     use crate::common::OrderBase;
     use crate::crypto::packed_public_key::{private_key_from_string, public_key_from_private};
     use crate::crypto::public_key_type::PublicKeyType;
+    use crate::perpetual::transaction::transfer::{transfer_hash_internal, ExchangeTransfer};
     use crate::perpetual::transfer::{sign_transfer, Transfer};
 
     #[test]
@@ -187,5 +188,26 @@ mod test {
         let ret = serde_json::from_str::<Transfer>(json);
         assert!(ret.is_ok());
         println!("{:?}", ret.unwrap());
+    }
+
+    #[test]
+    fn test_hash_with_cond() {
+        let req = ExchangeTransfer {
+            base: OrderBase {
+                nonce: 1,
+                public_key: Default::default(),
+                expiration_timestamp: 11111111,
+            },
+            sender_vault_id: 1,
+            receiver_public_key: Default::default(),
+            receiver_vault_id: 1,
+            amount: 1,
+            asset_id: Default::default(),
+            src_fee_vault_id: 1,
+            asset_id_fee: 0,
+            max_amount_fee: 0,
+        };
+        let hash = transfer_hash_internal(&req, 1);
+        println!("{:?}", hash);
     }
 }

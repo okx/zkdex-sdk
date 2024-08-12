@@ -1,7 +1,9 @@
-
+use crate::types::{
+    FundingRateType, OraclePriceQuorumType, PositionIdType, ResolutionType, RiskFactorType,
+    TimestampType,
+};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::{marker::PhantomData, num::ParseIntError};
-use crate::types::{FundingRateType, OraclePriceQuorumType, PositionIdType, ResolutionType, RiskFactorType, TimestampType};
 
 pub type FundingRateTypeSerdeAsRadix10String = SerdeAsString<10, FundingRateType>;
 pub type ResolutionTypeSerdeAsRadix16String = SerdeAsString<16, ResolutionType>;

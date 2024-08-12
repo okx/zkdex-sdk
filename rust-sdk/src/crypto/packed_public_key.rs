@@ -11,9 +11,9 @@ use pairing_ce::ff::{PrimeField, PrimeFieldRepr};
 use primitive_types::U256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::crypto::convert::FeConvert;
 use crate::crypto::packed_signature::{get_r_from_xy, get_xy_from_r};
 use crate::crypto::{u256_to_le, JUBJUB_PARAMS};
-use crate::crypto::convert::FeConvert;
 use crate::trim_0x;
 use crate::zkw::BabyJubjubPoint;
 

@@ -13,12 +13,12 @@ use crate::felt::LeBytesConvert;
 use crate::spot::types::amount::AmountType;
 use crate::spot::types::asset_id::AssetIdType;
 use crate::spot::types::position_id::PositionIdType;
+use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use {
     crate::TransferBaseSerde,
     serde::{Deserialize, Serialize},
 };
-use crate::types::HashType;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 #[repr(C)]

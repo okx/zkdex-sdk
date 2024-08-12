@@ -16,10 +16,10 @@ use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
 use crate::hash::hash2;
 use crate::perpetual::types::{AssetIdType, PriceType, SignedAssetId};
+use crate::types::{HashType, TimestampType};
 use crate::zkw::JubjubSignature;
 use crate::U256SerdeAsRadix16Prefix0xString;
 use anyhow::Result;
-use crate::types::{HashType, TimestampType};
 
 // Represents a single signature on an external price with a timestamp.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

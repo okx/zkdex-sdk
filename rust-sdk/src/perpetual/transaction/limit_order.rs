@@ -10,9 +10,7 @@ use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
-use crate::perpetual::types::{
-    AmountType, AssetIdType, CollateralAssetId, PositionIdType,
-};
+use crate::perpetual::types::{AmountType, AssetIdType, CollateralAssetId, PositionIdType};
 use crate::serde_wrapper::I128SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U256SerdeAsRadix16Prefix0xString;
 use crate::serde_wrapper::U64SerdeAsString;

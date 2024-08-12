@@ -32,12 +32,12 @@ use crate::crypto::packed_public_key::{
 use crate::crypto::packed_signature::{get_r_from_xy, PackedSignature};
 use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
-use crate::zkw::{BabyJubjubPoint, JubjubSignature};
-pub use serde_wrapper::*;
-pub use unified::*;
-pub use perpetual::*;
-pub use spot::*;
 use crate::types::HashType;
+use crate::zkw::{BabyJubjubPoint, JubjubSignature};
+pub use perpetual::*;
+pub use serde_wrapper::*;
+pub use spot::*;
+pub use unified::*;
 
 pub mod common;
 mod constant;
@@ -51,10 +51,10 @@ pub mod javascript_bridge;
 mod perpetual;
 pub mod serde_wrapper;
 pub mod spot;
+mod types;
 pub mod unified;
 mod utils;
 pub mod zkw;
-mod types;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 

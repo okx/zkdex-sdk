@@ -25,7 +25,6 @@ impl AsRef<u32> for AssetIdType {
     }
 }
 
-
 mod serde_impl {
     use super::*;
     use serde::{Deserializer, Serializer};

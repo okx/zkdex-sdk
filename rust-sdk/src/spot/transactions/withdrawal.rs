@@ -8,12 +8,12 @@ use crate::hash;
 use crate::hash::Hasher;
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
 use crate::spot::types::amount::AmountType;
-use crate::zkw::JubjubSignature;
-use primitive_types::U256;
-use serde::{Deserialize, Serialize};
 use crate::spot::types::asset_id::AssetIdType;
 use crate::spot::types::position_id::PositionIdType;
 use crate::types::HashType;
+use crate::zkw::JubjubSignature;
+use primitive_types::U256;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -112,5 +112,28 @@ mod test {
             req.unwrap().hash().to_string()
                 == "119039369094889261403898889385918450319671151073804265247384487898016834057"
         )
+    }
+
+    #[test]
+    fn test_hash_with_same_key() {
+        let json_str = r##"
+        {
+        "nonce": "1",
+        "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "1000000",
+        "asset_id": "0x00001",
+        "position_id": "1",
+        "eth_address": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "chain_id": "1"
+        }
+        "##;
+        let req = serde_json::from_str::<Withdrawal>(json_str);
+        assert!(req.is_ok());
+        let hash = req.unwrap().hash();
+        assert!(
+            hash.to_string()
+                == "8658614085417103295905227690333364140535544447042910670177948658349707651534"
+        );
     }
 }
