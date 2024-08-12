@@ -1,7 +1,7 @@
-use crate::types::{NonceType, TimestampType};
 use serde::{Deserialize, Serialize};
 
-use crate::tx::public_key_type::PublicKeyType;
+use crate::crypto::public_key_type::PublicKeyType;
+use crate::types::{NonceType, TimestampType};
 use crate::U32SerdeAsString;
 
 pub const TRANSFER_ORDER_TYPE: u64 = 4;
@@ -25,4 +25,10 @@ impl Default for OrderBase {
             expiration_timestamp: 0,
         }
     }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub(crate) struct Signature<'a> {
+    pub r: &'a str,
+    pub s: &'a str,
 }

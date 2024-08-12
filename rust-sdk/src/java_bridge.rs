@@ -1,4 +1,5 @@
 #[cfg(feature = "java")]
+#[cfg(not(tarpaulin_include))]
 pub mod java_bridge {
     use std::panic;
 
@@ -15,11 +16,8 @@ pub mod java_bridge {
     };
     use crate::zkw::JubjubSignature;
     use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
-        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
+         is_on_curve,
         l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_limit_order, sign_liquidate, sign_signed_oracle_price, sign_spot_limit_order,
-        sign_spot_transfer, sign_spot_withdrawal, sign_transfer, sign_withdraw,
         unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
         unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
     };
@@ -74,7 +72,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_withdraw(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::perpetual::sign_withdraw(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -104,7 +102,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_transfer(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::perpetual::sign_transfer(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -134,7 +132,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::perpetual::sign_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -164,7 +162,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_liquidate(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::perpetual::sign_liquidate(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -194,7 +192,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_signed_oracle_price(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::perpetual::sign_signed_oracle_price(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -220,7 +218,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_withdraw(&json).expect("Couldn't get hash")
+            crate::perpetual::hash_withdraw(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -244,7 +242,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_transfer(&json).expect("Couldn't get hash")
+            crate::perpetual::hash_transfer(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -268,7 +266,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_limit_order(&json).expect("Couldn't get hash")
+            crate::perpetual::hash_limit_order(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -292,7 +290,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_liquidate(&json).expect("Couldn't get hash")
+            crate::perpetual::hash_liquidate(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -316,7 +314,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_signed_oracle_price(&json).expect("Couldn't get hash")
+            crate::perpetual::hash_signed_oracle_price(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -558,7 +556,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_spot_withdrawal(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::spot::sign_spot_withdrawal(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -587,7 +585,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_spot_transfer(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::spot::sign_spot_transfer(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -617,7 +615,7 @@ pub mod java_bridge {
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
             let pri_key: String = pri_key.expect("Coludn't get java pri_key").into();
-            sign_spot_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature")
+            crate::spot::sign_spot_limit_order(&json, &pri_key).expect("Couldn get jubjubSignature")
         }) {
             Ok(ret) => {
                 let output = env
@@ -643,7 +641,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_spot_withdrawal(&json).expect("Couldn't get hash")
+            crate::spot::hash_spot_withdrawal(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -667,7 +665,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_spot_transfer(&json).expect("Couldn't get hash")
+            crate::spot::hash_spot_transfer(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");
@@ -691,7 +689,7 @@ pub mod java_bridge {
         let json = env.get_string(&json);
         match panic::catch_unwind(|| {
             let json: String = json.expect("Couldn't get java json").into();
-            hash_spot_limit_order(&json).expect("Couldn't get hash")
+            crate::spot::hash_spot_limit_order(&json).expect("Couldn't get hash")
         }) {
             Ok(ret) => {
                 let output = env.new_string(ret).expect("Couldn't create java string!");

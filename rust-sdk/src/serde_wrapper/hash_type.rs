@@ -1,8 +1,7 @@
 use std::str::FromStr;
 
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-
-use crate::HashType;
+use crate::types::HashType;
 
 pub struct HashTypeSerde;
 

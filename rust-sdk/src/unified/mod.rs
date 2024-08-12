@@ -1,5 +1,5 @@
+use crate::crypto::packed_public_key::private_key_from_string;
 use crate::hash_type::hash_type_to_string_with_0xprefix;
-use crate::tx::packed_public_key::private_key_from_string;
 use crate::types::HashType;
 use crate::unified::transactions::hash_trait::HashTrait;
 use crate::unified::transactions::sign_trait::SignTrait;

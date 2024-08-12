@@ -1,8 +1,8 @@
 use primitive_types::U256;
 use serde::{Deserialize, Serialize};
 
+use crate::crypto::public_key_type::PublicKeyType;
 use crate::hash::hash2;
-use crate::tx::public_key_type::PublicKeyType;
 use crate::unified::transactions::hash_trait::HashTrait;
 use crate::unified::transactions::sign_trait::SignTrait;
 use crate::unified::types::{ExternalPriceType, TimestampType};

@@ -1,8 +1,8 @@
 use crate::common::OrderBase;
+use crate::crypto::public_key_type::PublicKeyType;
 use crate::serde_wrapper::U32SerdeAsString;
-use crate::tx::public_key_type::PublicKeyType;
-use crate::types::{NonceType, TimestampType};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use crate::types::{NonceType, TimestampType};
 
 pub struct TransferBaseSerde;
 
