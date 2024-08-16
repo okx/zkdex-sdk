@@ -15,7 +15,6 @@ use franklin_crypto::{
     alt_babyjubjub::{fs::FsRepr, AltJubjubBn256, FixedGenerators},
     bellman::pairing::ff::{PrimeField, PrimeFieldRepr},
     eddsa::PublicKey,
-    jubjub::JubjubEngine,
 };
 use num::Integer;
 use num_bigint::BigInt;
@@ -192,6 +191,7 @@ pub fn verify_signature(
 }
 
 /// Verify Jubjub signature internally.
+#[allow(dead_code)]
 pub(crate) fn verify_jubjub_signature(
     sig: JubjubSignature,
     pub_key: &str,
