@@ -1,7 +1,8 @@
 #![feature(test)]
-extern crate core;
 extern crate test as other_test;
 
+/// # The rust-sdk
+/// The rust-sdk crate provides a set of functions to interact with the ZKDex.
 use std::convert::TryFrom;
 use std::str::FromStr;
 
@@ -32,7 +33,7 @@ use crate::crypto::packed_public_key::{
 use crate::crypto::packed_signature::{get_r_from_xy, PackedSignature};
 use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
-use crate::types::HashType;
+use crate::types::{Fs, HashType};
 use crate::zkw::{BabyJubjubPoint, JubjubSignature};
 pub use perpetual::*;
 pub use serde_wrapper::*;
@@ -49,14 +50,12 @@ pub(crate) mod helper;
 pub mod java_bridge;
 pub mod javascript_bridge;
 mod perpetual;
-pub mod serde_wrapper;
+pub(crate) mod serde_wrapper;
 pub mod spot;
 mod types;
 pub mod unified;
 mod utils;
 pub mod zkw;
-
-pub type Fs = <Engine as JubjubEngine>::Fs;
 
 thread_local! {
     pub static JUBJUB_PARAMS: AltJubjubBn256 = AltJubjubBn256::new();
@@ -69,6 +68,16 @@ thread_local! {
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+/// Generate a private key from a seed, the seed should be a byte array and its length should be greater than 32.
+///
+/// # Examples
+///
+/// ```
+/// use zkdex_sdk::private_key_from_seed;
+/// let seed = "hi welcome to zkdex, this is a seed for private key generation";
+/// let pri_key = private_key_from_seed(seed.as_bytes());
+/// assert!(pri_key.is_ok());
+/// ```
 pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     if seed.len() < 32 {
         return Err(Error::msg("seed is too short"));
@@ -96,12 +105,31 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<String> {
     }
 }
 
+/// Derive a public key with separate x and y coordinates from a private key.
+///
+/// # Examples
+///
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, private_key_to_pubkey_xy};
+/// let private_key = private_key_from_seed("hi welcome to zkdex, this is a seed for private key generation".as_bytes()).unwrap();
+/// let xy = private_key_to_pubkey_xy(&private_key);
+/// assert!(xy.is_ok());
+/// ```
 pub fn private_key_to_pubkey_xy(private_key: &str) -> Result<(String, String)> {
     let pri_key = private_key_from_string(private_key)?;
     let packed_pk: PackedPublicKey = public_key_from_private(&pri_key);
     Ok(pub_key_to_xy(&packed_pk.to_string())?)
 }
 
+/// Convert a public key to separate x and y coordinates.
+///
+/// # Examples
+/// ```
+/// use zkdex_sdk::pub_key_to_xy;
+/// let pub_key = "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
+/// let xy = pub_key_to_xy(pub_key);
+/// assert!(xy.is_ok());
+/// ```
 pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
     let pub_key = pub_key.trim_start_matches("0x").trim_start_matches("0X");
     let packed_pk = PackedPublicKey::try_from(pub_key)?;
@@ -116,6 +144,17 @@ pub fn pub_key_to_xy(pub_key: &str) -> Result<(String, String)> {
     ))
 }
 
+/// Sign a msg with a private key.
+/// This is a basic function to sign a message with a private key.
+/// # Examples
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, sign};
+///
+/// let private = private_key_from_seed("hi welcome to zkdex, this is a seed for private key generation".as_bytes()).unwrap();
+/// let msg = "0x08a09b19adaa35815065dffcc4b5e0ee75f54660eb474c5932929b96c0ff15c9";
+/// let sig = sign(&private, msg);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     let hash = HashType::from_str(msg)?;
     let private_key = private_key_from_string(private_key)?;
@@ -123,6 +162,19 @@ pub fn sign(private_key: &str, msg: &str) -> Result<JubjubSignature> {
     Ok(sig.into())
 }
 
+/// Verify a seperated signature: r,s with a seperated public key: x,y
+/// # Examples
+/// ```
+/// use zkdex_sdk::verify_signature;
+/// let sig_r = "0x2e39e39381ac5e962650072a8936b99716fc0b3fda124f59ef62066301fd0749";
+/// let sig_s = "0x37fd915bf958893ed35132a91b98fc4fcd7821c9fe784057bbc85d8fc5e7d4f";
+/// let pub_key_x = "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa";
+/// let pub_key_y = "0x09e3c9c66770d2f49401e83b0d07e20f74a311d354505aea32f900b9d533d5f7";
+/// let msg = "0x08a09b19adaa35815065dffcc4b5e0ee75f54660eb474c5932929b96c0ff15c9";
+/// let ret = verify_signature(sig_r, sig_s, pub_key_x, pub_key_y, msg);
+/// assert!(ret.is_ok());
+/// assert!(ret.unwrap());
+/// ```
 pub fn verify_signature(
     sig_r: &str,
     sig_s: &str,
@@ -139,7 +191,12 @@ pub fn verify_signature(
     Ok(sig.verify(&pk, msg.as_le_bytes()))
 }
 
-pub fn verify_jubjub_signature(sig: JubjubSignature, pub_key: &str, msg: &str) -> Result<bool> {
+/// Verify Jubjub signature internally.
+pub(crate) fn verify_jubjub_signature(
+    sig: JubjubSignature,
+    pub_key: &str,
+    msg: &str,
+) -> Result<bool> {
     let sig = PackedSignature::from(sig);
     let msg = HashType::from_str(msg)?;
     let packed_pk = PackedPublicKey::try_from(pub_key)?;
@@ -148,6 +205,16 @@ pub fn verify_jubjub_signature(sig: JubjubSignature, pub_key: &str, msg: &str) -
     Ok(sig.verify(&pk, msg.as_le_bytes()))
 }
 
+/// Check public key x and y is on the curve.
+/// # Examples
+/// ```
+///  use zkdex_sdk::is_on_curve;
+/// let x = "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a";
+///  let y = "0x0a3b966094be6c8981a22359df81f7fcdd50ac725401e3fc5872c780d158fb18";
+/// let ret = is_on_curve(x, y);
+///  assert!(ret.is_ok());
+/// assert!(ret.unwrap());
+/// ```
 pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
     let x = trim_0x(x);
     let y = trim_0x(y);
@@ -157,8 +224,9 @@ pub fn is_on_curve(x: &str, y: &str) -> Result<bool> {
     Ok(x1 == x && y1 == y)
 }
 
+/// This is special Signature, which contains x, r, s, and public key x, y.
 #[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
-pub struct L1Signature {
+pub struct L2Signature {
     pub x: String,
     pub y: String,
     pub s: String,
@@ -166,7 +234,16 @@ pub struct L1Signature {
     pub pk_y: String,
 }
 
-pub fn l2_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
+/// Sign a message with a private key then return a L2Signature.
+/// # Examples
+/// ```
+///  use zkdex_sdk::l2_sign;
+/// let msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+///  let pri_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+///  let sig = l2_sign(msg, pri_key);
+///  assert!(sig.is_ok());
+/// ```
+pub fn l2_sign(msg: &str, private_key: &str) -> Result<L2Signature> {
     let msg = msg.trim_start_matches("0x").trim_start_matches("0X");
     let private_key = private_key_from_string(private_key)?;
     let msg = HashType::from_str(msg)?;
@@ -175,7 +252,7 @@ pub fn l2_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     let pk = PublicKey::from_private(&private_key, p_g, &AltJubjubBn256::new());
     let (pk_x, _) = pk.0.into_xy();
     let (x, y) = sig.signature.0.r.into_xy();
-    Ok(L1Signature {
+    Ok(L2Signature {
         x: "0x".to_owned() + &x.to_hex(),
         y: "0x".to_owned() + &y.to_hex(),
         s: "0x".to_owned() + &sig.signature.0.s.to_hex(),
@@ -184,6 +261,15 @@ pub fn l2_sign(msg: &str, private_key: &str) -> Result<L1Signature> {
     })
 }
 
+/// Verify a L2Signature.
+/// # Examples
+/// ```
+/// use zkdex_sdk::{l2_sign, l2_verify};
+/// let msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
+///  let pri_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
+///  let s = l2_sign(msg, pri_key).unwrap();
+///  assert!(l2_verify(&s.x, &s.y, &s.s, &s.pk_x, &s.pk_y, msg).unwrap());
+/// ```
 pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -> Result<bool> {
     let x = trim_0x(x);
     let y = trim_0x(y);
@@ -195,6 +281,18 @@ pub fn l2_verify(x: &str, y: &str, s: &str, pk_x: &str, pk_y: &str, msg: &str) -
     verify_signature(&format!("0x{:064x}", r), s, pk_x, pk_y, msg)
 }
 
+/// Sign for register a eth address.
+/// # Examples
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, sign_eth_address};
+/// let chain_id = "11155111";
+///  let contract_address = "0x4b551A084cDdB1a5355Ce17155669A5ce6e94C4E";
+///  let address = "0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2";
+///  let pub_key = "0x864d63b304b5635579771c0864def9bbc166ae5b1f39a894998ef350f6c521ac";
+///  let pri_key = private_key_from_seed("hello zkdex ggggggggggggggggggggggggg".as_bytes()).unwrap();
+///  let sig = sign_eth_address(chain_id, contract_address, address, pub_key, &pri_key);
+///  assert!(sig.is_ok());
+/// ```
 pub fn sign_eth_address(
     chain_id: &str,
     contract_address: &str,
@@ -241,7 +339,7 @@ mod test {
     use crate::{
         is_on_curve, l2_sign, l2_verify, private_key_from_seed, private_key_to_pubkey_xy,
         pub_key_to_xy, reverse_hex, sign, sign_eth_address, verify_jubjub_signature,
-        verify_signature, L1Signature,
+        verify_signature, L2Signature,
     };
 
     #[test]
@@ -420,7 +518,7 @@ mod test {
         let msg = "0x196cdf49e6d3f3614fdba8e3459fef498685b88627b80035c62beaa7ca056eea";
         let priv_key = "0x03f2d0a8ec58aac5ad28ac9bbc76a43c2f40c167885c9117b5863545dd2471f3";
         let s = l2_sign(msg, priv_key).unwrap();
-        let expected = L1Signature {
+        let expected = L2Signature {
             x: "0x062b74e4bde7c5655093bcfd717b2be2757fc7c85f2b5fdc0f43820df2ce510a".to_string(),
             y: "0x124c1159c6164b8f80348f23a39ff79af229ecb2f00e806e60798601607c4595".to_string(),
             s: "0x04f89ebc83800e89f19e3501562793e2d9097b921ee0759b5f37017b993238c4".to_string(),

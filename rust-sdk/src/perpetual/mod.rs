@@ -1,3 +1,4 @@
+/// This module provides the functions to sign and hash perpetual transactions
 use crate::hash_type::hash_type_to_string_with_0xprefix;
 use crate::perpetual::transaction::limit_order::LimitOrderRequest;
 use crate::perpetual::transaction::liquidate::Liquidate;
@@ -10,19 +11,77 @@ use crate::zkw::JubjubSignature;
 mod transaction;
 mod types;
 
+/// Sign a perpetual transfer transaction
+/// # Examples
+/// ```
+/// // this is a json of  perpetual transfer transaction
+/// use zkdex_sdk::{private_key_from_seed, sign_transfer};
+/// let json = r#"
+/// {
+///     "nonce": "0",
+///     "public_key": "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///     "expiration_timestamp": "0",
+///     "sender_position_id": "0",
+///     "receiver_public_key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+///     "receiver_position_id": "0",
+///     "amount": "0",
+///     "asset_id": "0xa"
+/// }
+/// "#;
+/// let pri_key = private_key_from_seed("welcome to sign a transfer transaction".as_bytes()).unwrap();
+/// let sig = sign_transfer(json, &pri_key);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign_transfer(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let req: Transfer = serde_json::from_str(json).unwrap();
     Ok(transfer::sign_transfer(req, private_key)?)
 }
 
+/// Hash a perpetual transfer transaction
+/// # Examples
+/// ```
+/// // this is a json of  perpetual transfer transaction
+/// use zkdex_sdk::{hash_transfer, private_key_from_seed, sign_transfer};
+/// let json = r#"
+/// {
+///     "nonce": "0",
+///     "public_key": "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///     "expiration_timestamp": "0",
+///     "sender_position_id": "0",
+///     "receiver_public_key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+///     "receiver_position_id": "0",
+///     "amount": "0",
+///     "asset_id": "0xa"
+/// }
+/// "#;
+/// let hash = hash_transfer(json);
+/// assert!(hash.is_ok());
+/// ```
 pub fn hash_transfer(json: &str) -> anyhow::Result<String> {
     let req: Transfer = serde_json::from_str(json).unwrap();
     Ok(hash_type_to_string_with_0xprefix(transfer_hash(&req, 0)))
 }
 
-/// Hash a perpetual limit order transaction
-/// json: the perpetual limit order transaction in json format
-/// return: the hash in hex format
+/// Sign a perpetual withdraw transaction
+/// # Examples
+/// ```
+/// // this is a json of  perpetual withdraw transaction
+/// use zkdex_sdk::{private_key_from_seed, sign_withdraw};
+/// let json = r#"
+///         {
+///         "nonce":"1",
+///         "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp":"1684832800",
+///         "position_id":"2",
+///         "amount":"3",
+///         "eth_address":"0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2",
+///         "asset_id":"0x1"
+///         }
+///         "#;
+/// let pri_key = private_key_from_seed("welcome to sign a withdraw transaction".as_bytes()).unwrap();
+/// let sig = sign_withdraw(json, &pri_key);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign_withdraw(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let withdraw_req: WithdrawRequest = serde_json::from_str(json)?;
     let withdraw = Withdraw {
@@ -38,9 +97,25 @@ pub fn sign_withdraw(json: &str, private_key: &str) -> anyhow::Result<JubjubSign
     )?)
 }
 
-/// Hash a perpetual limit order transaction
-/// json: the perpetual limit order transaction in json format
-/// return: the hash in hex format
+/// Hash a perpetual withdraw transaction
+/// # Examples
+/// ```
+/// // this is a json of  perpetual withdraw transaction
+/// use zkdex_sdk::{hash_withdraw, private_key_from_seed, sign_withdraw};
+/// let json = r#"
+///         {
+///         "nonce":"1",
+///         "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp":"1684832800",
+///         "position_id":"2",
+///         "amount":"3",
+///         "eth_address":"0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2",
+///         "asset_id":"0x1"
+///         }
+///         "#;
+/// let hash = hash_withdraw(json);
+/// assert!(hash.is_ok());
+/// ```
 pub fn hash_withdraw(json: &str) -> anyhow::Result<String> {
     let withdraw_req: WithdrawRequest = serde_json::from_str(json)?;
     let withdraw = Withdraw {
@@ -55,11 +130,53 @@ pub fn hash_withdraw(json: &str) -> anyhow::Result<String> {
     )))
 }
 
+/// Sign a perpetual limit order transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, sign_limit_order};
+/// // this is a json of  perpetual limit order transaction
+/// let json = r#"{
+///         "nonce":"1",
+///         "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp":"2",
+///         "amount_synthetic":"3",
+///         "amount_collateral":"4",
+///         "amount_fee":"5",
+///         "asset_id_synthetic":"0x6",
+///         "asset_id_collateral":"0x7",
+///         "position_id":"8",
+///         "is_buying_synthetic":false
+///         }"#;
+/// // derive a private key from a seed
+/// let pri_key = private_key_from_seed("welcome to sign a limit order transaction".as_bytes()).unwrap();
+/// let sig = sign_limit_order(json, &pri_key);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign_limit_order(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
     Ok(limit_order::sign_limit_order(req, private_key)?)
 }
 
+/// Hash a perpetual limit order transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{hash_limit_order, private_key_from_seed, sign_limit_order};
+/// // this is a json of  perpetual limit order transaction
+/// let json = r#"{
+///         "nonce":"1",
+///         "public_key":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp":"2",
+///         "amount_synthetic":"3",
+///         "amount_collateral":"4",
+///         "amount_fee":"5",
+///         "asset_id_synthetic":"0x6",
+///         "asset_id_collateral":"0x7",
+///         "position_id":"8",
+///         "is_buying_synthetic":false
+///         }"#;
+/// let hash = hash_limit_order(json);
+/// assert!(hash.is_ok());
+/// ```
 pub fn hash_limit_order(json: &str) -> anyhow::Result<String> {
     let req: LimitOrderRequest = serde_json::from_str(json)?;
     Ok(hash_type_to_string_with_0xprefix(
@@ -67,6 +184,34 @@ pub fn hash_limit_order(json: &str) -> anyhow::Result<String> {
     ))
 }
 
+/// Sign a perpetual liquidate transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, sign_liquidate};
+/// let json = r#"
+/// {
+///     "liquidator_order": {
+///         "nonce": "0",
+///        "public_key": "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp": "0",
+///         "amount_synthetic": "1",
+///         "amount_collateral": "2",
+///         "amount_fee": "3",
+///         "asset_id_synthetic": "0x4",
+///         "asset_id_collateral": "0x5",
+///         "position_id": "6",
+///         "is_buying_synthetic": false
+///     },
+///     "liquidated_position_id": "7",
+///     "actual_collateral": "8",
+///     "actual_synthetic": "9",
+///     "actual_liquidator_fee": "10"
+/// }
+/// "#;
+/// let pri_key = private_key_from_seed("welcome to sign a liquidate transaction".as_bytes()).unwrap();
+/// let sig = sign_liquidate(json, &pri_key);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign_liquidate(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let req: Liquidate = serde_json::from_str(json)?;
     Ok(limit_order::sign_limit_order(
@@ -75,6 +220,33 @@ pub fn sign_liquidate(json: &str, private_key: &str) -> anyhow::Result<JubjubSig
     )?)
 }
 
+/// Hash a perpetual liquidate transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{hash_liquidate, private_key_from_seed, sign_liquidate};
+/// let json = r#"
+/// {
+///     "liquidator_order": {
+///         "nonce": "0",
+///        "public_key": "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+///         "expiration_timestamp": "0",
+///         "amount_synthetic": "1",
+///         "amount_collateral": "2",
+///         "amount_fee": "3",
+///         "asset_id_synthetic": "0x4",
+///         "asset_id_collateral": "0x5",
+///         "position_id": "6",
+///         "is_buying_synthetic": false
+///     },
+///     "liquidated_position_id": "7",
+///     "actual_collateral": "8",
+///     "actual_synthetic": "9",
+///     "actual_liquidator_fee": "10"
+/// }
+/// "#;
+/// let hash = hash_liquidate(json);
+/// assert!(hash.is_ok());
+/// ```
 pub fn hash_liquidate(json: &str) -> anyhow::Result<String> {
     let req: Liquidate = serde_json::from_str(json)?;
     Ok(hash_type_to_string_with_0xprefix(
@@ -82,11 +254,42 @@ pub fn hash_liquidate(json: &str) -> anyhow::Result<String> {
     ))
 }
 
+/// Sign a perpetual oracle price transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{private_key_from_seed, sign_signed_oracle_price};
+/// let json = r#"
+/// {
+///         "signer_key": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+///         "external_price": "28409392522000000000000",
+///         "timestamp": "1693907824",
+///         "signed_asset_id": "0x425443555344434f4b580000000000005374437277"
+///         }
+/// "#;
+/// let pri_key = private_key_from_seed("welcome to sign a oracle price transaction".as_bytes()).unwrap();
+/// let sig = sign_signed_oracle_price(json, &pri_key);
+/// assert!(sig.is_ok());
+/// ```
 pub fn sign_signed_oracle_price(json: &str, private_key: &str) -> anyhow::Result<JubjubSignature> {
     let req: SignedOraclePrice = serde_json::from_str(json)?;
     Ok(oracle_price::sign_signed_oracle_price(req, private_key)?)
 }
 
+/// Hash a perpetual oracle price transaction
+/// # Examples
+/// ```
+/// use zkdex_sdk::{hash_signed_oracle_price, private_key_from_seed, sign_signed_oracle_price};
+/// let json = r#"
+/// {
+///         "signer_key": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+///         "external_price": "28409392522000000000000",
+///         "timestamp": "1693907824",
+///         "signed_asset_id": "0x425443555344434f4b580000000000005374437277"
+///         }
+/// "#;
+/// let hash = hash_signed_oracle_price(json);
+/// assert!(hash.is_ok());
+/// ```
 pub fn hash_signed_oracle_price(json: &str) -> anyhow::Result<String> {
     let req: SignedOraclePrice = serde_json::from_str(json)?;
     Ok(hash_type_to_string_with_0xprefix(signed_oracle_price_hash(
