@@ -18,8 +18,14 @@ pub struct SpotTrade {
 
 #[cfg(test)]
 mod tests {
+    use crate::helper::PRI_KEY;
     use crate::unified::transactions::spot_trade::SpotTrade;
     use crate::unified::transactions::test::sign_and_verify;
+    use crate::{
+        unified_hash_liquidate, unified_hash_spot_limit_order, unified_hash_spot_trade,
+        unified_sign_liquidate, unified_sign_perpetual_limit_order, unified_sign_spot_limit_order,
+        unified_sign_spot_trade,
+    };
 
     #[test]
     fn test_trade_serde() {

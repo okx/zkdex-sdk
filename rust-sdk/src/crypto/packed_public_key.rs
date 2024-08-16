@@ -191,12 +191,6 @@ impl From<(U256, U256)> for PackedPublicKey {
         PackedPublicKey(U256::from_little_endian(&packed_point))
     }
 }
-
-#[allow(dead_code)]
-pub fn private_key_to_string(pk: &PrivateKeyType) -> String {
-    pk.0.to_hex()
-}
-
 pub fn private_key_from_string(s: &str) -> Result<PrivateKeyType, anyhow::Error> {
     Ok(PrivateKey::<Bn256>(
         <Bn256 as JubjubEngine>::Fs::from_bytes(hex::decode(trim_0x(s))?.as_slice())?,
@@ -271,5 +265,97 @@ mod tests {
             rand::random::<u64>(),
             rand::random::<u64>(),
         ]))
+    }
+
+    #[test]
+    fn test_from_address() {
+        let pk =
+            PackedPublicKey::new_address_public_key("0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2");
+        assert!(pk.is_address());
+        let point: BabyJubjubPoint = pk.clone().into();
+        assert_eq!(
+            point,
+            BabyJubjubPoint {
+                x: Default::default(),
+                y: U256::from_str_radix("0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2", 16).unwrap(),
+            }
+        );
+    }
+
+    #[test]
+    fn test_from_point() {
+        let (x, y) = get_xy_from_r(
+            &U256::from_str_radix(
+                "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+                16,
+            )
+            .unwrap(),
+        );
+        let point = BabyJubjubPoint {
+            x: fr_to_u256(&x).unwrap(),
+            y: fr_to_u256(&y).unwrap(),
+        };
+        let _ = PackedPublicKey::from(point);
+    }
+
+    #[test]
+    fn test_into_u256() {
+        let pk = PackedPublicKey::new_address_public_key(
+            "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        );
+        let u256: U256 = pk.into();
+        assert_eq!(
+            u256,
+            U256::from_str_radix(
+                "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+                16
+            )
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn test_serialize_deserialize() {
+        #[derive(Serialize, Deserialize)]
+        struct PK {
+            pub pk: PackedPublicKey,
+        }
+        let json = r#"{"pk":"0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa"}"#;
+        let pk = PackedPublicKey::new_address_public_key(
+            "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        );
+        let pk2 = PK { pk: pk.clone() };
+        let ser_json = serde_json::to_string(&pk2).unwrap();
+        assert_eq!(json, ser_json);
+        let pk3 = serde_json::from_str::<PK>(json);
+        assert!(pk3.is_ok());
+        assert_eq!(pk, pk3.unwrap().pk);
+    }
+
+    #[test]
+    fn test_from_tuple_u256() {
+        let (x, y) = get_xy_from_r(
+            &U256::from_str_radix(
+                "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+                16,
+            )
+            .unwrap(),
+        );
+        let tuple = (fr_to_u256(&x).unwrap(), fr_to_u256(&y).unwrap());
+        let pk1 = PackedPublicKey::from(tuple);
+        let pk2 = PackedPublicKey::new_address_public_key(
+            "0x8f792ad4f9b161ad77e37423d3709e0fc3d694259f4ec84c354f532e58643faa",
+        );
+        assert_eq!(pk1, pk2);
+
+        // address
+        let tuple = (
+            U256::zero(),
+            U256::from_str_radix("0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2", 16).unwrap(),
+        );
+        let pk1 = PackedPublicKey::from(tuple);
+        let pk2 =
+            PackedPublicKey::new_address_public_key("0x505cec5b6c108dbf289c935802d6f8b53b5ae5b2");
+        assert_eq!(pk1, pk2);
     }
 }

@@ -186,4 +186,17 @@ mod tests {
         assert_eq!(base.signature.sig_r.x, base2.signature.sig_r.x);
         assert_eq!(base.signature.sig_r.y, base2.signature.sig_r.y);
     }
+
+    #[test]
+    fn test_deserialize() {
+        #[derive(Deserialize)]
+        struct Sig {
+            #[serde(rename = "signature", with = "SignatureSerde")]
+            pub signature: JubjubSignature,
+        }
+
+        let json = r#"{"signature":{"r":"0x2e39e39381ac5e962650072a8936b99716fc0b3fda124f59ef62066301fd0749","s":"0x37fd915bf958893ed35132a91b98fc4fcd7821c9fe784057bbc85d8fc5e7d4f"}}"#;
+        let sig = serde_json::from_str::<Sig>(json);
+        assert!(sig.is_ok());
+    }
 }

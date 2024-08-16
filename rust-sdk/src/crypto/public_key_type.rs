@@ -88,3 +88,39 @@ impl Ord for PublicKeyType {
         self.0.cmp(&other.0)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::crypto::public_key_type::PublicKeyType;
+    use primitive_types::U256;
+
+    #[test]
+    fn test_new() {
+        let pk = PublicKeyType::new(U256::zero());
+        assert_eq!(pk.0, U256::zero());
+        assert_eq!(pk.get_packed(), &U256::zero());
+        assert_eq!(pk.is_address(), false);
+        assert_eq!(pk.get_y(), U256::zero());
+    }
+
+    #[test]
+    fn test_serialize() {
+        let pk = PublicKeyType::zero();
+        let serialized = serde_json::to_string(&pk);
+        assert!(serialized.is_ok());
+    }
+
+    #[test]
+    fn test_into_u256() {
+        let pk = PublicKeyType::zero();
+        let u256: U256 = pk.into();
+        assert_eq!(u256, U256::zero());
+    }
+
+    #[test]
+    fn test_compare() {
+        let pk1 = PublicKeyType::zero();
+        let pk2 = PublicKeyType::new(U256::from(0));
+        assert_eq!(pk1, pk2);
+    }
+}

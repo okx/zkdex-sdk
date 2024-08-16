@@ -1,6 +1,4 @@
 use std::fmt::{Debug, Formatter};
-use std::thread::sleep;
-use std::time::Duration;
 
 use ef::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
@@ -9,12 +7,10 @@ use franklin_crypto::jubjub::FixedGenerators;
 use pairing_ce as ef;
 use pairing_ce::bn256::Bn256;
 use primitive_types::U256;
-use rand::{Rng, SeedableRng, XorShiftRng};
-use time::OffsetDateTime;
 
 use crate::crypto::convert::FeConvert;
 use crate::crypto::packed_public_key::{
-    fr_to_u256, public_key_from_private, public_key_from_private_with_verify, PackedPublicKey,
+    fr_to_u256, public_key_from_private_with_verify, PackedPublicKey,
 };
 use crate::crypto::packed_signature::{point_from_xy, PackedSignature};
 use crate::crypto::{le_to_u256, u256_to_h256, JUBJUB_PARAMS};
@@ -99,26 +95,6 @@ pub fn gen_test_pk() -> PrivateKey<Bn256> {
     PrivateKey::<Bn256>(Fs::from_bytes(&*hex::decode(&ss[2..]).unwrap()).unwrap())
 }
 
-#[allow(dead_code)]
-pub fn gen_random_key() -> PrivateKey<Bn256> {
-    sleep(Duration::from_millis(100));
-    let ts_nanos = OffsetDateTime::now_utc().unix_timestamp_nanos();
-    let mut rng = XorShiftRng::from_seed([
-        (ts_nanos as u32 & u32::MAX),
-        ((ts_nanos >> 32) as u32) & u32::MAX,
-        ((ts_nanos >> 64) as u32) & u32::MAX,
-        ((ts_nanos >> 96) as u32) & u32::MAX,
-    ]);
-    PrivateKey(rng.gen())
-}
-
-#[allow(dead_code)]
-pub fn gen_couple() -> (PrivateKey<Bn256>, PackedPublicKey) {
-    let key = gen_random_key();
-    let pubkey = public_key_from_private(&key);
-    (key, pubkey)
-}
-
 #[cfg(test)]
 mod tests {
     use crate::crypto;
@@ -143,5 +119,17 @@ mod tests {
         ));
         println!("{:#?}", a1);
         println!("{:#?}", a2);
+    }
+
+    #[test]
+    fn test_debug() {
+        let key = gen_test_pk();
+        let msg = [
+            57, 157, 225, 12, 118, 179, 210, 146, 126, 70, 97, 155, 39, 53, 69, 99, 133, 171, 101,
+            205, 154, 123, 60, 47, 41, 171, 133, 216, 161, 228, 205, 32,
+        ];
+        let sig = TxSignature::sign_msg(&key, msg.as_slice());
+        let str = format!("{:?}", sig.0);
+        assert!(str.starts_with("TxSignature"));
     }
 }
