@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+
+jobs:
+  create_release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - name: Install GitHub Changelog Generator
+        run: gem install github_changelog_generator
+      - name: Generate Change Log
+        run: github_changelog_generator --user okx --project zkdex-sdk --token ${{ secrets.GITHUB_TOKEN }} --output CHANGELOG.md
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: '${{ github.ref }}'
+          release_name: 'Release ${{ github.ref }}'
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  publish:
+    name: build and publish
+    needs:
+      - build-js-sdk
+      - publish-python
+      - build-java-sdk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+  publish-python:
+    needs:
+      - create_release
+    uses: ./.github/workflows/python-sdk.yml
+  build-js-sdk:
+    needs:
+      - create_release
+    uses: ./.github/workflows/js-sdk.yml
+    with:
+      upload_url: ${{ needs.create_release.outputs.upload_url }}
+  build-java-sdk:
+    needs:
+      - create_release
+    uses: ./.github/workflows/java-sdk.yml
+    with:
+      upload_url: ${{ needs.create_release.outputs.upload_url }}

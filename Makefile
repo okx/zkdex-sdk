@@ -30,3 +30,9 @@ linux_lib:
 win_lib:
 	cd rust-sdk && cargo build --features java --release
 	copy .\rust-sdk\target\release\zkdex_sdk.dll .\java-sdk\src\main\resources\com\okx\zkdex_sdk.dll
+update_version:
+	@if [ -z $(NEW_VERSION) ]; then echo "NEW_VERSION is empty"; exit 1; fi
+	cd java-sdk && mvn versions:set -DnewVersion=$(NEW_VERSION)
+	cd javascript-sdk && npm version $(NEW_VERSION)
+	cd rust-sdk && cargo set-version $(NEW_VERSION)
+	cd python-sdk && cargo set-version $(NEW_VERSION)
