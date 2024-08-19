@@ -1,8 +1,8 @@
+//! # The rust-sdk
+//! The rust-sdk crate provides a set of functions to interact with the ZKDex.
 #![feature(test)]
 extern crate test as other_test;
 
-/// # The rust-sdk
-/// The rust-sdk crate provides a set of functions to interact with the ZKDex.
 use std::convert::TryFrom;
 use std::str::FromStr;
 
