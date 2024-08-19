@@ -1,4 +1,5 @@
 #[cfg(feature = "js")]
+#[cfg(not(tarpaulin_include))]
 pub mod javascript_bridge {
     use crate::unified::{
         unified_hash_liquidate, unified_hash_oracle_price, unified_hash_perpetual_trade,
@@ -9,12 +10,8 @@ pub mod javascript_bridge {
     use crate::utils::set_panic_hook;
     use crate::zkw::JubjubSignature;
     use crate::{
-        hash_limit_order, hash_liquidate, hash_signed_oracle_price, hash_spot_limit_order,
-        hash_spot_transfer, hash_spot_withdrawal, hash_transfer, hash_withdraw, is_on_curve,
-        l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
-        sign_eth_address, sign_limit_order, sign_liquidate, sign_signed_oracle_price,
-        sign_spot_limit_order, sign_spot_transfer, sign_spot_withdrawal, sign_transfer,
-        sign_withdraw, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
+        is_on_curve, l2_sign, private_key_from_seed, private_key_to_pubkey_xy, pub_key_to_xy, sign,
+        sign_eth_address, unified_hash_perpetual_limit_order, unified_hash_spot_limit_order,
         unified_sign_perpetual_limit_order, unified_sign_spot_limit_order, verify_signature,
         JUBJUB_PARAMS, RESCUE_PARAMS,
     };
@@ -37,7 +34,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of transfer transaction.
     #[wasm_bindgen(js_name = sign_transfer, skip_jsdoc)]
     pub fn js_sign_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_transfer(json, private_key) {
+        match crate::perpetual::sign_transfer(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -48,7 +45,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of transfer transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_transfer, skip_jsdoc)]
     pub fn js_hash_transfer(json: &str) -> Result<String, JsValue> {
-        match hash_transfer(json) {
+        match crate::perpetual::hash_transfer(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -60,7 +57,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of withdraw transaction.
     #[wasm_bindgen(js_name = sign_withdraw, skip_jsdoc)]
     pub fn js_sign_withdraw(json: &str, private_key: &str) -> Result<String, JsValue> {
-        let withdraw = sign_withdraw(json, private_key);
+        let withdraw = crate::perpetual::sign_withdraw(json, private_key);
         match withdraw {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
@@ -72,7 +69,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of withdraw transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_withdraw, skip_jsdoc)]
     pub fn js_hash_withdraw(json: &str) -> Result<String, JsValue> {
-        match hash_withdraw(json) {
+        match crate::perpetual::hash_withdraw(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -84,7 +81,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of limit order transaction.
     #[wasm_bindgen(js_name = sign_limit_order, skip_jsdoc)]
     pub fn js_sign_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_limit_order(json, private_key) {
+        match crate::perpetual::sign_limit_order(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -95,7 +92,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of limit order transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_limit_order, skip_jsdoc)]
     pub fn js_hash_limit_order(json: &str) -> Result<String, JsValue> {
-        match hash_limit_order(json) {
+        match crate::perpetual::hash_limit_order(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -107,7 +104,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of liquidate transaction.
     #[wasm_bindgen(js_name = sign_liquidate, skip_jsdoc)]
     pub fn js_sign_liquidate(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_liquidate(json, private_key) {
+        match crate::perpetual::sign_liquidate(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -118,7 +115,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of liquidate transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_liquidate, skip_jsdoc)]
     pub fn js_hash_liquidate(json: &str) -> Result<String, JsValue> {
-        match hash_liquidate(json) {
+        match crate::perpetual::hash_liquidate(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -130,7 +127,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of liquidate transaction.
     #[wasm_bindgen(js_name = sign_signed_oracle_price, skip_jsdoc)]
     pub fn js_sign_signed_oracle_price(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_signed_oracle_price(json, private_key) {
+        match crate::perpetual::sign_signed_oracle_price(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -141,7 +138,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of signed oracle transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_signed_oracle_price, skip_jsdoc)]
     pub fn js_hash_signed_oracle_price(json: &str) -> Result<String, JsValue> {
-        match hash_signed_oracle_price(json) {
+        match crate::perpetual::hash_signed_oracle_price(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -192,13 +189,13 @@ pub mod javascript_bridge {
     /// @param {string} l2_private_key with 0x prefix.
     #[wasm_bindgen(js_name = sign_eth_address, skip_jsdoc)]
     pub fn js_sign_eth_address(
-        chain_id:&str,
+        chain_id: &str,
         contract_address: &str,
         address: &str,
         pubkey: &str,
         l2_private_key: &str,
     ) -> Result<String, JsValue> {
-        match sign_eth_address(chain_id,contract_address,address, pubkey, l2_private_key) {
+        match sign_eth_address(chain_id, contract_address, address, pubkey, l2_private_key) {
             Ok(ret) => Ok(ret),
 
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
@@ -282,7 +279,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of spot transfer transaction.
     #[wasm_bindgen(js_name = sign_spot_transfer, skip_jsdoc)]
     pub fn js_sign_spot_transfer(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_spot_transfer(json, private_key) {
+        match crate::spot::sign_spot_transfer(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -293,7 +290,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of spot transfer transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_spot_transfer, skip_jsdoc)]
     pub fn js_hash_spot_transfer(json: &str) -> Result<String, JsValue> {
-        match hash_spot_transfer(json) {
+        match crate::spot::hash_spot_transfer(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -305,7 +302,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of spot withdrawal transaction.
     #[wasm_bindgen(js_name = sign_spot_withdrawal, skip_jsdoc)]
     pub fn js_sign_spot_withdrawal(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_spot_withdrawal(json, private_key) {
+        match crate::spot::sign_spot_withdrawal(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -316,7 +313,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of spot withdrawal transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_spot_withdrawal, skip_jsdoc)]
     pub fn js_hash_spot_withdrawal(json: &str) -> Result<String, JsValue> {
-        match hash_spot_withdrawal(json) {
+        match crate::spot::hash_spot_withdrawal(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -328,7 +325,7 @@ pub mod javascript_bridge {
     /// @returns {string} json signature of spot LimitOrder transaction.
     #[wasm_bindgen(js_name = sign_spot_limit_order, skip_jsdoc)]
     pub fn js_sign_spot_limit_order(json: &str, private_key: &str) -> Result<String, JsValue> {
-        match sign_spot_limit_order(json, private_key) {
+        match crate::spot::sign_spot_limit_order(json, private_key) {
             Ok(ret) => Ok(serde_json::to_string(&ret).unwrap()),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }
@@ -339,7 +336,7 @@ pub mod javascript_bridge {
     /// @returns {string} string hash of spot LimitOrder transaction with 0x prefix.
     #[wasm_bindgen(js_name = hash_spot_limit_order, skip_jsdoc)]
     pub fn js_hash_spot_limit_order(json: &str) -> Result<String, JsValue> {
-        match hash_spot_limit_order(json) {
+        match crate::spot::hash_spot_limit_order(json) {
             Ok(ret) => Ok(ret),
             Err(e) => Err(JsValue::from_str(e.to_string().as_str())),
         }

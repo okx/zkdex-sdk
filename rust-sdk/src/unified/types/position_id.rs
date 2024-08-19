@@ -32,4 +32,18 @@ mod tests {
         let deserialized: PositionIdType = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, position_id);
     }
+
+    #[test]
+    fn test_position_id_to_u256() {
+        let position_id = PositionIdType(1);
+        let u256: U256 = position_id.into();
+        assert_eq!(u256, U256::from(1));
+    }
+
+    #[test]
+    fn test_position_id_to_u64() {
+        let position_id = PositionIdType(1);
+        let u256: u64 = position_id.into();
+        assert_eq!(u256, 1);
+    }
 }

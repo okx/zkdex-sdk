@@ -3,16 +3,16 @@ use std::ops::ShlAssign;
 
 use crate::common::OrderBase;
 use crate::constant::SPOT_TRANSFER_ORDER_TYPE;
+use crate::crypto::public_key_type::PublicKeyType;
 use crate::hash;
 use crate::hash::Hasher;
-use crate::tx::public_key_type::PublicKeyType;
 
+use crate::crypto::packed_public_key::private_key_from_string;
+use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::sign::TxSignature;
-use crate::types::amount::AmountType;
-use crate::types::asset_id::AssetIdType;
-use crate::types::position_id::PositionIdType;
+use crate::spot::types::amount::AmountType;
+use crate::spot::types::asset_id::AssetIdType;
+use crate::spot::types::position_id::PositionIdType;
 use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use {

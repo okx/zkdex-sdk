@@ -1,15 +1,15 @@
 use crate::common::OrderBase;
 use crate::constant::{SPOT_WITHDRAWAL, SPOT_WITHDRAWAL_TO_OWNER_KEY};
+use crate::crypto::packed_public_key::private_key_from_string;
+use crate::crypto::public_key_type::PublicKeyType;
+use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
 use crate::hash;
 use crate::hash::Hasher;
 use crate::serde_wrapper::u32_serde::U32SerdeAsString;
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::public_key_type::PublicKeyType;
-use crate::tx::sign::TxSignature;
-use crate::types::amount::AmountType;
-use crate::types::asset_id::AssetIdType;
-use crate::types::position_id::PositionIdType;
+use crate::spot::types::amount::AmountType;
+use crate::spot::types::asset_id::AssetIdType;
+use crate::spot::types::position_id::PositionIdType;
 use crate::types::HashType;
 use crate::zkw::JubjubSignature;
 use primitive_types::U256;
@@ -112,5 +112,28 @@ mod test {
             req.unwrap().hash().to_string()
                 == "119039369094889261403898889385918450319671151073804265247384487898016834057"
         )
+    }
+
+    #[test]
+    fn test_hash_with_same_key() {
+        let json_str = r##"
+        {
+        "nonce": "1",
+        "public_key": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "expiration_timestamp": "3608164305",
+        "amount": "1000000",
+        "asset_id": "0x00001",
+        "position_id": "1",
+        "eth_address": "0daed291535086c7569618ec99b090c220ac63add8ab019690c3ef3b40ca970a",
+        "chain_id": "1"
+        }
+        "##;
+        let req = serde_json::from_str::<Withdrawal>(json_str);
+        assert!(req.is_ok());
+        let hash = req.unwrap().hash();
+        assert!(
+            hash.to_string()
+                == "8658614085417103295905227690333364140535544447042910670177948658349707651534"
+        );
     }
 }

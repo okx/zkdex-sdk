@@ -1,6 +1,6 @@
 use crate::types::{
-    AmountType, AssetIdType, FundingRateType, NonceType, OraclePriceQuorumType, PositionIdType,
-    PriceType, ResolutionType, RiskFactorType, TimestampType,
+    FundingRateType, OraclePriceQuorumType, PositionIdType, ResolutionType, RiskFactorType,
+    TimestampType,
 };
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::{marker::PhantomData, num::ParseIntError};
@@ -11,10 +11,6 @@ pub type PositionIdTypeSerdeAsRadix10String = SerdeAsString<10, PositionIdType>;
 pub type OraclePriceQuorumTypeSerdeAsRadix16String = SerdeAsString<16, OraclePriceQuorumType>;
 pub type RiskFactorTypeSerdeAsRadix10String = SerdeAsString<10, RiskFactorType>;
 pub type TimestampTypeSerdeAsRadix10String = SerdeAsString<10, TimestampType>;
-pub type PriceTypeSerdeAsRadix10String = SerdeAsString<10, PriceType>;
-pub type AssetIdTypeSerdeAsRadix16String = SerdeAsString<16, AssetIdType>;
-pub type AmountTypeSerdeAsRadix10String = SerdeAsString<10, AmountType>;
-pub type NonceTypeSerdeAsRadix10String = SerdeAsString<10, NonceType>;
 
 pub type U64SerdeStr = SerdeAsString<10, u64>;
 pub struct SerdeAsString<const R: u32, T: SerdeRadix>(PhantomData<T>);

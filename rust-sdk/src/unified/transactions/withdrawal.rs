@@ -3,15 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::constant::{UNIFIED_WITHDRAWAL, UNIFIED_WITHDRAWAL_TO_OWNER_KEY};
+use crate::crypto::public_key_type::PublicKeyType;
 use crate::hash::new_hasher;
 use crate::hash::Hasher;
 use crate::serde_utils::serde_str;
-use crate::tx::public_key_type::PublicKeyType;
-use crate::types::AmountType;
 use crate::unified::transactions::hash_trait::HashTrait;
 use crate::unified::transactions::sign_trait::SignTrait;
 use crate::unified::types::chain_id::ChainIdType;
-use crate::unified::types::{AssetIdType, PositionIdType};
+use crate::unified::types::{AmountType, AssetIdType, PositionIdType};
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct Withdrawal {
@@ -96,6 +95,27 @@ mod tests {
         {
             "amount": "1682637359498011204",
             "eth_address": "0xB6aD5EfBd6aDfa29dEfad5BC0f8cE0ad57d4c5Fb",
+            "expiration_timestamp": "2101470722",
+            "asset_id": "0x11111",
+            "nonce": "4265854110",
+            "position_id": "775817640",
+            "fee":"0",
+            "public_key": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
+            "chain_id": "123"
+        }
+        "##;
+        let tx = serde_json::from_str::<Withdrawal>(js);
+        assert!(tx.is_ok());
+        let tx = tx.unwrap();
+        sign_and_verify(tx);
+    }
+
+    #[test]
+    fn test_sign_same_pub_key() {
+        let js = r##"
+        {
+            "amount": "1682637359498011204",
+            "eth_address": "0x0d4a693a09887aabea49f49a7a0968929f17b65134ab3b26201e49a43cbe7c2a",
             "expiration_timestamp": "2101470722",
             "asset_id": "0x11111",
             "nonce": "4265854110",

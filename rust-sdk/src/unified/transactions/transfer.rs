@@ -3,14 +3,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::OrderBase;
 use crate::constant::UNIFIED_TRANSFER_ORDER_TYPE;
+use crate::crypto::public_key_type::PublicKeyType;
 use crate::hash::new_hasher;
 use crate::hash::Hasher;
 use crate::serde_wrapper::{serde_utils::serde_str, TransferBaseSerde};
-use crate::tx::public_key_type::PublicKeyType;
-use crate::types::AmountType;
 use crate::unified::transactions::hash_trait::HashTrait;
 use crate::unified::transactions::sign_trait::SignTrait;
-use crate::unified::types::{AssetIdType, PositionIdType};
+use crate::unified::types::{AmountType, AssetIdType, PositionIdType};
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[repr(C)]

@@ -1,11 +1,11 @@
+use crate::unified::types::AmountType;
+
 #[derive(Debug, Default, Clone, PartialEq)]
 #[repr(C)]
 pub struct SignedAmountType {
     pub amount: AmountType,
     pub is_neg: bool,
 }
-
-use crate::types::AmountType;
 
 mod native_env {
     use super::*;

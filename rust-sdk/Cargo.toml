@@ -42,7 +42,6 @@ wee_alloc = { version = "0.4.2", optional = true }
 bitvec = "1.0.1"
 num-bigint = "0.4.0"
 pairing_ce="0.24.2"
-#executor={path="/Users/lvcong/rust/zkdex/core/lib/executor"}
 getrandom = {version="0.2",features=["js"]}
 num = { version = "0.4.0", features = ["serde"] }
 lazy_static = "1.2.0"

@@ -1,12 +1,12 @@
 use crate::common::OrderBase;
 use crate::constant::SPOT_SETTLEMENT_ORDER_TYPE;
+use crate::crypto::packed_public_key::private_key_from_string;
+use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
 use crate::hash::Hasher;
-use crate::tx::packed_public_key::private_key_from_string;
-use crate::tx::sign::TxSignature;
-use crate::types::amount::AmountType;
-use crate::types::asset_id::AssetIdType;
-use crate::types::position_id::PositionIdType;
+use crate::spot::types::amount::AmountType;
+use crate::spot::types::asset_id::AssetIdType;
+use crate::spot::types::position_id::PositionIdType;
 use crate::zkw::JubjubSignature;
 use crate::{hash, HashType};
 use primitive_types::U256;

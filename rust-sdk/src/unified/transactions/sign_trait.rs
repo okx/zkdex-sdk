@@ -1,6 +1,6 @@
+use crate::crypto::packed_public_key::PrivateKeyType;
+use crate::crypto::sign::TxSignature;
 use crate::felt::LeBytesConvert;
-use crate::tx::packed_public_key::PrivateKeyType;
-use crate::tx::sign::TxSignature;
 use crate::unified::transactions::hash_trait::HashTrait;
 
 pub trait SignTrait: HashTrait {

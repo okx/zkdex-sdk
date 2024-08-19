@@ -1,6 +1,6 @@
 use primitive_types::U256;
 
-use crate::tx::public_key_type::PublicKeyType;
+use crate::crypto::public_key_type::PublicKeyType;
 
 pub trait Hasher {
     fn update_single<T: ToHashable>(&mut self, _data: &T);
